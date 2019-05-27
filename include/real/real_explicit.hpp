@@ -6,6 +6,9 @@
 #include <initializer_list>
 #include <string>
 #include <regex>
+#include <limits>
+#include <algorithm>
+#include <utility>
 
 #include <real/real_exception.hpp>
 #include <real/real_helpers.hpp>
@@ -25,7 +28,7 @@ namespace boost {
             // Number representation as a vector of digits with an integer part and a sign (+/-)
             // TODO: Replace this by a boost::real::boundary type
             // TODO: Add normalizations to the constructors
-            std::vector<int> _digits = {};
+            std::vector<unsigned int> _digits = {};
             int _exponent = 1;
             bool _positive = true;
 
@@ -276,13 +279,32 @@ namespace boost {
                     return;
                 }
                 this->_exponent = exponent;
+                this->_maximum_precision = (int)this->_digits.size();
                 for (const auto& c : integer_part ) {
                     this->_digits.push_back(c - '0');
                 }
                 for (const auto& c : decimal_part ) {
                     this->_digits.push_back(c - '0');
                 }
-            }           
+                //changing base below
+
+                for (int i = 0; i<exponent; ++i) {
+                    this->_digits.push_back(0);
+                }
+
+                //unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                unsigned long long int base = 32;
+                std::vector<unsigned int> new_digits;
+                while (!this->_digits.empty()) {
+                    auto result = boost::real::helper::long_division(this->_digits, base);
+                    new_digits.push_back(result.second);
+                    this->_digits = result.first;
+                }
+                std::reverse (new_digits.begin(), new_digits.end());
+                this->_digits = new_digits;
+
+                //Find new exponent and shorten number if possible
+            };
 
             /**
              * @brief *Initializer list constructor with exponent:* Creates a boost::real::real_explicit
@@ -293,7 +315,7 @@ namespace boost {
              * @param digits - an initializer_list<int> that represents the number digits.
              * @param exponent - an integer representing the number exponent.
              */
-            real_explicit(std::initializer_list<int> digits, int exponent) :
+            real_explicit(std::initializer_list<unsigned int> digits, int exponent) :
                     _digits(digits),
                     _exponent(exponent),
                     _maximum_precision((int)this->_digits.size())
@@ -311,7 +333,7 @@ namespace boost {
              * @param positive - a bool that represents the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real_explicit(std::initializer_list<int> digits, int exponent, bool positive):
+            real_explicit(std::initializer_list<unsigned int> digits, int exponent, bool positive):
                     _digits(digits),
                     _exponent(exponent),
                     _positive(positive),
@@ -354,7 +376,7 @@ namespace boost {
             /**
              * @return a const reference to the vector holding the number digits
              */
-            const std::vector<int>& digits() const {
+            const std::vector<unsigned int>& digits() const {
                 return this->_digits;
             }
 

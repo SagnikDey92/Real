@@ -4,9 +4,9 @@
 
 TEST_CASE( "Addition between vectors", "[vector]" ) {
 
-    std::vector<int> a = {1,1,1};
-    std::vector<int> b = {1,1};
-    std::vector<int> c;
+    std::vector<unsigned int> a = {1,1,1};
+    std::vector<unsigned int> b = {1,1};
+    std::vector<unsigned int> c;
 
     REQUIRE( a.size() == 3 );
     REQUIRE( b.size() >= 2 );
@@ -20,17 +20,17 @@ TEST_CASE( "Addition between vectors", "[vector]" ) {
     }
 
     SECTION("moving right side operand exponent") {
-        std::vector< std::pair<int, std::vector<int> > > expected_results = {
-                std::make_pair(5, std::vector<int>({1,1,1,0,0,1,1})),
-                std::make_pair(4, std::vector<int>({1,1,1,0,1,1})),
-                std::make_pair(3, std::vector<int>({1,1,1,1,1})),
-                std::make_pair(2, std::vector<int>({1,1,2,1})),
-                std::make_pair(1, std::vector<int>({1,2,2})),
-                std::make_pair(0, std::vector<int>({2,2,1})),
-                std::make_pair(0, std::vector<int>({1,2,1,1})),
-                std::make_pair(0, std::vector<int>({1,1,1,1,1})),
-                std::make_pair(0, std::vector<int>({1,1,0,1,1,1})),
-                std::make_pair(0, std::vector<int>({1,1,0,0,1,1,1}))
+        std::vector< std::pair<int, std::vector<unsigned int> > > expected_results = {
+                std::make_pair(5, std::vector<unsigned int>({1,1,1,0,0,1,1})),
+                std::make_pair(4, std::vector<unsigned int>({1,1,1,0,1,1})),
+                std::make_pair(3, std::vector<unsigned int>({1,1,1,1,1})),
+                std::make_pair(2, std::vector<unsigned int>({1,1,2,1})),
+                std::make_pair(1, std::vector<unsigned int>({1,2,2})),
+                std::make_pair(0, std::vector<unsigned int>({2,2,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,2,1,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,1,1,1,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,1,0,1,1,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,1,0,0,1,1,1}))
         };
 
         for (int i = 0; i < (int)expected_results.size(); i++) {
@@ -44,17 +44,17 @@ TEST_CASE( "Addition between vectors", "[vector]" ) {
     }
 
     SECTION("moving left side operand exponent") {
-        std::vector< std::pair<int, std::vector<int> > > expected_results = {
-                std::make_pair(5, std::vector<int>({1,1,1,0,0,1,1})),
-                std::make_pair(4, std::vector<int>({1,1,1,0,1,1})),
-                std::make_pair(3, std::vector<int>({1,1,1,1,1})),
-                std::make_pair(2, std::vector<int>({1,1,2,1})),
-                std::make_pair(1, std::vector<int>({1,2,2})),
-                std::make_pair(0, std::vector<int>({2,2,1})),
-                std::make_pair(0, std::vector<int>({1,2,1,1})),
-                std::make_pair(0, std::vector<int>({1,1,1,1,1})),
-                std::make_pair(0, std::vector<int>({1,1,0,1,1,1})),
-                std::make_pair(0, std::vector<int>({1,1,0,0,1,1,1}))
+        std::vector< std::pair<int, std::vector<unsigned int> > > expected_results = {
+                std::make_pair(5, std::vector<unsigned int>({1,1,1,0,0,1,1})),
+                std::make_pair(4, std::vector<unsigned int>({1,1,1,0,1,1})),
+                std::make_pair(3, std::vector<unsigned int>({1,1,1,1,1})),
+                std::make_pair(2, std::vector<unsigned int>({1,1,2,1})),
+                std::make_pair(1, std::vector<unsigned int>({1,2,2})),
+                std::make_pair(0, std::vector<unsigned int>({2,2,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,2,1,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,1,1,1,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,1,0,1,1,1})),
+                std::make_pair(0, std::vector<unsigned int>({1,1,0,0,1,1,1}))
         };
 
         for (int i = 0; i < (int)expected_results.size(); i++) {

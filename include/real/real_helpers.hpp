@@ -2,6 +2,7 @@
 #define BOOST_REAL_REAL_HELPERS_HPP
 
 #include <list>
+#include <utility>
 
 #include <real/interval.hpp>
 #include <real/boundary.hpp>
@@ -19,22 +20,22 @@ namespace boost {
             /**
              * @author Laouen Mayal Louan Belloli
              *
-             * @brief Implement the addition between two std::vector<int> that represent numbers.
+             * @brief Implement the addition between two std::vector<unsigned int> that represent numbers.
              * The numbers in the vectors are the digits and each vector has a corresponding exponent
              * to correctly align the vectors for the addition.
              *
-             * @param lhs - a std::vector<int> representing the left operand.
+             * @param lhs - a std::vector<unsigned int> representing the left operand.
              * @param lhs_exponent - a int representing the exponent of the left operand.
-             * @param rhs - a std::vector<int> representing the right operand.
+             * @param rhs - a std::vector<unsigned int> representing the right operand.
              * @param rhs_exponent - a int representing the exponent of the right operand.
-             * @param result - a std::vector<int> that is used to store the result.
+             * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
-            int add_vectors(const std::vector<int> &lhs,
+            int add_vectors(const std::vector<unsigned int> &lhs,
                             int lhs_exponent,
-                            const std::vector<int> &rhs,
+                            const std::vector<unsigned int> &rhs,
                             int rhs_exponent,
-                            std::vector<int> &result) {
+                            std::vector<unsigned int> &result) {
                 int carry = 0;
 
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
@@ -76,24 +77,24 @@ namespace boost {
             /**
              * @author Laouen Mayal Louan Belloli
              *
-             * @brief Implement the subtraction between two std::vector<int> that represent numbers.
+             * @brief Implement the subtraction between two std::vector<unsigned int> that represent numbers.
              * The numbers in the vectors are the digit and each vector has a corresponding exponent
              * to correctly align the vectors for the addition.
              *
              * @pre lhs >= rhs.
              *
-             * @param lhs - a std::vector<int> representing the left operand.
+             * @param lhs - a std::vector<unsigned int> representing the left operand.
              * @param lhs_exponent - a int representing the exponent of the left operand.
-             * @param rhs - a std::vector<int> representing the right operand.
+             * @param rhs - a std::vector<unsigned int> representing the right operand.
              * @param rhs_exponent - a int representing the exponent of the right operand.
-             * @param result - a std::vector<int> that is used to store the result.
+             * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
-            int subtract_vectors(const std::vector<int> &lhs,
+            int subtract_vectors(const std::vector<unsigned int> &lhs,
                                  int lhs_exponent,
-                                 const std::vector<int> &rhs,
+                                 const std::vector<unsigned int> &rhs,
                                  int rhs_exponent,
-                                 std::vector<int> &result) {
+                                 std::vector<unsigned int> &result) {
 
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
@@ -133,23 +134,23 @@ namespace boost {
             /**
              * @author Laouen Mayal Louan Belloli
              *
-             * @brief Implement the multiplication between two std::vector<int> that represent numbers.
+             * @brief Implement the multiplication between two std::vector<unsigned int> that represent numbers.
              * The numbers in the vectors are the digit and each vector has a corresponding exponent
              * to correctly align the vectors for the addition.
              *
-             * @param lhs - a std::vector<int> representing the left operand.
+             * @param lhs - a std::vector<unsigned int> representing the left operand.
              * @param lhs_exponent - a int representing the exponent of the left operand.
-             * @param rhs - a std::vector<int> representing the right operand.
+             * @param rhs - a std::vector<unsigned int> representing the right operand.
              * @param rhs_exponent - a int representing the exponent of the right operand.
-             * @param result - a std::vector<int> that is used to store the result.
+             * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
             int multiply_vectors(
-                    const std::vector<int>& lhs,
+                    const std::vector<unsigned int>& lhs,
                     int lhs_exponent,
-                    const std::vector<int>& rhs,
+                    const std::vector<unsigned int>& rhs,
                     int rhs_exponent,
-                    std::vector<int>& result
+                    std::vector<unsigned int>& result
             ) {
 
                 // will keep the result number in vector in reverse order
@@ -206,6 +207,41 @@ namespace boost {
                 int result_exponent = (int)result.size() - fractional_part;
 
                 return result_exponent;
+            }
+
+            std::pair <std::vector<unsigned int>, unsigned int> long_division(std::vector<unsigned int> number, unsigned long long int divisor) { 
+                // As result can be very large store it in string 
+                std::vector<unsigned int> ans; 
+                int rem;
+                
+                // Find prefix of number that is larger 
+                // than divisor. 
+                int idx = 0; 
+                unsigned int temp = number[idx]; 
+                while (temp < divisor) 
+                {
+                    idx++;
+                    if(idx>=number.size())
+                        break;
+                    temp = temp*10 + (number[idx]); 
+                }
+                // Repeatedly divide divisor with temp. After  
+                // every division, update temp to include one  
+                // more digit. 
+
+                if (number.size() <= idx)
+                    rem = temp;
+
+                while (number.size() > idx) 
+                { 
+                    // Store result in answer i.e. temp / divisor 
+                    ans.push_back(temp / divisor); 
+                    
+                    // Take next digit of number 
+                    rem = temp%divisor;
+                    temp = (temp % divisor)*10 + number[++idx]; 
+                } 
+                return make_pair(ans, rem); 
             }
 
             /**

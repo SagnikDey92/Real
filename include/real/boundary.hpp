@@ -13,7 +13,7 @@ namespace boost {
          * @brief Explicitly represents a number as a vector of digits with a sign and an exponent
          */
         struct boundary {
-            std::vector<int> digits = {};
+            std::vector<unsigned int> digits = {};
             int exponent = 0;
             bool positive = true;
 
@@ -242,7 +242,7 @@ namespace boost {
              * @param n - an int number indicating the index of the requested digit.
              * @return an integer with the value of the number n-th digit.
              */
-            int &operator[](int n) {
+            unsigned int &operator[](int n) {
                 return this->digits[n];
             }
 

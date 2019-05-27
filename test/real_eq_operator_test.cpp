@@ -2,12 +2,15 @@
 #include <real/real.hpp>
 #include <test_helpers.hpp>
 
+#include <iostream>
+
 TEST_CASE("Operator ==") {
 
     SECTION("a == b") {
 
         SECTION("without precision exception") {
             SECTION("Explicit == Explicit") {
+                std::cout<<"Hello";
                 boost::real::real a("1.5");
                 boost::real::real b("1.5");
 

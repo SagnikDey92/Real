@@ -16,7 +16,7 @@ namespace boost {
              * @return The value of the champernowne number n-th digit (either 0 or 1)
              */
             int champernowne_binary_get_nth_digit(unsigned int n) {
-                std::vector<int> binary = {1};
+                std::vector<unsigned int> binary = {1};
                 unsigned int index = 0;
 
                 while (index < n) {
