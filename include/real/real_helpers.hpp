@@ -210,12 +210,8 @@ namespace boost {
             }
 
             std::pair <std::vector<unsigned int>, unsigned int> long_division(std::vector<unsigned int> number, unsigned long long int divisor) { 
-                // As result can be very large store it in string 
-                std::vector<unsigned int> ans; 
+                std::vector<unsigned int> quotient; 
                 int rem;
-                
-                // Find prefix of number that is larger 
-                // than divisor. 
                 int idx = 0; 
                 unsigned int temp = number[idx]; 
                 while (temp < divisor) 
@@ -225,23 +221,17 @@ namespace boost {
                         break;
                     temp = temp*10 + (number[idx]); 
                 }
-                // Repeatedly divide divisor with temp. After  
-                // every division, update temp to include one  
-                // more digit. 
 
                 if (number.size() <= idx)
                     rem = temp;
 
                 while (number.size() > idx) 
-                { 
-                    // Store result in answer i.e. temp / divisor 
-                    ans.push_back(temp / divisor); 
-                    
-                    // Take next digit of number 
+                {  
+                    quotient.push_back(temp / divisor); 
                     rem = temp%divisor;
                     temp = (temp % divisor)*10 + number[++idx]; 
                 } 
-                return make_pair(ans, rem); 
+                return make_pair(quotient, rem); 
             }
 
             /**

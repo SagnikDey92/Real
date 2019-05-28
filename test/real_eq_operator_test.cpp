@@ -12,7 +12,7 @@ TEST_CASE("Operator ==") {
             SECTION("Explicit == Explicit") {
                 boost::real::real a("1.5");
                 boost::real::real b("1.5");
-                boost::real::real c("84834194030592000");
+                boost::real::real c("253500");
 
                 std::cout<<c<<"\n\n\n";
                 CHECK(a == b);

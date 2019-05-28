@@ -93,7 +93,7 @@ namespace boost {
 
             //Internal representation base
             //unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
-            const static int base = 32;
+            const static int base = 8;
 
             /**
              * @author Laouen Mayal Louan Belloli

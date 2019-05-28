@@ -49,6 +49,9 @@ namespace boost {
                 // Iterator precision
                 int _n;
 
+                // Base
+                int base = 8;
+
                 // Internal number to iterate
                 real_explicit const* _real_ptr = nullptr;
 
@@ -95,7 +98,7 @@ namespace boost {
                     int first_digit = this->_real_ptr->_digits[0];
                     this->approximation_interval.lower_bound.digits.push_back(first_digit);
 
-                    if (first_digit == 9) {
+                    if (first_digit == base-1) {
                         this->approximation_interval.upper_bound.digits.push_back(1);
                         this->approximation_interval.upper_bound.exponent++;
                     } else if (this->_n < (int)this->_real_ptr->_digits.size()) {
@@ -159,7 +162,7 @@ namespace boost {
 
                         int carry = 1;
                         for (int i = (int)this->approximation_interval.lower_bound.size() - 1; i >= 0; --i) {
-                            if (this->approximation_interval.lower_bound[i] + carry == 10) {
+                            if (this->approximation_interval.lower_bound[i] + carry == base) {
                                 this->approximation_interval.upper_bound[i] = 0;
                             } else {
                                 this->approximation_interval.upper_bound[i] = this->approximation_interval.lower_bound[i] + carry;
@@ -287,11 +290,11 @@ namespace boost {
                     this->_digits.push_back(c - '0');
                 }
                 //changing base below
-
                 exponent = 0;
                 int base = 8;
+                int curr_size = this->_digits.size();
 
-                for (int i = 0; i<exponent; ++i) {
+                for (int i = 0; i<this->_exponent-curr_size; ++i) {
                     this->_digits.push_back(0);
                 }
 
@@ -312,6 +315,7 @@ namespace boost {
                     this->_digits = result.first;
                 }
                 std::reverse (new_digits.begin(), new_digits.end());
+                exponent += new_digits.size();
 
                 this->_digits = new_digits;
                 this->_exponent = exponent;
