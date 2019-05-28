@@ -10,10 +10,11 @@ TEST_CASE("Operator ==") {
 
         SECTION("without precision exception") {
             SECTION("Explicit == Explicit") {
-                std::cout<<"Hello";
                 boost::real::real a("1.5");
                 boost::real::real b("1.5");
+                boost::real::real c("84834194030592000");
 
+                std::cout<<c<<"\n\n\n";
                 CHECK(a == b);
             }
 

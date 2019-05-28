@@ -91,6 +91,10 @@ namespace boost {
              */
             static std::optional<unsigned int> maximum_precision;
 
+            //Internal representation base
+            //unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+            const static int base = 32;
+
             /**
              * @author Laouen Mayal Louan Belloli
              *

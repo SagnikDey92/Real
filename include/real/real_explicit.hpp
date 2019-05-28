@@ -288,12 +288,23 @@ namespace boost {
                 }
                 //changing base below
 
+                exponent = 0;
+                int base = 8;
+
                 for (int i = 0; i<exponent; ++i) {
                     this->_digits.push_back(0);
                 }
 
-                //unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
-                unsigned long long int base = 32;
+                while (this->_digits.size()>1) {
+                    auto result = boost::real::helper::long_division(this->_digits, base);
+                    if (result.second==0) {
+                        this->_digits = result.first;
+                        ++exponent; 
+                    }
+                    else
+                        break;
+                }
+
                 std::vector<unsigned int> new_digits;
                 while (!this->_digits.empty()) {
                     auto result = boost::real::helper::long_division(this->_digits, base);
@@ -301,9 +312,9 @@ namespace boost {
                     this->_digits = result.first;
                 }
                 std::reverse (new_digits.begin(), new_digits.end());
-                this->_digits = new_digits;
 
-                //Find new exponent and shorten number if possible
+                this->_digits = new_digits;
+                this->_exponent = exponent;
             };
 
             /**
