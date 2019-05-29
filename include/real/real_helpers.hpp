@@ -214,7 +214,7 @@ namespace boost {
                 std::vector<unsigned int> quotient; 
                 int rem;
                 int idx = 0; 
-                unsigned int temp = number[idx]; 
+                unsigned long long int temp = number[idx]; 
                 while (temp < divisor) 
                 {
                     idx++;
