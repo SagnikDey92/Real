@@ -37,7 +37,7 @@ namespace boost {
                             int rhs_exponent,
                             std::vector<unsigned int> &result) {
                 int carry = 0;
-
+                int base = 8;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
 
@@ -56,9 +56,9 @@ namespace boost {
 
                     int digit = carry + lhs_digit + rhs_digit;
 
-                    if (digit > 9) {
+                    if (digit > base-1) {
                         carry = 1;
-                        digit -= 10;
+                        digit -= base;
                     } else {
                         carry = 0;
                     }
@@ -98,7 +98,7 @@ namespace boost {
 
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
-
+                int base = 8;
                 int borrow = 0;
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
@@ -114,14 +114,14 @@ namespace boost {
                     }
 
                     if (lhs_digit < borrow) {
-                        lhs_digit += (10 - borrow);
+                        lhs_digit += (base - borrow);
                     } else {
                         lhs_digit -= borrow;
                         borrow = 0;
                     }
 
                     if (lhs_digit < rhs_digit) {
-                        lhs_digit += 10;
+                        lhs_digit += base;
                         borrow++;
                     }
 
@@ -153,6 +153,7 @@ namespace boost {
                     std::vector<unsigned int>& result
             ) {
 
+                int base = 8;
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
@@ -185,10 +186,10 @@ namespace boost {
                         int sum = lhs[i]*rhs[j] + result[i_n1 - i_n2] + carry;
 
                         // Carry for next iteration
-                        carry = sum / 10;
+                        carry = sum / base;
 
                         // Store result
-                        result[i_n1 - i_n2] = sum % 10;
+                        result[i_n1 - i_n2] = sum % base;
 
                         i_n2++;
                     }

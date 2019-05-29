@@ -86,6 +86,7 @@ namespace boost {
                  */
                 explicit const_precision_iterator(real_algorithm const* real_number) : _n(1), _real_ptr(real_number) {
 
+                    int base = 8;
                     this->approximation_interval.lower_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.upper_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.lower_bound.positive = this->_real_ptr->_positive;
@@ -94,7 +95,7 @@ namespace boost {
                     int first_digit = (*this->_real_ptr)[0];
                     this->approximation_interval.lower_bound.digits.push_back(first_digit);
 
-                    if (first_digit == 9) {
+                    if (first_digit == base - 1) {
                         this->approximation_interval.upper_bound.digits.push_back(1);
                         this->approximation_interval.upper_bound.exponent++;
                     } else {
@@ -126,12 +127,12 @@ namespace boost {
                     for (int i = 0; i < n; i++) {
                         this->approximation_interval.lower_bound.push_back((*this->_real_ptr)[this->_n + i]);
                     }
-
+                    int base = 8;
                     this->approximation_interval.upper_bound.clear();
                     this->approximation_interval.upper_bound.digits.resize(this->approximation_interval.lower_bound.size());
                     int carry = 1;
                     for (int i = (int)this->approximation_interval.lower_bound.size() - 1; i >= 0; --i) {
-                        if (this->approximation_interval.lower_bound[i] + carry == 10) {
+                        if (this->approximation_interval.lower_bound[i] + carry == base) {
                             this->approximation_interval.upper_bound[i] = 0;
                         } else {
                             this->approximation_interval.upper_bound[i] = this->approximation_interval.lower_bound[i] + carry;
