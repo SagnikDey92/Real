@@ -6,8 +6,8 @@
 #include <real/real_algorithm.hpp>
 #include <sstream>
 
-std::optional<unsigned int> boost::real::real::maximum_precision = 10;
-std::optional<unsigned int> boost::real::real_algorithm::maximum_precision = 10;
+template<> std::optional<unsigned int> boost::real::real<int>::maximum_precision = 10;
+template<> std::optional<unsigned int> boost::real::real_algorithm<int>::maximum_precision = 10;
 
 namespace Catch {
     template<>
@@ -21,8 +21,8 @@ namespace Catch {
 
 namespace Catch {
     template<>
-    struct StringMaker<boost::real::real> {
-        static std::string convert( boost::real::real const& value ) {
+    struct StringMaker<boost::real::real<int>> {
+        static std::string convert( boost::real::real<int> const& value ) {
             return value.cend().approximation_interval.as_string();
 
         }

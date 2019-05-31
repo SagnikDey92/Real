@@ -6,7 +6,7 @@
 
 TEST_CASE("Operator + boost::real::const_precision_iterator") {
 
-    std::map<std::string, boost::real::real> numbers;
+    std::map<std::string, boost::real::real<int>> numbers;
 
     // Explicit numbers
     numbers.emplace("E(+1.9)", "1.9");
@@ -15,10 +15,10 @@ TEST_CASE("Operator + boost::real::const_precision_iterator") {
     numbers.emplace("E(-1.1)", "-1.1");
 
     // Algorithmic numbers
-    numbers.emplace("A(+1.99..)", boost::real::real(one_and_nines, 1));
-    numbers.emplace("A(-1.99..)", boost::real::real(one_and_nines, 1, false));
-    numbers.emplace("A(+1.11..)", boost::real::real(ones, 1));
-    numbers.emplace("A(-1.11..)", boost::real::real(ones, 1, false));
+    numbers.emplace("A(+1.99..)", boost::real::real<int>(one_and_nines, 1));
+    numbers.emplace("A(-1.99..)", boost::real::real<int>(one_and_nines, 1, false));
+    numbers.emplace("A(+1.11..)", boost::real::real<int>(ones, 1));
+    numbers.emplace("A(-1.11..)", boost::real::real<int>(ones, 1, false));
 
     SECTION("sign +,+") {
         SECTION("Type: [Explicit, Algorithm] - overflow: [Yes, Yes]") {

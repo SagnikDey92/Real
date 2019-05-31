@@ -19,6 +19,7 @@ namespace boost {
          * digits on demand, numbers with infinite representations as the irrational numbers can be
          * represented using this class.
          */
+        template <typename T = int>
         class real_algorithm {
 
             // Number representation as a function that returns the number digits
@@ -237,9 +238,9 @@ namespace boost {
              * @return an integer with the maximum allowed precision.
              */
             unsigned int max_precision() const {
-                if(!boost::real::real_algorithm::maximum_precision)
+                if(!boost::real::real_algorithm<T>::maximum_precision)
                     throw boost::real::undefined_max_precision_exception();
-                return boost::real::real_algorithm::maximum_precision.value();
+                return boost::real::real_algorithm<T>::maximum_precision.value();
             }
 
             /**
@@ -289,7 +290,7 @@ namespace boost {
                 if(!boost::real::real_algorithm::maximum_precision)
                     throw boost::real::undefined_max_precision_exception();
                 const_precision_iterator it(this);
-                it.iterate_n_times(boost::real::real_algorithm::maximum_precision.value() - 1);
+                it.iterate_n_times(boost::real::real_algorithm<T>::maximum_precision.value() - 1);
                 return it;
             }
 
@@ -319,7 +320,8 @@ namespace boost {
  * @param r - the boost::real::real_algorithm number to print
  * @return a reference of the modified os object.
  */
-std::ostream& operator<<(std::ostream& os, const boost::real::real_algorithm& r) {
+template <typename T = int>
+std::ostream& operator<<(std::ostream& os, const boost::real::real_algorithm<T>& r) {
     auto it = r.cbegin();
     for (unsigned int i = 0; i <= r.max_precision(); i++) {
         ++it;

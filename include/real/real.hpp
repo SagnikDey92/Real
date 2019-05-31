@@ -52,6 +52,7 @@ namespace boost {
          * operator "==" but for those cases where the class is not able to decide the value of the
          * result before reaching the maximum precision, a precision_exception is thrown.
          */
+        template <typename T = int>
         class real {
 
             // Available operations
@@ -61,10 +62,10 @@ namespace boost {
             KIND _kind;
 
             // Explicit number
-            real_explicit _explicit_number;
+            real_explicit<T> _explicit_number;
 
             // Algorithmic number
-            real_algorithm _algorithmic_number;
+            real_algorithm<T> _algorithmic_number;
 
             // Composed number
             OPERATION _operation;
@@ -105,10 +106,10 @@ namespace boost {
                 real const* _real_ptr = nullptr;
 
                 // Explicit number iterator
-                boost::real::real_explicit::const_precision_iterator _explicit_it;
+                typename boost::real::real_explicit<T>::const_precision_iterator _explicit_it;
 
                 // Algorithmic number iterator
-                boost::real::real_algorithm::const_precision_iterator _algorithmic_it;
+                typename boost::real::real_algorithm<T>::const_precision_iterator _algorithmic_it;
 
                 // If the number is a composition, the const_precision_iterator uses the operand iterators
                 const_precision_iterator* _lhs_it_ptr = nullptr;
@@ -558,11 +559,10 @@ namespace boost {
              */
             unsigned int max_precision() const {
                 if (this->_maximum_precision == 0) {
-                    if(!boost::real::real::maximum_precision)
+                    if(!boost::real::real<T>::maximum_precision)
                         throw boost::real::undefined_max_precision_exception();
-                    return boost::real::real::maximum_precision.value();
+                    return boost::real::real<T>::maximum_precision.value();
                 }
-
                 return this->_maximum_precision;
             }
 
@@ -893,7 +893,8 @@ boost::real::real operator "" _r(const char* x, size_t len) {
  * @param r - the boost::real::real number to print
  * @return a reference of the modified os object.
  */
-std::ostream& operator<<(std::ostream& os, const boost::real::real& r) {
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const boost::real::real<T>& r) {
     os << r.cend().approximation_interval;
     return os;
 }

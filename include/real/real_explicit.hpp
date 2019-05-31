@@ -23,6 +23,7 @@ namespace boost {
          * @brief boost::real::real_explicit is a C++ class that fully represents real numbers as
          * a vector of digits, a sign and an exponent.
          */
+        template <typename T = int>
         class real_explicit {
 
             // Number representation as a vector of digits with an integer part and a sign (+/-)
@@ -453,7 +454,8 @@ namespace boost {
  * @param r - the boost::real::real_explicit number to print
  * @return a reference of the modified os object.
  */
-std::ostream& operator<<(std::ostream& os, const boost::real::real_explicit& r) {
+template <typename T = int>
+std::ostream& operator<<(std::ostream& os, const boost::real::real_explicit<T>& r) {
     auto it = r.cbegin();
     for (unsigned int i = 0; i <= r.max_precision(); i++) {
         ++it;
