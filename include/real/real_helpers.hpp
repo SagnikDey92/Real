@@ -37,24 +37,24 @@ namespace boost {
                             int rhs_exponent,
                             std::vector<unsigned int> &result) {
                 int carry = 0;
-                int base = 8;
+                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
 
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
 
-                    int lhs_digit = 0;
+                    unsigned int lhs_digit = 0;
                     if (0 <= lhs_exponent + i && lhs_exponent + i < (int)lhs.size()) {
                         lhs_digit = lhs[lhs_exponent + i];
                     }
 
-                    int rhs_digit = 0;
+                    unsigned int rhs_digit = 0;
                     if (0 <= rhs_exponent + i && rhs_exponent + i < (int)rhs.size()) {
                         rhs_digit = rhs[rhs_exponent + i];
                     }
 
-                    int digit = carry + lhs_digit + rhs_digit;
+                    unsigned long long int digit = carry + lhs_digit + rhs_digit;
 
                     if (digit > base-1) {
                         carry = 1;
@@ -98,17 +98,17 @@ namespace boost {
 
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
-                int base = 8;
+                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
                 int borrow = 0;
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
 
-                    int lhs_digit = 0;
+                    unsigned int lhs_digit = 0;
                     if (0 <= lhs_exponent + i && lhs_exponent + i < (int)lhs.size()) {
                         lhs_digit = lhs[lhs_exponent + i];
                     }
 
-                    int rhs_digit = 0;
+                    unsigned int rhs_digit = 0;
                     if (0 <= rhs_exponent + i && rhs_exponent + i < (int)rhs.size()) {
                         rhs_digit = rhs[rhs_exponent + i];
                     }
@@ -153,7 +153,7 @@ namespace boost {
                     std::vector<unsigned int>& result
             ) {
 
-                int base = 8;
+                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
@@ -183,7 +183,7 @@ namespace boost {
 
                         // Multiply current digit of second number with current digit of first number
                         // and add result to previously stored result at current position.
-                        int sum = lhs[i]*rhs[j] + result[i_n1 - i_n2] + carry;
+                        unsigned long long int sum = lhs[i]*rhs[j] + result[i_n1 - i_n2] + carry;
 
                         // Carry for next iteration
                         carry = sum / base;
