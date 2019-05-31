@@ -22,7 +22,8 @@ namespace boost {
              * @return a bool that is true if and only if, the number represented by lsh is lower than
              * the represented number by rhs.
              */
-            bool aligned_vectors_is_lower(const std::vector<unsigned int> &lhs, const std::vector<unsigned int> &rhs) {
+            template <typename T>
+            bool aligned_vectors_is_lower(const std::vector<T> &lhs, const std::vector<T> &rhs) {
 
                 // Check if lhs is lower than rhs
                 auto lhs_it = lhs.cbegin();

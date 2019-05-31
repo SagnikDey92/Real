@@ -36,7 +36,7 @@ TEST_CASE("Iterate boost::real_algorithm::const_precision_iterator until full pr
 
                 boost::real::real_algorithm a([](unsigned int n) -> int { return 3; }, 0);
                 boost::real::real_algorithm<int>::const_precision_iterator approximation_it = a.cbegin();
-                boost::real::interval expected_interval;
+                boost::real::interval<int> expected_interval;
                 expected_interval.lower_bound.exponent = a.exponent();
                 expected_interval.lower_bound.positive = a.positive();
                 expected_interval.upper_bound.exponent = a.exponent();
@@ -64,7 +64,7 @@ TEST_CASE("Iterate boost::real_algorithm::const_precision_iterator until full pr
                     }, 3);
             boost::real::real_algorithm<int>::const_precision_iterator approximation_it = a.cbegin();
 
-            boost::real::interval expected_interval;
+            boost::real::interval<int> expected_interval;
             expected_interval.lower_bound.exponent = a.exponent();
             expected_interval.lower_bound.positive = a.positive();
             expected_interval.upper_bound.exponent = a.exponent();
@@ -102,7 +102,7 @@ TEST_CASE("Iterate boost::real_algorithm::const_precision_iterator until full pr
 
             boost::real::real_algorithm a([](unsigned int n) -> int { return 3; }, 0, false);
             boost::real::real_algorithm<int>::const_precision_iterator approximation_it = a.cbegin();
-            boost::real::interval expected_interval;
+            boost::real::interval<int> expected_interval;
             expected_interval.lower_bound.exponent = a.exponent();
             expected_interval.lower_bound.positive = a.positive();
             expected_interval.upper_bound.exponent = a.exponent();
@@ -129,7 +129,7 @@ TEST_CASE("Iterate boost::real_algorithm::const_precision_iterator until full pr
                     }, 3, false);
             boost::real::real_algorithm<int>::const_precision_iterator approximation_it = a.cbegin();
 
-            boost::real::interval expected_interval;
+            boost::real::interval<int> expected_interval;
             expected_interval.lower_bound.exponent = a.exponent();
             expected_interval.lower_bound.positive = a.positive();
             expected_interval.upper_bound.exponent = a.exponent();

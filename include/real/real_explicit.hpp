@@ -29,7 +29,7 @@ namespace boost {
             // Number representation as a vector of digits with an integer part and a sign (+/-)
             // TODO: Replace this by a boost::real::boundary type
             // TODO: Add normalizations to the constructors
-            std::vector<unsigned int> _digits = {};
+            std::vector<T> _digits = {};
             int _exponent = 1;
             bool _positive = true;
 
@@ -65,7 +65,7 @@ namespace boost {
             public:
 
                 // Number approximation_interval boundaries
-                boost::real::interval approximation_interval;
+                boost::real::interval<T> approximation_interval;
 
                 /**
                  * @brief **Default constructor:** Constructs an empty
@@ -309,7 +309,7 @@ namespace boost {
                         break;
                 }
 
-                std::vector<unsigned int> new_digits;
+                std::vector<T> new_digits;
                 while (!this->_digits.empty()) {
                     auto result = boost::real::helper::long_division(this->_digits, base);
                     new_digits.push_back(result.second);
@@ -392,7 +392,7 @@ namespace boost {
             /**
              * @return a const reference to the vector holding the number digits
              */
-            const std::vector<unsigned int>& digits() const {
+            const std::vector<T>& digits() const {
                 return this->_digits;
             }
 

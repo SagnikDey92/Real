@@ -12,7 +12,7 @@ TEST_CASE("Create boost::real_explicit from strings") {
 
             std::string number_str = "";
             std::string zeros_str = "";
-            std::vector<unsigned int> expected_digits = {};
+            std::vector<int> expected_digits = {};
             bool positive = (sign != "-");
 
             SECTION("Test with positive integer numbers") {

@@ -11,7 +11,8 @@ namespace boost {
     namespace real {
         namespace helper {
 
-            boundary abs(const boundary& b) {
+            template <typename T>
+            boundary<T> abs(const boundary<T>& b) {
                 boundary result = b;
                 result.positive = true;
                 return result;
@@ -31,25 +32,26 @@ namespace boost {
              * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
-            int add_vectors(const std::vector<unsigned int> &lhs,
+            template <typename T>
+            int add_vectors(const std::vector<T> &lhs,
                             int lhs_exponent,
-                            const std::vector<unsigned int> &rhs,
+                            const std::vector<T> &rhs,
                             int rhs_exponent,
-                            std::vector<unsigned int> &result) {
+                            std::vector<T> &result) {
                 int carry = 0;
-                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
 
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
 
-                    unsigned int lhs_digit = 0;
+                    T lhs_digit = 0;
                     if (0 <= lhs_exponent + i && lhs_exponent + i < (int)lhs.size()) {
                         lhs_digit = lhs[lhs_exponent + i];
                     }
 
-                    unsigned int rhs_digit = 0;
+                    T rhs_digit = 0;
                     if (0 <= rhs_exponent + i && rhs_exponent + i < (int)rhs.size()) {
                         rhs_digit = rhs[rhs_exponent + i];
                     }
@@ -90,25 +92,26 @@ namespace boost {
              * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
-            int subtract_vectors(const std::vector<unsigned int> &lhs,
+            template <typename T>
+            int subtract_vectors(const std::vector<T> &lhs,
                                  int lhs_exponent,
-                                 const std::vector<unsigned int> &rhs,
+                                 const std::vector<T> &rhs,
                                  int rhs_exponent,
-                                 std::vector<unsigned int> &result) {
+                                 std::vector<T> &result) {
 
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
-                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
                 int borrow = 0;
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
 
-                    unsigned int lhs_digit = 0;
+                    T lhs_digit = 0;
                     if (0 <= lhs_exponent + i && lhs_exponent + i < (int)lhs.size()) {
                         lhs_digit = lhs[lhs_exponent + i];
                     }
 
-                    unsigned int rhs_digit = 0;
+                    T rhs_digit = 0;
                     if (0 <= rhs_exponent + i && rhs_exponent + i < (int)rhs.size()) {
                         rhs_digit = rhs[rhs_exponent + i];
                     }
@@ -145,15 +148,16 @@ namespace boost {
              * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
+            template <typename T>
             int multiply_vectors(
-                    const std::vector<unsigned int>& lhs,
+                    const std::vector<T>& lhs,
                     int lhs_exponent,
-                    const std::vector<unsigned int>& rhs,
+                    const std::vector<T>& rhs,
                     int rhs_exponent,
-                    std::vector<unsigned int>& result
+                    std::vector<T>& result
             ) {
 
-                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
@@ -210,8 +214,9 @@ namespace boost {
                 return result_exponent;
             }
 
-            std::pair <std::vector<unsigned int>, unsigned int> long_division(std::vector<unsigned int> number, unsigned long long int divisor) { 
-                std::vector<unsigned int> quotient; 
+            template <typename T>
+            std::pair <std::vector<T>, T> long_division(std::vector<T> number, unsigned long long int divisor) { 
+                std::vector<T> quotient; 
                 int rem;
                 int idx = 0; 
                 unsigned long long int temp = number[idx]; 
@@ -244,9 +249,11 @@ namespace boost {
              * @param rhs - a boost::real::boundary representing the right operand.
              * @param result - a boost::real::boundary to store the result.
              */
-            void add_boundaries(const boundary &lhs,
-                                const boundary &rhs,
-                                boundary &result) {
+
+            template <typename T>
+            void add_boundaries(const boundary<T> &lhs,
+                                const boundary<T> &rhs,
+                                boundary<T> &result) {
                 if (lhs.positive == rhs.positive) {
                     result.exponent = add_vectors(lhs.digits,
                                                   lhs.exponent,
@@ -282,9 +289,11 @@ namespace boost {
              * @param rhs - a boost::real::boundary representing the right operand.
              * @param result - a boost::real::boundary to store the result.
              */
-            void subtract_boundaries(const boundary &lhs,
-                                     const boundary &rhs,
-                                     boundary &result) {
+
+            template <typename T>
+            void subtract_boundaries(const boundary<T> &lhs,
+                                     const boundary<T> &rhs,
+                                     boundary<T> &result) {
                 if (lhs.positive != rhs.positive) {
                     result.exponent = add_vectors(lhs.digits,
                                                       lhs.exponent,
@@ -323,9 +332,11 @@ namespace boost {
              * @param rhs - a boost::real::boundary representing the right operand.
              * @param result - a boost::real::boundary to store the result.
              */
-            void multiply_boundaries(const boundary &lhs,
-                                     const boundary &rhs,
-                                     boundary &result) {
+            
+            template <typename T>
+            void multiply_boundaries(const boundary<T> &lhs,
+                                     const boundary<T> &rhs,
+                                     boundary<T> &result) {
 
                 result.positive = lhs.positive == rhs.positive;
                 result.exponent = multiply_vectors(lhs.digits,

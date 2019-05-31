@@ -60,7 +60,7 @@ namespace boost {
             public:
 
                 // Number approximation_interval boundaries
-                boost::real::interval approximation_interval;
+                boost::real::interval<T> approximation_interval;
 
                 /**
                  * @brief **Default constructor:** Constructs an empty

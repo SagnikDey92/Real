@@ -12,8 +12,9 @@ namespace boost {
          *
          * @brief Explicitly represents a number as a vector of digits with a sign and an exponent
          */
+        template <typename T>
         struct boundary {
-            std::vector<unsigned int> digits = {};
+            std::vector<T> digits = {};
             int exponent = 0;
             bool positive = true;
 
@@ -242,7 +243,7 @@ namespace boost {
              * @param n - an int number indicating the index of the requested digit.
              * @return an integer with the value of the number n-th digit.
              */
-            unsigned int &operator[](int n) {
+            T &operator[](int n) {
                 return this->digits[n];
             }
 

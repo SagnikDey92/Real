@@ -208,7 +208,7 @@ namespace boost {
 
                             } else { // One is around zero all possible combinations are be tested
 
-                                boundary current_boundary;
+                                boundary<T> current_boundary;
 
                                 // Lower * Lower
                                 boost::real::helper::multiply_boundaries(
@@ -276,7 +276,7 @@ namespace boost {
             public:
 
                 // Number approximation_interval boundaries
-                boost::real::interval approximation_interval;
+                boost::real::interval<T> approximation_interval;
 
                 /**
                  * @brief *Default constructor:*

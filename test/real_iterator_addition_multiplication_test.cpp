@@ -5,7 +5,7 @@
 #include <test_helpers.hpp>
 
 TEST_CASE("Operators + * boost::real::const_precision_iterator") {
-    boost::real::interval expected_interval({});
+    boost::real::interval<int> expected_interval({});
 
     SECTION("With carry") {
 

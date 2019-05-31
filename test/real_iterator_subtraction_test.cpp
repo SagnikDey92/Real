@@ -28,7 +28,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
 
             auto a_it = a.cbegin();
 
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
             expected_interval.lower_bound.positive = false;
             expected_interval.upper_bound.positive = true;
@@ -61,7 +61,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.1)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -103,7 +103,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.9)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -138,7 +138,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.9)"] - numbers["E(+1.9)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -170,7 +170,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
 
             auto a_it = a.cbegin();
 
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -201,7 +201,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.9)"] - numbers["E(+1.1)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -232,7 +232,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(+1.99..)"] - numbers["A(+1.99..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -267,7 +267,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(+1.11..)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -299,7 +299,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(+1.99..)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -337,7 +337,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["A(-1.99..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -371,7 +371,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.1)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -408,7 +408,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -443,7 +443,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["E(-1.9)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -475,7 +475,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.1)"] - numbers["E(-1.1)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -507,7 +507,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["E(-1.1)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -539,7 +539,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(-1.99..)"] - numbers["A(-1.99..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -571,7 +571,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(-1.11..)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -603,7 +603,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(-1.99..)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -640,7 +640,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["A(+1.99..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -670,7 +670,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.1)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -702,7 +702,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -734,7 +734,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["E(+1.9)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -762,7 +762,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.1)"] - numbers["E(+1.1)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -790,7 +790,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(-1.9)"] - numbers["E(+1.1)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -818,7 +818,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(-1.99..)"] - numbers["A(+1.99..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -847,7 +847,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(-1.11..)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -879,7 +879,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(-1.99..)"] - numbers["A(+1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = false;
@@ -914,7 +914,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.9)"] - numbers["A(-1.99..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -944,7 +944,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.1)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -976,7 +976,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.9)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -1008,7 +1008,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.9)"] - numbers["E(-1.9)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -1036,7 +1036,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.1)"] - numbers["E(-1.1)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -1064,7 +1064,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["E(+1.9)"] - numbers["E(-1.1)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -1092,7 +1092,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(+1.99..)"] - numbers["A(-1.99..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -1121,7 +1121,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(+1.11..)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
@@ -1153,7 +1153,7 @@ TEST_CASE("Operator - boost::real::const_precision_iterator") {
             boost::real::real a = numbers["A(+1.99..)"] - numbers["A(-1.11..)"];
 
             auto a_it = a.cbegin();
-            boost::real::interval expected_interval({});
+            boost::real::interval<int> expected_interval({});
 
 
             expected_interval.lower_bound.positive = true;
