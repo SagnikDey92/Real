@@ -51,7 +51,7 @@ namespace boost {
                 int _n;
 
                 // Base
-                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
 
                 // Internal number to iterate
                 real_explicit const* _real_ptr = nullptr;
@@ -292,7 +292,7 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
                 int curr_size = this->_digits.size();
 
                 for (int i = 0; i<this->_exponent-curr_size; ++i) {
@@ -331,7 +331,7 @@ namespace boost {
              * @param digits - an initializer_list<int> that represents the number digits.
              * @param exponent - an integer representing the number exponent.
              */
-            real_explicit(std::initializer_list<unsigned int> digits, int exponent) :
+            real_explicit(std::initializer_list<T> digits, int exponent) :
                     _digits(digits),
                     _exponent(exponent),
                     _maximum_precision((int)this->_digits.size())
@@ -349,7 +349,7 @@ namespace boost {
              * @param positive - a bool that represents the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real_explicit(std::initializer_list<unsigned int> digits, int exponent, bool positive):
+            real_explicit(std::initializer_list<T> digits, int exponent, bool positive):
                     _digits(digits),
                     _exponent(exponent),
                     _positive(positive),
@@ -428,7 +428,7 @@ namespace boost {
              * @param n - an unsigned int number indicating the index of the requested digit.
              * @return an integer with the value of the number n-th digit.
              */
-            int operator[](unsigned int n) const {
+            T operator[](unsigned int n) const {
                 if (n < this->_digits.size()) {
                     return this->_digits.at(n);
                 }

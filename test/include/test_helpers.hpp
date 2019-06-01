@@ -11,8 +11,8 @@ template<> std::optional<unsigned int> boost::real::real_algorithm<int>::maximum
 
 namespace Catch {
     template<>
-    struct StringMaker<boost::real::interval<int>> {
-        static std::string convert( boost::real::interval<int> const& value ) {
+    struct StringMaker<boost::real::interval<>> {
+        static std::string convert( boost::real::interval<> const& value ) {
             return value.as_string();
 
         }
@@ -21,8 +21,8 @@ namespace Catch {
 
 namespace Catch {
     template<>
-    struct StringMaker<boost::real::real<int>> {
-        static std::string convert( boost::real::real<int> const& value ) {
+    struct StringMaker<boost::real::real<>> {
+        static std::string convert( boost::real::real<> const& value ) {
             return value.cend().approximation_interval.as_string();
 
         }

@@ -24,7 +24,7 @@ namespace boost {
 
             // Number representation as a function that returns the number digits
             // an integer part and a sign (+/-)
-            int (*_get_nth_digit)(unsigned int);
+            T (*_get_nth_digit)(unsigned int);
             int _exponent;
             bool _positive;
 
@@ -87,7 +87,7 @@ namespace boost {
                  */
                 explicit const_precision_iterator(real_algorithm const* real_number) : _n(1), _real_ptr(real_number) {
 
-                    unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                    unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
                     this->approximation_interval.lower_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.upper_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.lower_bound.positive = this->_real_ptr->_positive;
@@ -128,7 +128,7 @@ namespace boost {
                     for (int i = 0; i < n; i++) {
                         this->approximation_interval.lower_bound.push_back((*this->_real_ptr)[this->_n + i]);
                     }
-                    unsigned long long int base = std::numeric_limits<unsigned int>::max() + 1LL;
+                    unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
                     this->approximation_interval.upper_bound.clear();
                     this->approximation_interval.upper_bound.digits.resize(this->approximation_interval.lower_bound.size());
                     int carry = 1;
@@ -208,7 +208,7 @@ namespace boost {
              * int "n" as parameter, returns the number n-th digit.
              * @param exponent - an integer representing the number exponent.
              */
-            explicit real_algorithm(int (*get_nth_digit)(unsigned int), int exponent)
+            explicit real_algorithm(T (*get_nth_digit)(unsigned int), int exponent)
                     : _get_nth_digit(get_nth_digit), _exponent(exponent), _positive(true) {}
 
             /**
@@ -224,7 +224,7 @@ namespace boost {
              * @param positive - a bool that represent the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            explicit real_algorithm(int (*get_nth_digit)(unsigned int),
+            explicit real_algorithm(T (*get_nth_digit)(unsigned int),
                                     int exponent,
                                     bool positive)
                     : _get_nth_digit(get_nth_digit),
@@ -300,7 +300,7 @@ namespace boost {
              * @param n - an unsigned int number indicating the index of the requested digit.
              * @return an integer with the value of the number n-th digit.
              */
-            int operator[](unsigned int n) const { return this->_get_nth_digit(n); }
+            T operator[](unsigned int n) const { return this->_get_nth_digit(n); }
 
             /**
              * @brief It assign a new copy of the other boost::real::real_algorithm number in the *this boost::real::real_algorithm number.

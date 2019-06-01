@@ -15,7 +15,7 @@ namespace boost {
          * @brief Represent an interval composed by two boundaries, a lower boundary and an upper boundary.
          * The boundaries are boost::real::boundary structs that represent fully represented numbers.
          */
-        template <typename T>
+        template <typename T = int>
         struct interval {
             boost::real::boundary<T> lower_bound;
             boost::real::boundary<T> upper_bound;
@@ -123,7 +123,7 @@ namespace boost {
     }
 }
 
-template <typename T>
+template <typename T = int>
 std::ostream& operator<<(std::ostream& os, const boost::real::interval<T>& interval) {
     return os << interval.as_string();
 }

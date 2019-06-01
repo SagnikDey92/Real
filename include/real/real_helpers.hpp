@@ -11,7 +11,7 @@ namespace boost {
     namespace real {
         namespace helper {
 
-            template <typename T>
+            template <typename T = int>
             boundary<T> abs(const boundary<T>& b) {
                 boundary result = b;
                 result.positive = true;
@@ -32,7 +32,7 @@ namespace boost {
              * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
-            template <typename T>
+            template <typename T = int>
             int add_vectors(const std::vector<T> &lhs,
                             int lhs_exponent,
                             const std::vector<T> &rhs,
@@ -92,7 +92,7 @@ namespace boost {
              * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
-            template <typename T>
+            template <typename T = int>
             int subtract_vectors(const std::vector<T> &lhs,
                                  int lhs_exponent,
                                  const std::vector<T> &rhs,
@@ -148,7 +148,7 @@ namespace boost {
              * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
-            template <typename T>
+            template <typename T = int>
             int multiply_vectors(
                     const std::vector<T>& lhs,
                     int lhs_exponent,
@@ -214,7 +214,7 @@ namespace boost {
                 return result_exponent;
             }
 
-            template <typename T>
+            template <typename T = int>
             std::pair <std::vector<T>, T> long_division(std::vector<T> number, unsigned long long int divisor) { 
                 std::vector<T> quotient; 
                 int rem;
@@ -250,7 +250,7 @@ namespace boost {
              * @param result - a boost::real::boundary to store the result.
              */
 
-            template <typename T>
+            template <typename T = int>
             void add_boundaries(const boundary<T> &lhs,
                                 const boundary<T> &rhs,
                                 boundary<T> &result) {
@@ -290,7 +290,7 @@ namespace boost {
              * @param result - a boost::real::boundary to store the result.
              */
 
-            template <typename T>
+            template <typename T = int>
             void subtract_boundaries(const boundary<T> &lhs,
                                      const boundary<T> &rhs,
                                      boundary<T> &result) {
@@ -333,7 +333,7 @@ namespace boost {
              * @param result - a boost::real::boundary to store the result.
              */
             
-            template <typename T>
+            template <typename T = int>
             void multiply_boundaries(const boundary<T> &lhs,
                                      const boundary<T> &rhs,
                                      boundary<T> &result) {

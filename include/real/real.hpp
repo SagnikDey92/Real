@@ -465,7 +465,7 @@ namespace boost {
              *
              * @param digits - a initializer_list<int> that represents the number digits.
              */
-            real(std::initializer_list<unsigned int> digits)
+            real(std::initializer_list<T> digits)
                     : _kind(KIND::EXPLICIT), _explicit_number(digits, digits.size()) {}
 
 
@@ -479,7 +479,7 @@ namespace boost {
              * @param positive - a bool that represents the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real(std::initializer_list<unsigned int> digits, bool positive)
+            real(std::initializer_list<T> digits, bool positive)
                     : _kind(KIND::EXPLICIT), _explicit_number(digits, digits.size(), positive) {}
 
             /**
@@ -491,7 +491,7 @@ namespace boost {
              * @param digits - an initializer_list<int> that represent the number digits.
              * @param exponent - an integer representing the number exponent.
              */
-            real(std::initializer_list<unsigned int> digits, int exponent)
+            real(std::initializer_list<T> digits, int exponent)
                     : _kind(KIND::EXPLICIT), _explicit_number(digits, exponent) {};
 
             /**
@@ -505,7 +505,7 @@ namespace boost {
              * @param positive - a bool that represent the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real(std::initializer_list<unsigned int> digits, int exponent, bool positive)
+            real(std::initializer_list<T> digits, int exponent, bool positive)
                     : _kind(KIND::EXPLICIT), _explicit_number(digits, exponent, positive) {};
 
             /**
@@ -518,7 +518,7 @@ namespace boost {
              * int "n" as parameter, it returns the number n-th digit.
              * @param exponent - an integer representing the number exponent.
              */
-            real(int (*get_nth_digit)(unsigned int), int exponent)
+            real(T (*get_nth_digit)(unsigned int), int exponent)
                     : _kind(KIND::ALGORITHM), _algorithmic_number(get_nth_digit, exponent) {}
 
             /**
@@ -534,7 +534,7 @@ namespace boost {
              * @param positive - a bool that represent the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real(int (*get_nth_digit)(unsigned int),
+            real(T (*get_nth_digit)(unsigned int),
                  int exponent,
                  bool positive)
                     : _kind(KIND::ALGORITHM),
@@ -613,8 +613,8 @@ namespace boost {
              *
              * @throws boost::real::invalid_representation_exception
              */
-            int operator[](unsigned int n) const {
-                int result;
+            T operator[](unsigned int n) const {
+                T result;
 
                 switch (this->_kind) {
 
@@ -642,7 +642,7 @@ namespace boost {
              * @param other - the right side operand boost::real::real number.
              * @return A reference to the new boost::real::real number representation.
              */
-            real& operator+=(const real& other) {
+            real<T>& operator+=(const real<T>& other) {
                 this->_lhs_ptr = new real(*this);
                 this->_rhs_ptr = new real(other);
                 this->_kind = KIND::OPERATION;
@@ -658,7 +658,7 @@ namespace boost {
              * @param other - the right side operand boost::real::real number.
              * @return A reference to the new boost::real::real number representation.
              */
-            real operator+(const real& other) const {
+            real<T> operator+(const real<T>& other) const {
                 real result = *this;
                 result += other;
                 return result;
@@ -672,7 +672,7 @@ namespace boost {
              * @param other - the right side operand boost::real::real number.
              * @return A reference to the new boost::real::real number representation.
              */
-            real& operator-=(const real& other) {
+            real<T>& operator-=(const real<T>& other) {
                 this->_lhs_ptr = new real(*this);
                 this->_rhs_ptr = new real(other);
                 this->_kind = KIND::OPERATION;
@@ -688,7 +688,7 @@ namespace boost {
              * @param other - the right side operand boost::real::real number.
              * @return A reference to the new boost::real::real number representation.
              */
-            real operator-(const real& other) const {
+            real<T> operator-(const real<T>& other) const {
                 real result = *this;
                 result -= other;
                 return result;
@@ -702,7 +702,7 @@ namespace boost {
              * @param other - the right side operand boost::real::real number.
              * @return A reference to the new boost::real::real number representation.
              */
-            real& operator*=(const real& other) {
+            real<T>& operator*=(const real<T>& other) {
                 this->_lhs_ptr = new real(*this);
                 this->_rhs_ptr = new real(other);
                 this->_kind = KIND::OPERATION;
@@ -718,7 +718,7 @@ namespace boost {
              * @param other - the right side operand boost::real::real number.
              * @return A reference to the new boost::real::real number representation.
              */
-            real operator*(const real& other) const {
+            real<T> operator*(const real<T>& other) const {
                 real result = *this;
                 result *= other;
                 return result;
@@ -730,7 +730,7 @@ namespace boost {
              * @param other - the boost::real::real number to copy.
              * @return a reference of *this with the new represented number.
              */
-            real& operator=(const real& other) {
+            real<T>& operator=(const real<T>& other) {
                 this->_kind = other._kind;
                 this->_explicit_number = other._explicit_number;
                 this->_operation = other._operation;
@@ -745,8 +745,8 @@ namespace boost {
              * @param number - a valid string representing a number.
              * @return a reference of *this with the new represented number.
              */
-            real& operator=(const std::string& number) {
-                *this = real(number);
+            real<T>& operator=(const std::string& number) {
+                *this = real<T>(number);
                 return *this;
             }
 
@@ -761,7 +761,7 @@ namespace boost {
              *
              * @throws boost::real::precision_exception
              */
-            bool operator<(const real& other) const {
+            bool operator<(const real<T>& other) const {
                 auto this_it = this->cbegin();
                 auto other_it = other.cbegin();
 
@@ -802,7 +802,7 @@ namespace boost {
              *
              * @throws boost::real::precision_exception
              */
-            bool operator>(const real& other) const {
+            bool operator>(const real<T>& other) const {
                 auto this_it = this->cbegin();
                 auto other_it = other.cbegin();
 
@@ -843,7 +843,7 @@ namespace boost {
              *
              * @throws boost::real::precision_exception
              */
-            bool operator==(const real& other) const {
+            bool operator==(const real<T>& other) const {
                 auto this_it = this->cbegin();
                 auto other_it = other.cbegin();
 

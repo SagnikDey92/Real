@@ -12,7 +12,7 @@ namespace boost {
          *
          * @brief Explicitly represents a number as a vector of digits with a sign and an exponent
          */
-        template <typename T>
+        template <typename T = int>
         struct boundary {
             std::vector<T> digits = {};
             int exponent = 0;

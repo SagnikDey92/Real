@@ -20,8 +20,8 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
                 SECTION("Testing for number " + number) {
 
                     boost::real::real_explicit a(number);
-                    boost::real::real_explicit<int>::const_precision_iterator approximation_it = a.cbegin();
-                    boost::real::interval<int> expected_interval;
+                    boost::real::real_explicit<>::const_precision_iterator approximation_it = a.cbegin();
+                    boost::real::interval<> expected_interval;
                     expected_interval.lower_bound.exponent = a.exponent();
                     expected_interval.lower_bound.positive = a.positive();
                     expected_interval.upper_bound.exponent = a.exponent();
@@ -49,9 +49,9 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
 
         SECTION("With carry in the upper boundary calculation") {
             boost::real::real_explicit a("1.99999998");
-            boost::real::real_explicit<int>::const_precision_iterator approximation_it = a.cbegin();
+            boost::real::real_explicit<>::const_precision_iterator approximation_it = a.cbegin();
 
-            boost::real::interval<int> expected_interval;
+            boost::real::interval<> expected_interval;
             expected_interval.lower_bound.exponent = a.exponent();
             expected_interval.lower_bound.positive = a.positive();
             expected_interval.upper_bound.exponent = a.exponent();
@@ -93,8 +93,8 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
                 SECTION("Testing for number " + number) {
 
                     boost::real::real_explicit a(number);
-                    boost::real::real_explicit<int>::const_precision_iterator approximation_it = a.cbegin();
-                    boost::real::interval<int> expected_interval;
+                    boost::real::real_explicit<>::const_precision_iterator approximation_it = a.cbegin();
+                    boost::real::interval<> expected_interval;
                     expected_interval.lower_bound.exponent = a.exponent();
                     expected_interval.lower_bound.positive = a.positive();
                     expected_interval.upper_bound.exponent = a.exponent();
@@ -124,9 +124,9 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
 
         SECTION("With carry in the upper boundary calculation") {
             boost::real::real_explicit a("-1.99999998");
-            boost::real::real_explicit<int>::const_precision_iterator approximation_it = a.cbegin();
+            boost::real::real_explicit<>::const_precision_iterator approximation_it = a.cbegin();
 
-            boost::real::interval<int> expected_interval;
+            boost::real::interval<> expected_interval;
             expected_interval.lower_bound.exponent = a.exponent();
             expected_interval.lower_bound.positive = a.positive();
             expected_interval.upper_bound.exponent = a.exponent();
@@ -155,8 +155,8 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
 TEST_CASE("Iterator cend") {
 
     boost::real::real_explicit a("-1.99999998");
-    boost::real::real_explicit<int>::const_precision_iterator approximation_it = a.cbegin();
-    boost::real::real_explicit<int>::const_precision_iterator end_it = a.cend();
+    boost::real::real_explicit<>::const_precision_iterator approximation_it = a.cbegin();
+    boost::real::real_explicit<>::const_precision_iterator end_it = a.cend();
 
     SECTION("Iterate until the full explicit number digit amount returns the end of the iterator") {
 
