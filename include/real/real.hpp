@@ -874,15 +874,15 @@ namespace boost {
     }
 }
 
-boost::real::real operator "" _r(long double x) {
+boost::real::real<> operator "" _r(long double x) {
     return boost::real::real(std::to_string(x));
 }
 
-boost::real::real operator "" _r(unsigned long long x) {
+boost::real::real<> operator "" _r(unsigned long long x) {
     return boost::real::real(std::to_string(x));
 }
 
-boost::real::real operator "" _r(const char* x, size_t len) {
+boost::real::real<> operator "" _r(const char* x, size_t len) {
     return boost::real::real(x);
 }
 

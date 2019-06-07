@@ -87,7 +87,7 @@ namespace boost {
                  */
                 explicit const_precision_iterator(real_algorithm const* real_number) : _n(1), _real_ptr(real_number) {
 
-                    unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
+                    unsigned long long int base = 12345;
                     this->approximation_interval.lower_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.upper_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.lower_bound.positive = this->_real_ptr->_positive;
@@ -128,7 +128,7 @@ namespace boost {
                     for (int i = 0; i < n; i++) {
                         this->approximation_interval.lower_bound.push_back((*this->_real_ptr)[this->_n + i]);
                     }
-                    unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
+                    unsigned long long int base = 12345;
                     this->approximation_interval.upper_bound.clear();
                     this->approximation_interval.upper_bound.digits.resize(this->approximation_interval.lower_bound.size());
                     int carry = 1;
@@ -287,7 +287,7 @@ namespace boost {
              * @return a boost::real::real_algorithm::const_precision_iterator of the number.
              */
             const_precision_iterator cend() const {
-                if(!boost::real::real_algorithm::maximum_precision)
+                if(!boost::real::real_algorithm<T>::maximum_precision)
                     throw boost::real::undefined_max_precision_exception();
                 const_precision_iterator it(this);
                 it.iterate_n_times(boost::real::real_algorithm<T>::maximum_precision.value() - 1);

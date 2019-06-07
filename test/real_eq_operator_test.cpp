@@ -168,14 +168,14 @@ TEST_CASE("Operator ==") {
                 boost::real::real a("111");
                 boost::real::real b(one_one_one, 1);
 
-                CHECK_THROWS_AS(a == b, boost::real::precision_exception);
+                CHECK(a == b);
             }
             */
             SECTION("Explicit == Explicit") {
                 boost::real::real a("1555555555555555555");
                 boost::real::real b("1555555555555555555");
 
-                CHECK_THROWS_AS(a == b, boost::real::precision_exception);
+                CHECK(a == b);
             }
 
             SECTION("Explicit == Addition") {
@@ -184,7 +184,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c("11111111111110000000000");
                 boost::real::real d = b + c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Explicit == Subtraction") {
@@ -193,7 +193,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c("1");
                 boost::real::real d = b - c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Explicit == multiplication") {
@@ -202,7 +202,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c("2");
                 boost::real::real d = b * c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Addition == Explicit") {
@@ -211,7 +211,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a + b;
                 boost::real::real d("22222222222222");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Addition == Addition") {
@@ -220,7 +220,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a + b;
                 boost::real::real d = a + b;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Addition == Subtraction") {
@@ -231,7 +231,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real e("00000000000001");
                 boost::real::real f = d - e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("Addition == multiplication") {
@@ -241,7 +241,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real d("2");
                 boost::real::real e = a * d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("Subtraction == Explicit") {
@@ -250,7 +250,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a - b;
                 boost::real::real d("11111111111111");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Subtraction == Addition") {
@@ -260,7 +260,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real d("-00000000000001");
                 boost::real::real e = a + d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("Subtraction == Subtraction") {
@@ -269,7 +269,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a - b;
                 boost::real::real d = a - b;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Subtraction == multiplication") {
@@ -280,7 +280,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real e("1");
                 boost::real::real f = d * e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("multiplication == Explicit") {
@@ -289,7 +289,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a * b;
                 boost::real::real d("22222222222222");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("multiplication == Addition") {
@@ -298,7 +298,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a * b;
                 boost::real::real d = a + a;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("multiplication == Subtraction") {
@@ -309,7 +309,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real e("00000000000001");
                 boost::real::real f = d - e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("multiplication == multiplication") {
@@ -318,7 +318,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a * b;
                 boost::real::real d = a * b;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
         }
     }
@@ -485,43 +485,46 @@ TEST_CASE("Operator ==") {
                 boost::real::real a("1555555555555555550");
                 boost::real::real b("1555555555555555555");
 
-                CHECK_THROWS_AS(a == b, boost::real::precision_exception);
+                CHECK_FALSE(a == b);
             }
 
             SECTION("Explicit == Addition") {
-                boost::real::real a("22222222222200000000000");
-                boost::real::real b("11111111111110000000000");
-                boost::real::real c("11111111111110000000000");
-                boost::real::real d = b + c;
+                boost::real::real a("43567453452342365868");
+                boost::real::real b("9347507114507409570");
+                //407247081106740667736968840309864556760
+                boost::real::real c("63495863466936834975983475945345922");
+                boost::real::real d("407183585243273730901992856833919210838");
+                boost::real::real e = a * b;
+                boost::real::real f = c + d;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(e == f);
             }
 
             SECTION("Explicit == Subtraction") {
                 boost::real::real a("22222222222222222222");
                 boost::real::real b("22222222222222222224");
-                boost::real::real c("1");
+                boost::real::real c("2");
                 boost::real::real d = b - c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Explicit == multiplication") {
-                boost::real::real a("22222222222210000000000");
+                boost::real::real a("22222222222220000000000");
                 boost::real::real b("11111111111110000000000");
                 boost::real::real c("2");
                 boost::real::real d = b * c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Addition == Explicit") {
-                boost::real::real a("11111111111110");
+                boost::real::real a("11111111111111");
                 boost::real::real b("11111111111111");
                 boost::real::real c = a + b;
                 boost::real::real d("22222222222222");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Addition == Addition") {
@@ -530,7 +533,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a + b;
                 boost::real::real d = a + b;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Addition == Subtraction") {
@@ -538,29 +541,29 @@ TEST_CASE("Operator ==") {
                 boost::real::real b("11111111111111");
                 boost::real::real c = a + b;
                 boost::real::real d("22222222222223");
-                boost::real::real e("00000000000001");
+                boost::real::real e("00000000000002");
                 boost::real::real f = d - e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("Addition == multiplication") {
-                boost::real::real a("11111111111110");
+                boost::real::real a("11111111111111");
                 boost::real::real b("11111111111111");
                 boost::real::real c = a + b;
                 boost::real::real d("2");
                 boost::real::real e = a * d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("Subtraction == Explicit") {
                 boost::real::real a("11111111111111");
                 boost::real::real b("00000000000001");
                 boost::real::real c = a - b;
-                boost::real::real d("11111111111111");
+                boost::real::real d("11111111111110");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Subtraction == Addition") {
@@ -570,7 +573,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real d("-00000000000001");
                 boost::real::real e = a + d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("Subtraction == Subtraction") {
@@ -579,27 +582,27 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a - b;
                 boost::real::real d = a - b;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Subtraction == multiplication") {
                 boost::real::real a("11111111111111");
                 boost::real::real b("00000000000001");
                 boost::real::real c = a + b;
-                boost::real::real d("11111111111111");
+                boost::real::real d("11111111111112");
                 boost::real::real e("1");
                 boost::real::real f = d * e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("multiplication == Explicit") {
                 boost::real::real a("1111111111111");
                 boost::real::real b("2");
                 boost::real::real c = a * b;
-                boost::real::real d("2222222222221");
+                boost::real::real d("2222222222222");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("multiplication == Addition") {
@@ -608,7 +611,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a * b;
                 boost::real::real d = a + a;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("multiplication == Subtraction") {
@@ -619,7 +622,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real e("0000000000001");
                 boost::real::real f = d - e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("multiplication == multiplication") {
@@ -628,7 +631,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a * b;
                 boost::real::real d = a * b;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
         }
 
@@ -794,34 +797,34 @@ TEST_CASE("Operator ==") {
                 boost::real::real a("15555555555555555");
                 boost::real::real b("15555555555555555");
 
-                CHECK_THROWS_AS(a == b, boost::real::precision_exception);
+                CHECK(a == b);
             }
 
             SECTION("Explicit == Addition") {
-                boost::real::real a("22222222222222220000000");
+                boost::real::real a("22222222222220000000000");
                 boost::real::real b("11111111111110000000000");
                 boost::real::real c("11111111111110000000000");
                 boost::real::real d = b + c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Explicit == Subtraction") {
-                boost::real::real a("22222222222222222222");
+                boost::real::real a("22222222222222222221");
                 boost::real::real b("22222222222222222222");
                 boost::real::real c("1");
                 boost::real::real d = b - c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Explicit == multiplication") {
-                boost::real::real a("22222222222222220000000");
-                boost::real::real b("11111111111110000000000");
+                boost::real::real a("22222222222220000000");
+                boost::real::real b("11111111111110000000");
                 boost::real::real c("2");
                 boost::real::real d = b * c;
 
-                CHECK_THROWS_AS(a == d, boost::real::precision_exception);
+                CHECK(a == d);
             }
 
             SECTION("Addition == Explicit") {
@@ -830,7 +833,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a + b;
                 boost::real::real d("22222222222222");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Addition == Addition") {
@@ -839,7 +842,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a + a;
                 boost::real::real d = b + b;
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Addition == Subtraction") {
@@ -847,10 +850,10 @@ TEST_CASE("Operator ==") {
                 boost::real::real b("11111111111122");
                 boost::real::real c = a + b;
                 boost::real::real d("22222222222223");
-                boost::real::real e("00000000000001");
+                boost::real::real e("-00000000000010");
                 boost::real::real f = d - e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("Addition == multiplication") {
@@ -860,7 +863,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real d("2");
                 boost::real::real e = a * d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("Subtraction == Explicit") {
@@ -869,27 +872,27 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a - b;
                 boost::real::real d("11111111111111");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("Subtraction == Addition") {
                 boost::real::real a("11111111111115");
                 boost::real::real b("00000000000001");
                 boost::real::real c = a - b;
-                boost::real::real d("-00000000000003");
+                boost::real::real d("-00000000000001");
                 boost::real::real e = a + d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("Subtraction == Subtraction") {
                 boost::real::real a("11111111111114");
                 boost::real::real b("00000000000001");
                 boost::real::real c = a - b;
-                boost::real::real d("00000000000003");
-                boost::real::real e = a - d;
+                boost::real::real d("-00000000000001");
+                boost::real::real e = a + d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("Subtraction == multiplication") {
@@ -900,26 +903,26 @@ TEST_CASE("Operator ==") {
                 boost::real::real e("1");
                 boost::real::real f = d * e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("multiplication == Explicit") {
-                boost::real::real a("11111111111112");
+                boost::real::real a("11111111111111");
                 boost::real::real b("2");
                 boost::real::real c = a * b;
                 boost::real::real d("22222222222222");
 
-                CHECK_THROWS_AS(c == d, boost::real::precision_exception);
+                CHECK(c == d);
             }
 
             SECTION("multiplication == Addition") {
                 boost::real::real a("11111111111111");
                 boost::real::real b("2");
                 boost::real::real c = a * b;
-                boost::real::real d("11111111111100");
+                boost::real::real d("11111111111111");
                 boost::real::real e = a + d;
 
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
+                CHECK(c == e);
             }
 
             SECTION("multiplication == Subtraction") {
@@ -928,9 +931,9 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a * b;
                 boost::real::real d("22222222222221");
                 boost::real::real e("00000000000001");
-                boost::real::real f = d - e;
+                boost::real::real f = d + e;
 
-                CHECK_THROWS_AS(c == f, boost::real::precision_exception);
+                CHECK(c == f);
             }
 
             SECTION("multiplication == multiplication") {
@@ -939,72 +942,7 @@ TEST_CASE("Operator ==") {
                 boost::real::real c = a * b;
                 boost::real::real d("11111111111111");
                 boost::real::real e = d * b;
-                CHECK_THROWS_AS(c == e, boost::real::precision_exception);
-            }
-        }
-    }
-
-    SECTION("Testing UDL") {
-        SECTION("explicit == explicit") {
-            SECTION("integer == integer") {
-                auto a = 123_r;
-                auto b = 123_r;
-
-                CHECK(a == b);
-            }
-
-            SECTION("integer == double") {
-                auto a = 123_r;
-                auto b = 123.00_r;
-
-                CHECK(a == b);
-            }
-
-            SECTION("double == double") {
-                auto a = 123.45_r;
-                auto b = 123.45_r;
-
-                CHECK(a == b);
-            }
-
-            SECTION("double == double") {
-                auto a = 123.22_r;
-                auto b = 123.2200_r;
-
-                CHECK(a == b);
-            }
-            SECTION("string == integer") {
-                auto a = "123"_r;
-                auto b = 123_r;
-
-                CHECK(a == b);
-            }
-            SECTION("string == string") {
-                auto a = "123"_r;
-                auto b = "123"_r;
-
-                CHECK(a == b);
-            }
-            SECTION("string with exponent == double") {
-                auto a = "123.456e-1"_r;
-                auto b = 12.3456_r;
-
-                CHECK(a == b);
-            }
-            SECTION("trailing zeroes == without trailing zeroes") {
-
-                SECTION("Without exponent") {
-                    auto a = "12300.00"_r;
-                    auto b = 12300_r;
-
-                    CHECK(a == b);
-                }
-                SECTION("With exponent") {
-                    auto a = "1230000.00e-2"_r;
-                    auto b = 12300_r;
-
-                    CHECK(a == b);
-                }
+                CHECK(c == e);
             }
         }
     }

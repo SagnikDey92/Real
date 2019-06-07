@@ -51,7 +51,7 @@ namespace boost {
                 int _n;
 
                 // Base
-                unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
+                unsigned long long int base = 12345;
 
                 // Internal number to iterate
                 real_explicit const* _real_ptr = nullptr;
@@ -292,7 +292,7 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                unsigned long long int base = std::numeric_limits<T>::max() + 1LL;
+                unsigned long long int base = 12345;
                 int curr_size = this->_digits.size();
 
                 for (int i = 0; i<this->_exponent-curr_size; ++i) {

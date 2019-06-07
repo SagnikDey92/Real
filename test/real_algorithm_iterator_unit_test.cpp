@@ -8,11 +8,11 @@
 TEST_CASE("Check whether max precision for real::algorithm and real is declared") {
 
     SECTION("Checking if real precision is declared") {
-        REQUIRE(boost::real::real::maximum_precision);
+        REQUIRE(boost::real::real<>::maximum_precision);
     }
 
     SECTION("Checking if real::algorithm precision is declared") {
-        REQUIRE(boost::real::real_algorithm::maximum_precision);
+        REQUIRE(boost::real::real_algorithm<>::maximum_precision);
     }
     
 }
@@ -20,12 +20,12 @@ TEST_CASE("Check whether max precision for real::algorithm and real is declared"
 TEST_CASE("Iterate boost::real_algorithm::const_precision_iterator until full precision is reached") {
     
     SECTION("Undefined maximum precision error") {
-        boost::real::real_algorithm::maximum_precision.reset(); //Simulating undefined maximum precision
-        boost::real::real_algorithm a([](unsigned int n) -> int { return 3; }, 0);
+        boost::real::real_algorithm<>::maximum_precision.reset(); //Simulating undefined maximum precision
+        boost::real::real_algorithm<> a([](unsigned int n) -> int { return 3; }, 0);
         
         CHECK_THROWS_AS(a.cend(), boost::real::undefined_max_precision_exception);
 
-        boost::real::real_algorithm::maximum_precision = 10;    //Redefining maximum precision for further tests
+        boost::real::real_algorithm<>::maximum_precision = 10;    //Redefining maximum precision for further tests
     }
 
     SECTION("Positive numbers") {
