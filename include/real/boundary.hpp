@@ -255,6 +255,10 @@ namespace boost {
             unsigned long size() {
                 return this->digits.size();
             }
+
+            friend std::ostream& operator<<(std::ostream& os, const boost::real::boundary& boundary) {
+                return os << boundary.as_string();
+            }
         };
     }
 }

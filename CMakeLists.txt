@@ -47,7 +47,8 @@ set_target_properties(Boost.Real_headers PROPERTIES
                                              
 #Google Benchmark, turn on/off with -DBENCH=ON or OFF
 find_package(Threads REQUIRED)
-option(BENCH "Build benchmarks" ON)
+# OFF until later
+option(BENCH "Build benchmarks" OFF)
 if(BENCH)
     add_subdirectory(bench)
 endif()

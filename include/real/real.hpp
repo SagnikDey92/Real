@@ -56,7 +56,7 @@ namespace boost {
         class real {
 
             // Available operations
-            enum class OPERATION {ADDITION, SUBTRACT, MULTIPLICATION};
+            enum class OPERATION {ADDITION, SUBTRACT, MULTIPLICATION, DIVISION};
             enum class KIND {EXPLICIT, OPERATION, ALGORITHM};
 
             KIND _kind;
@@ -117,6 +117,150 @@ namespace boost {
 
                 void calculate_operation_boundaries() {
 
+                    // for division, declared here to avoid skipped init errors from switch statement
+                    auto set_division_result = [this](boundary& numerator,
+                                                        boundary& denominator,
+                                                        boundary &ret) {
+
+                        /// @TODO replace this with something more efficient. binary search is probably
+                        // not very efficient
+                        // it also completely recalculates on each precision increase
+                        // instead, could use previous information to make better "guesses"
+                        // for our iteration scheme.
+
+                        /// @TODO convert div by negative exponents 
+                        // 1/.001 = 1/(1/1000) = 1000
+                        // 1.46 / .12 = 1.46 * 100 * 1/12
+                        // 1 / .23 = 1 * 100 * (1/23)
+                        // etc.,
+                        // after this, no division by D < 1
+                        boost::real::boundary left;
+                        boost::real::boundary right;
+                        boost::real::boundary residual;
+                        boost::real::boundary tmp;
+                        boost::real::boundary half;
+                        boost::real::boundary distance;
+                        boost::real::boundary min_boundary_n;
+                        boost::real::boundary min_boundary_p;
+
+                        bool positive = (numerator.positive == denominator.positive);
+                        numerator = helper::abs(numerator);
+                        denominator = helper::abs(denominator);
+
+                        min_boundary_n.digits = {1};
+                        ///@TODO ensure exponent doesn't overflow
+                        min_boundary_n.exponent = -1 * (int)this->_real_ptr->max_precision();
+                        min_boundary_n.positive = false;
+
+                        min_boundary_p.digits = {1};
+                        min_boundary_p.exponent = -1 * (int)this->_real_ptr->max_precision();
+
+                        half.digits = {5};
+                        half.exponent = 0;
+
+                        tmp.digits = {1};
+                        tmp.exponent = 1;
+                        ///@TODO: remember signs at the end of this function
+
+                    // N < D --> 0 < abs(Q) < 1
+                    if (numerator < denominator) {
+                            left = boundary(); // 0
+                            right = tmp; // 1
+                        } else { // assuming D > 1. N > D ---> 1 < N / D < N
+                            left = tmp; // 1
+                            right = numerator;
+                        }
+                    // Example: say we have 144 / 12. At min precision, this is
+                    // [100, 200] / [10, 20]
+                    // so, our quotient upper bound would be 200/10, and 
+                    // the lower bound would be 100/20.
+                    // std::cout << "N/D: " << numerator << '/' << denominator << '\n';
+
+                    /// @TODO: the following
+                    // if numerator == 0, return 0 
+                    // if denominator == 1, return numerator
+                    // if denominator == 0, throw error
+
+                    // distance = (right - left) / 2
+                    boost::real::helper::subtract_boundaries(
+                            right,
+                            left,
+                            tmp 
+                            );
+                    boost::real::helper::multiply_boundaries(
+                            tmp,                                    
+                            half,
+                            distance
+                        );
+                    // ret = denominator + distance
+                    boost::real::helper::add_boundaries(
+                            denominator,
+                            distance,
+                            ret
+                    );
+                    // residual = ret * denom - num, equals zero if numerator/denominator = ret
+                    boost::real::helper::multiply_boundaries(
+                            ret,
+                            denominator,
+                            residual
+                    );
+                    boost::real::helper::subtract_boundaries(
+                            residual,
+                            numerator,
+                            residual
+                    );
+                    // calculate the result
+                    while (((helper::abs(residual) > min_boundary_p)) &&
+                            (distance.exponent > (-1 * ((int)this->_real_ptr->max_precision() ))) ){
+                        // result too small, try halfway between ret and numerator 
+                        if (residual < min_boundary_n) {
+                            left = ret;
+                        }
+                        // distance is halved
+                        tmp = distance;
+                        boost::real::helper::multiply_boundaries(
+                                tmp,
+                                half,
+                                distance
+                            ); 
+                        // truncate insignificant digits of distance
+                        // using +5 because +1 truncates too much, for some reason
+                        /// @TODO figure out truncation and precision
+                        while (distance.size() > this->_real_ptr->max_precision() + 5)
+                            distance.digits.pop_back();
+
+                        // iterate ret
+                        boost::real::helper::add_boundaries(
+                                left,
+                                distance,
+                                ret
+                        );
+                        // truncate insignificant digits of ret
+                        while (ret.size() > this->_real_ptr->max_precision() + 5 )
+                            ret.digits.pop_back();
+
+                        // recalculate residual  N/D = Q ---> QD - N = 0
+                        boost::real::helper::multiply_boundaries(
+                                ret,
+                                denominator,
+                                tmp 
+                        );
+                        boost::real::helper::subtract_boundaries(
+                                tmp,
+                                numerator,
+                                residual
+                        );
+                    } // now ret is correct, or at least within +-epsilon of correct value 
+                    // truncate ret
+                    /// @TODO verify this is within max precision, should be easy proof
+                    while (ret.size() > this->_real_ptr->max_precision())
+                        ret.digits.pop_back();
+                    if (positive)
+                        ret.positive = true;
+                    else
+                        ret.positive = false;
+                }; // end division lambda definition
+
                     switch (this->_real_ptr->_operation) {
 
                         case OPERATION::ADDITION:
@@ -124,7 +268,7 @@ namespace boost {
                                     this->_lhs_it_ptr->approximation_interval.lower_bound,
                                     this->_rhs_it_ptr->approximation_interval.lower_bound,
                                     this->approximation_interval.lower_bound
-                            );
+                                    );
 
                             boost::real::helper::add_boundaries(
                                     this->_lhs_it_ptr->approximation_interval.upper_bound,
@@ -148,7 +292,25 @@ namespace boost {
                             );
                             break;
 
+                            case OPERATION::DIVISION: 
+                            // setup for the upper boundary
+                            // auto get_division_result = [&numerator, &denominator, this](boundary &ret) {
+                            set_division_result(_lhs_it_ptr->approximation_interval.upper_bound,
+                                                _rhs_it_ptr->approximation_interval.lower_bound,
+                                                this->approximation_interval.upper_bound);
+                            /// @TODO if last digit is nine, round up
+                            // if (this->approximation_interval.upper_bound.digits.back() == 9)
 
+                            // lower boundary
+                            set_division_result(_lhs_it_ptr->approximation_interval.lower_bound, 
+                                                _rhs_it_ptr->approximation_interval.upper_bound,
+                                                this->approximation_interval.lower_bound);
+
+                            // for negative result, swap bounds
+                            if (!(_lhs_it_ptr->approximation_interval.positive() == 
+                                _rhs_it_ptr->approximation_interval.positive()))
+                                this->approximation_interval.swap_bounds();
+                            break;
                         case OPERATION::MULTIPLICATION: {
                             bool lhs_positive = this->_lhs_it_ptr->approximation_interval.positive();
                             bool rhs_positive = this->_rhs_it_ptr->approximation_interval.positive();
@@ -708,6 +870,20 @@ namespace boost {
                 this->_kind = KIND::OPERATION;
                 this->_operation = OPERATION::MULTIPLICATION;
                 return *this;
+            }
+
+            // division operators
+            real& operator/=(const real& other) {
+                this->_lhs_ptr = new real(*this);
+                this->_rhs_ptr = new real(other);
+                this->_kind = KIND::OPERATION;
+                this->_operation = OPERATION::DIVISION;
+                return *this;
+            }
+            real operator/(const real& other) const {
+                real result = *this;
+                result /= other;
+                return result;
             }
 
             /**
