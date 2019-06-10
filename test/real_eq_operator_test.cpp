@@ -2,8 +2,6 @@
 #include <real/real.hpp>
 #include <test_helpers.hpp>
 
-#include <iostream>
-
 TEST_CASE("Operator ==") {
 
     SECTION("a == b") {

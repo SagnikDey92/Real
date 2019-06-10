@@ -163,12 +163,11 @@ namespace boost {
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
-                std::vector<int> temp;
+                std::vector<T> temp;
                 size_t new_size = lhs.size() + rhs.size();
                 if (lhs_exponent < 0) new_size -= lhs_exponent; // <--- Less the exponent
                 if (rhs_exponent < 0) new_size -= rhs_exponent; // <--- Less the exponent
 
-                if (!result.empty()) result.clear();
                 for (int i = 0; i < (int)new_size; i++) temp.push_back(0);
                 // TODO: Check why the assign method crashes.
                 //result.assign(new_size, 0);
@@ -189,13 +188,13 @@ namespace boost {
 
                         // Multiply current digit of second number with current digit of first number
                         // and add result to previously stored result at current position.
-                        unsigned long long int sum = lhs[i]*rhs[j] + result[i_n1 - i_n2] + carry;
+                        unsigned long long int sum = lhs[i]*rhs[j] + temp[i_n1 - i_n2] + carry;
 
                         // Carry for next iteration
                         carry = sum / base;
 
                         // Store result
-                        temp[i_n1 - i_n2] = sum % 10;
+                        temp[i_n1 - i_n2] = sum % base;
 
                         i_n2++;
                     }
