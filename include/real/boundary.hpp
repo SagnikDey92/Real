@@ -256,7 +256,7 @@ namespace boost {
                 return this->digits.size();
             }
 
-            friend std::ostream& operator<<(std::ostream& os, const boost::real::boundary& boundary) {
+            friend std::ostream& operator<<(std::ostream& os, const boost::real::boundary<T>& boundary) {
                 return os << boundary.as_string();
             }
         };

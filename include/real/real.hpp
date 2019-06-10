@@ -118,9 +118,9 @@ namespace boost {
                 void calculate_operation_boundaries() {
 
                     // for division, declared here to avoid skipped init errors from switch statement
-                    auto set_division_result = [this](boundary& numerator,
-                                                        boundary& denominator,
-                                                        boundary &ret) {
+                    auto set_division_result = [this](boundary<T>& numerator,
+                                                        boundary<T>& denominator,
+                                                        boundary<T>& ret) {
 
                         /// @TODO replace this with something more efficient. binary search is probably
                         // not very efficient
@@ -134,14 +134,14 @@ namespace boost {
                         // 1 / .23 = 1 * 100 * (1/23)
                         // etc.,
                         // after this, no division by D < 1
-                        boost::real::boundary left;
-                        boost::real::boundary right;
-                        boost::real::boundary residual;
-                        boost::real::boundary tmp;
-                        boost::real::boundary half;
-                        boost::real::boundary distance;
-                        boost::real::boundary min_boundary_n;
-                        boost::real::boundary min_boundary_p;
+                        boost::real::boundary<T> left;
+                        boost::real::boundary<T> right;
+                        boost::real::boundary<T> residual;
+                        boost::real::boundary<T> tmp;
+                        boost::real::boundary<T> half;
+                        boost::real::boundary<T> distance;
+                        boost::real::boundary<T> min_boundary_n;
+                        boost::real::boundary<T> min_boundary_p;
 
                         bool positive = (numerator.positive == denominator.positive);
                         numerator = helper::abs(numerator);
@@ -164,7 +164,7 @@ namespace boost {
 
                     // N < D --> 0 < abs(Q) < 1
                     if (numerator < denominator) {
-                            left = boundary(); // 0
+                            left = boundary<T>(); // 0
                             right = tmp; // 1
                         } else { // assuming D > 1. N > D ---> 1 < N / D < N
                             left = tmp; // 1
