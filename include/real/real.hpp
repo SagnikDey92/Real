@@ -134,6 +134,9 @@ namespace boost {
                         // 1 / .23 = 1 * 100 * (1/23)
                         // etc.,
                         // after this, no division by D < 1
+
+                        unsigned long long int base = 122;
+                        
                         boost::real::boundary<T> left;
                         boost::real::boundary<T> right;
                         boost::real::boundary<T> residual;
@@ -155,7 +158,8 @@ namespace boost {
                         min_boundary_p.digits = {1};
                         min_boundary_p.exponent = -1 * (int)this->_real_ptr->max_precision();
 
-                        half.digits = {5};
+                        int H = base/2;
+                        half.digits = {H};
                         half.exponent = 0;
 
                         tmp.digits = {1};
