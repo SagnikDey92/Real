@@ -125,6 +125,7 @@ namespace boost {
 
                     for (const auto& d: this->digits) {
                         result += std::to_string(d);
+                        result += "|";
                     }
 
                     result += "e" + std::to_string(this->exponent);
@@ -139,6 +140,7 @@ namespace boost {
                             result += "0";
                         } else {
                             result += std::to_string(this->digits[i]);
+                            result += "|";
                         }
                     }
                 } else {
@@ -152,8 +154,10 @@ namespace boost {
 
                         if (i < (int) this->digits.size()) {
                             result += std::to_string(this->digits[i]);
+                            result += "|";
                         } else {
                             result += "0";
+                            result += "|";
                         }
                     }
 

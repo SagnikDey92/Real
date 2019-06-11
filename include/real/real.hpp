@@ -76,13 +76,13 @@ namespace boost {
             // Precision
             unsigned int _maximum_precision = 0;
 
-            void copy_operands(const real& other) {
+            void copy_operands(const real<T>& other) {
                 if (other._lhs_ptr != nullptr) {
-                    this->_lhs_ptr = new real(*other._lhs_ptr);
+                    this->_lhs_ptr = new real<T>(*other._lhs_ptr);
                 }
 
                 if (other._rhs_ptr != nullptr) {
-                    this->_rhs_ptr = new real(*other._rhs_ptr);
+                    this->_rhs_ptr = new real<T>(*other._rhs_ptr);
                 }
             }
 
@@ -513,8 +513,23 @@ namespace boost {
                     }
                     decimal_part = decimal_part.substr(i);
                 }
-                this->_kind = KIND::EXPLICIT;
-                this->_explicit_number = real_explicit<T>(integer_part, decimal_part, exponent, positive);
+                if(decimal_part.length()+integer_part.length()<=exponent) {
+                    this->_kind = KIND::EXPLICIT;
+                    this->_explicit_number = real_explicit<T>(integer_part, decimal_part, exponent, positive);
+                }
+                else {
+                    this->_kind = KIND::OPERATION;
+                    this->_operation = OPERATION::DIVISION;
+                    int zeroes = decimal_part.length() + integer_part.length() - exponent;
+                    std::string denominator = "1";
+                    for (int i = 0; i<zeroes; ++i)
+                        denominator = denominator + "0";
+                    std::string numerator = integer_part + decimal_part;
+                    if (!positive)
+                        numerator = "-" + numerator;
+                    this->_lhs_ptr = new real<T>(numerator);
+                    this->_rhs_ptr = new real<T>(denominator);
+                }
             }
 
             /**
@@ -702,8 +717,8 @@ namespace boost {
              * @return A reference to the new boost::real::real number representation.
              */
             real<T>& operator+=(const real<T>& other) {
-                this->_lhs_ptr = new real(*this);
-                this->_rhs_ptr = new real(other);
+                this->_lhs_ptr = new real<T>(*this);
+                this->_rhs_ptr = new real<T>(other);
                 this->_kind = KIND::OPERATION;
                 this->_operation = OPERATION::ADDITION;
                 return *this;
@@ -732,8 +747,8 @@ namespace boost {
              * @return A reference to the new boost::real::real number representation.
              */
             real<T>& operator-=(const real<T>& other) {
-                this->_lhs_ptr = new real(*this);
-                this->_rhs_ptr = new real(other);
+                this->_lhs_ptr = new real<T>(*this);
+                this->_rhs_ptr = new real<T>(other);
                 this->_kind = KIND::OPERATION;
                 this->_operation = OPERATION::SUBTRACT;
                 return *this;
@@ -762,17 +777,17 @@ namespace boost {
              * @return A reference to the new boost::real::real number representation.
              */
             real<T>& operator*=(const real<T>& other) {
-                this->_lhs_ptr = new real(*this);
-                this->_rhs_ptr = new real(other);
+                this->_lhs_ptr = new real<T>(*this);
+                this->_rhs_ptr = new real<T>(other);
                 this->_kind = KIND::OPERATION;
                 this->_operation = OPERATION::MULTIPLICATION;
                 return *this;
             }
 
             // division operators
-            real& operator/=(const real& other) {
-                this->_lhs_ptr = new real(*this);
-                this->_rhs_ptr = new real(other);
+            real<T>& operator/=(const real<T>& other) {
+                this->_lhs_ptr = new real<T>(*this);
+                this->_rhs_ptr = new real<T>(other);
                 this->_kind = KIND::OPERATION;
                 this->_operation = OPERATION::DIVISION;
                 return *this;
