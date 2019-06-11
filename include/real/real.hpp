@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <utility>
+#include <regex>
 
 #include <real/real_exception.hpp>
 #include <real/real_helpers.hpp>
@@ -472,8 +473,49 @@ namespace boost {
              *
              * @throws boost::real::invalid_string_number exception
              */
-            real(const std::string& number)
-                    : _kind(KIND::EXPLICIT), _explicit_number(number) {}
+            real(const std::string& number) {
+                bool positive = true;
+                std::regex decimal("((\\+|-)?[[:digit:]]*)(\\.(([[:digit:]]+)?))?((e|E)(((\\+|-)?)[[:digit:]]+))?");
+                if (!std::regex_match (number, decimal))
+                    throw boost::real::invalid_string_number_exception();
+                //Know at this point that representation is valid
+                std::string decimal_part = regex_replace(number, decimal, "$5");
+                std::string integer_part = regex_replace(number, decimal, "$1");
+                std::string exp = regex_replace(number, decimal, "$8");
+                int add_exponent = exp.length() == 0 ? 0 : std::stoi(exp);
+                if (integer_part[0] == '+') {
+                    positive = true;
+                    integer_part = integer_part.substr(1);
+                }
+                else if (integer_part[0] == '-') {
+                    positive = false;
+                    integer_part = integer_part.substr(1);
+                }
+                integer_part = regex_replace(integer_part, std::regex("(0?+)([[:digit:]]?+)"), "$2");
+                int i = decimal_part.length() - 1;
+                while (decimal_part[i] == '0' && i > 0) {
+                    --i;
+                }
+                decimal_part = decimal_part.substr(0, i + 1);
+                //decimal and integer parts are stripped of zeroes
+                int exponent = integer_part.length() + add_exponent;
+                if (decimal_part.empty()) {
+                    i = integer_part.length() - 1;
+                    while (integer_part[i] == '0' && i > 0)
+                        --i;
+                    integer_part = integer_part.substr(0, i + 1);
+                }
+                if (integer_part.empty()) {
+                    i = 0;
+                    while (decimal_part[i] == '0' && i < decimal_part.length()) {
+                        ++i;
+                        --exponent;
+                    }
+                    decimal_part = decimal_part.substr(i);
+                }
+                this->_kind = KIND::EXPLICIT;
+                this->_explicit_number = real_explicit<T>(integer_part, decimal_part, exponent, positive);
+            }
 
             /**
              * @brief *Initializer list constructor:* Creates a boost::real::real_explicit instance

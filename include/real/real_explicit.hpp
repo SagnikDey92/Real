@@ -238,6 +238,53 @@ namespace boost {
              *
              * @throws boost::real::invalid_string_number exception
              */
+            explicit real_explicit(const std::string& integer_part, const std::string& decimal_part, int exponent, bool positive) {
+                this->_positive = positive;
+                if (integer_part.empty() && decimal_part.empty()) {
+                    this->_digits = {0};
+                    this->_exponent = 0;
+                    return;
+                }
+                this->_exponent = exponent;
+                for (const auto& c : integer_part ) {
+                    this->_digits.push_back(c - '0');
+                }
+                for (const auto& c : decimal_part ) {
+                    this->_digits.push_back(c - '0');
+                }
+                //changing base below
+                exponent = 0;
+                unsigned long long int base = 122;
+                int curr_size = this->_digits.size();
+
+                for (int i = 0; i<this->_exponent-curr_size; ++i) {
+                    this->_digits.push_back(0);
+                }
+
+                while (this->_digits.size()>1) {
+                    auto result = boost::real::helper::long_division(this->_digits, base);
+                    if (result.second==0) {
+                        this->_digits = result.first;
+                        ++exponent; 
+                    }
+                    else
+                        break;
+                }
+
+                std::vector<T> new_digits;
+                while (!this->_digits.empty()) {
+                    auto result = boost::real::helper::long_division(this->_digits, base);
+                    new_digits.push_back(result.second);
+                    this->_digits = result.first;
+                }
+                std::reverse (new_digits.begin(), new_digits.end());
+                exponent += new_digits.size();
+
+                this->_digits = new_digits;
+                this->_exponent = exponent;
+                this->_maximum_precision = (int)this->_digits.size();
+            };
+
             explicit real_explicit(const std::string& number) {
                 std::regex decimal("((\\+|-)?[[:digit:]]*)(\\.(([[:digit:]]+)?))?((e|E)(((\\+|-)?)[[:digit:]]+))?");
                 if (!std::regex_match (number, decimal))
