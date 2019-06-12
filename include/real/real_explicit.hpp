@@ -51,7 +51,7 @@ namespace boost {
                 int _n;
 
                 // Base
-                unsigned long long int base = 126;
+                unsigned long long int base = 30;
 
                 // Internal number to iterate
                 real_explicit const* _real_ptr = nullptr;
@@ -254,7 +254,7 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                unsigned long long int base = 126;
+                unsigned long long int base = 30;
                 int curr_size = this->_digits.size();
 
                 for (int i = 0; i<this->_exponent-curr_size; ++i) {
@@ -304,7 +304,7 @@ namespace boost {
                 }
                 integer_part = regex_replace(integer_part, std::regex("(0?+)([[:digit:]]?+)"), "$2");
                 int i = decimal_part.length() - 1;
-                while (decimal_part[i] == '0' && i > 0) {
+                while (decimal_part[i] == '0' && i >= 0) {
                     --i;
                 }
                 decimal_part = decimal_part.substr(0, i + 1);
@@ -312,7 +312,7 @@ namespace boost {
                 int exponent = integer_part.length() + add_exponent;
                 if (decimal_part.empty()) {
                     i = integer_part.length() - 1;
-                    while (integer_part[i] == '0' && i > 0)
+                    while (integer_part[i] == '0' && i >= 0)
                         --i;
                     integer_part = integer_part.substr(0, i + 1);
                 }
@@ -339,7 +339,7 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                unsigned long long int base = 126;
+                unsigned long long int base = 30;
                 int curr_size = this->_digits.size();
 
                 for (int i = 0; i<this->_exponent-curr_size; ++i) {

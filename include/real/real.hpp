@@ -513,7 +513,7 @@ namespace boost {
                     }
                     decimal_part = decimal_part.substr(i);
                 }
-                if(decimal_part.length()+integer_part.length()<=exponent) {
+                if(static_cast<int>(decimal_part.length() + integer_part.length()) <= exponent) {
                     this->_kind = KIND::EXPLICIT;
                     this->_explicit_number = real_explicit<T>(integer_part, decimal_part, exponent, positive);
                 }

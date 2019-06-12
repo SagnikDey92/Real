@@ -121,7 +121,7 @@ namespace boost {
 
                 // If the number is too large, scientific notation is used to print it.
                 if ((this->exponent < -10) || (this->exponent > (int)this->digits.size() + 10)) {
-                    result += "0.";
+                    result += "0|.";
 
                     for (const auto& d: this->digits) {
                         result += std::to_string(d);
@@ -133,11 +133,12 @@ namespace boost {
                 }
 
                 if (this->exponent <= 0) {
-                    result += "0.";
+                    result += "0|.";
 
                     for (int i = this->exponent; i < (int) this->digits.size(); ++i) {
                         if (i < 0) {
                             result += "0";
+                            result += "|";
                         } else {
                             result += std::to_string(this->digits[i]);
                             result += "|";

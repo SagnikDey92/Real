@@ -39,7 +39,7 @@ namespace boost {
                             int rhs_exponent,
                             std::vector<T> &result) {
                 int carry = 0;
-                unsigned long long int base = 126;
+                unsigned long long int base = 30;
                 std::vector<int> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
@@ -102,7 +102,7 @@ namespace boost {
                 std::vector<int> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
-                unsigned long long int base = 126;
+                unsigned long long int base = 30;
                 int borrow = 0;
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
@@ -159,7 +159,7 @@ namespace boost {
                     std::vector<T>& result
             ) {
 
-                unsigned long long int base = 126;
+                unsigned long long int base = 30;
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
@@ -369,7 +369,7 @@ namespace boost {
                     // etc.,
                     // after this, no division by D < 1
 
-                    unsigned long long int base = 126;
+                    unsigned long long int base = 30;
                     
                     boost::real::boundary<T> left;
                     boost::real::boundary<T> right;
