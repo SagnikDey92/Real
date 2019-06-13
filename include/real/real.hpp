@@ -513,7 +513,9 @@ namespace boost {
                     }
                     decimal_part = decimal_part.substr(i);
                 }
-                if(static_cast<int>(decimal_part.length() + integer_part.length()) <= exponent) {
+                if (integer_part.empty() && decimal_part.empty())
+                    exponent = 0;
+                if (static_cast<int>(decimal_part.length() + integer_part.length()) <= exponent) {
                     this->_kind = KIND::EXPLICIT;
                     this->_explicit_number = real_explicit<T>(integer_part, decimal_part, exponent, positive);
                 }
@@ -786,6 +788,12 @@ namespace boost {
 
             // division operators
             real<T>& operator/=(const real<T>& other) {
+                if (*this == real<T>("0"))
+                    return *this;
+                if (other == real<T>("0"))
+                    throw boost::real::divide_by_zero_exception();
+                if (other == real<T>("1"))
+                    return *this;
                 this->_lhs_ptr = new real<T>(*this);
                 this->_rhs_ptr = new real<T>(other);
                 this->_kind = KIND::OPERATION;

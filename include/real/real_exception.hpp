@@ -39,6 +39,13 @@ namespace boost {
                 return "The maximum precision for boost::real has not been defined";
             }
         };
+
+        struct divide_by_zero_exception : public std::exception {
+
+            const char * what () const throw () override {
+                return "Division by zero is not possible";
+            }
+        };
     }
 }
 

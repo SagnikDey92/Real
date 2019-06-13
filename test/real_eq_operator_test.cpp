@@ -1005,4 +1005,25 @@ TEST_CASE("Operator ==") {
             }
         }
     }
+
+    SECTION("Checking special division cases") {
+        SECTION("Divide by zero") {
+            auto a = "00.00e-3"_r;
+            auto b = 123.45_r;
+
+            CHECK_THROWS_AS(b/a == 42_r, boost::real::divide_by_zero_exception);
+        }
+        SECTION("Divide by one") {
+            auto a = "12.34"_r;
+            auto b = 1_r;
+
+            CHECK(a/b == a);
+        }
+        SECTION("Dividing zero") {
+            auto a = 0_r;
+            auto b = 1.34_r;
+
+            CHECK(a/b == a);
+        }
+    }
 }
