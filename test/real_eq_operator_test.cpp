@@ -1025,5 +1025,12 @@ TEST_CASE("Operator ==") {
 
             CHECK(a/b == a);
         }
+        SECTION("Testing decimal printing") {
+            boost::real::boundary a;
+            a.digits = {23, 12, 45, 12, 78, 12};
+            a.exponent = 6;
+            a.positive = true;
+            std::cout<<"\n\n\n"<<a;
+        }
     }
 }

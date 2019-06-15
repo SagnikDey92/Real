@@ -2,7 +2,12 @@
 #define BOOST_REAL_BOUNDARY_HPP
 
 #include <vector>
+#include <algorithm>
+#include <string>
+#include <iterator>
+
 #include <real/boundary_helper.hpp>
+//#include <real/real_helpers.hpp>
 
 namespace boost {
     namespace real {
@@ -112,14 +117,17 @@ namespace boost {
              *
              * @return a string that represents the state of the boost::real::boundary
              */
-            std::basic_string<char> as_string() const {
-                std::basic_string<char> result = "";
-
+            std::string as_string() const {
+                std::string result = "";            
+                //@TODO remove this - and remember it later
+                /*
                 if (!this->positive) {
                     result = "-";
                 }
+                */
 
                 // If the number is too large, scientific notation is used to print it.
+                /* @TODO add back later
                 if ((this->exponent < -10) || (this->exponent > (int)this->digits.size() + 10)) {
                     result += "0|.";
 
@@ -131,17 +139,19 @@ namespace boost {
                     result += "e" + std::to_string(this->exponent);
                     return result;
                 }
+                */
 
+                //remember the negative
                 if (this->exponent <= 0) {
-                    result += "0|.";
+                    result += ".";
 
                     for (int i = this->exponent; i < (int) this->digits.size(); ++i) {
                         if (i < 0) {
                             result += "0";
-                            result += "|";
+                            result += " ";
                         } else {
                             result += std::to_string(this->digits[i]);
-                            result += "|";
+                            result += " ";
                         }
                     }
                 } else {
@@ -155,10 +165,10 @@ namespace boost {
 
                         if (i < (int) this->digits.size()) {
                             result += std::to_string(this->digits[i]);
-                            result += "|";
+                            result += " ";
                         } else {
                             result += "0";
-                            result += "|";
+                            result += " ";
                         }
                     }
 
@@ -166,7 +176,44 @@ namespace boost {
                         result.pop_back();
                     }
                 }
+                //Form new string below in base 10.
+                std::vector<int> new_result = {0};
+                std::size_t dot_pos = result.find('.');
+                std::string integer_part;
+                std::string decimal_part;
+                if (dot_pos == std::string::npos) {
+                    integer_part = result;
+                    decimal_part = "";
+                } else {
+                    integer_part = result.substr(0, dot_pos);
+                    decimal_part = result.substr(dot_pos + 1);
+                }
+                std::stringstream ss1(integer_part);
+                std::istream_iterator<std::string> begin1(ss1);
+                std::istream_iterator<std::string> end1;
+                std::vector<std::string> integer(begin1, end1);
+                std::stringstream ss2(decimal_part);
+                std::istream_iterator<std::string> begin2(ss2);
+                std::istream_iterator<std::string> end2;
+                std::vector<std::string> decimal(begin2, end2);
+                std::reverse (decimal.begin(), decimal.end()); 
+                std::cout<<integer.size()<<"\n"<<decimal.size()<<"\n";
 
+                //integer and decimal are string vectors with the "digits" in diff base
+                std::vector<int> base = {3, 0};
+                while(!integer.empty()) {
+                    for (int i = 0; i<integer.size(); ++i) {
+                        std::vector<int> temp;
+                        for (auto j : integer[i]) {
+                            temp.push_back(j - '0'); 
+                        }
+                        //boost::real::helper::multiply_vectors(temp, 0, base, 0, temp);
+                        std::string str(temp.begin(), temp.end());
+                        integer[i] = str;
+                    }
+                    //boost::real::helper::add_vectors(result, 0, integer.pop_back(), 0, result);
+                    integer.pop_back();
+                }
 
                 return result;
             }
