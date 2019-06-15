@@ -2,12 +2,12 @@
 #define BOOST_REAL_BOUNDARY_HPP
 
 #include <vector>
+#include <sstream>
 #include <algorithm>
 #include <string>
 #include <iterator>
 
 #include <real/boundary_helper.hpp>
-//#include <real/real_helpers.hpp>
 
 namespace boost {
     namespace real {
@@ -141,7 +141,7 @@ namespace boost {
                 }
                 */
 
-                //remember the negative
+                //@TODO remember the negative
                 if (this->exponent <= 0) {
                     result += ".";
 
@@ -197,23 +197,40 @@ namespace boost {
                 std::istream_iterator<std::string> end2;
                 std::vector<std::string> decimal(begin2, end2);
                 std::reverse (decimal.begin(), decimal.end()); 
-                std::cout<<integer.size()<<"\n"<<decimal.size()<<"\n";
 
                 //integer and decimal are string vectors with the "digits" in diff base
                 std::vector<int> base = {3, 0};
                 while(!integer.empty()) {
+                    std::vector<int> temp;
+                    std::string num = integer.back();
+                    integer.pop_back();
+                    for (auto j : num) {
+                        temp.push_back(j - '0');
+                    }
+                    boost::real::helper::add_vectors(new_result, new_result.size(), temp, temp.size(), new_result, 10);
                     for (int i = 0; i<integer.size(); ++i) {
                         std::vector<int> temp;
-                        for (auto j : integer[i]) {
-                            temp.push_back(j - '0'); 
+                        std::string tempstr = integer[i];
+                        for (int j = 0; j<tempstr.length(); ++j) {
+                            temp.push_back(tempstr[j] - '0'); 
                         }
-                        //boost::real::helper::multiply_vectors(temp, 0, base, 0, temp);
-                        std::string str(temp.begin(), temp.end());
+                        boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, 10);//there's an extra zero coming at the left.
+                        int idx = 0;
+                        while(temp[idx]==0) 
+                            ++idx;
+                        temp.erase(temp.begin(), temp.begin() + idx);
+                        std::stringstream ss;
+                        std::copy( temp.begin(), temp.end(), std::ostream_iterator<int>(ss, ""));
+                        std::string str = ss.str();
                         integer[i] = str;
                     }
-                    //boost::real::helper::add_vectors(result, 0, integer.pop_back(), 0, result);
-                    integer.pop_back();
                 }
+                std::stringstream ss;
+                std::copy( new_result.begin(), new_result.end(), std::ostream_iterator<int>(ss, ""));
+                std::string res_decimal = ss.str();
+                std::cout<<res_decimal<<"\n";
+
+                //@TODO The decimal part. And dont forget negative. Also, add exponent notation later.
 
                 return result;
             }
@@ -244,7 +261,31 @@ namespace boost {
              * @brief add the digit parameter as a new digit of the boost::real::boundary. The digit
              * is added in the left side of the number.
              *
-             * @param digit - The new digit to add.
+             * @param digit - The new digit to add.template <typename T = int>
+            std::pair <std::vector<T>, T> long_division(std::vector<T> number, unsigned long long int divisor) { 
+                std::vector<T> quotient; 
+                int rem;
+                int idx = 0; 
+                unsigned long long int temp = number[idx]; 
+                while (temp < divisor) 
+                {
+                    idx++;
+                    if(idx>=number.size())
+                        break;
+                    temp = temp*10 + (number[idx]); 
+                }
+
+                if (number.size() <= idx)
+                    rem = temp;
+
+                while (number.size() > idx) 
+                {  
+                    quotient.push_back(temp / divisor); 
+                    rem = temp%divisor;
+                    temp = (temp % divisor)*10 + number[++idx]; 
+                } 
+                return make_pair(quotient, rem); 
+            }
              */
             void push_front(int digit) {
                 this->digits.insert(this->digits.begin(), digit);
