@@ -23,8 +23,8 @@ TEST_CASE("Operator ==") {
             CHECK(a/b == a);
         }
         SECTION("Testing decimal printing") {
-            auto a = "736874.563"_r;
-            auto b = "3234.4311"_r;
+            auto a = "990483.1766673839"_r;
+            auto b = "2341.566"_r;
             
             std::cout<<a/b;
         }

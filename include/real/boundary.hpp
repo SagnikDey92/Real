@@ -225,21 +225,22 @@ namespace boost {
                         integer[i] = str;
                     }
                 }
-                std::vector<int> numerator = {5, 6, 1, 3, 4, 8, 3, 2, 5, 1};
-                std::vector<int> denominator = {7, 4, 6};
+                /*
+                std::vector<int> numerator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                std::vector<int> denominator = {3, 0};
                 std::vector<int> q;
                 int exp = boost::real::helper::divide_vectors(numerator, denominator, q);
                 std::cout<<"\nHeres the quotient: ";
                 for (auto i:q)
                     std::cout<<i;
                 std::cout<<"\n";
+                */
                 std::stringstream ss;
                 std::copy( new_result.begin(), new_result.end(), std::ostream_iterator<int>(ss, ""));
                 std::string res_decimal = ss.str();
-                int precision = decimal.size();
                 std::vector<int> new_base = base;
                 std::vector<std::vector<int>> powers = {base};
-                for (int i = 0; i<precision; ++i) {
+                for (size_t i = 0; i<decimal.size(); ++i) {
                     boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, 10);
                     int idx = 0;
                     while(new_base[idx]==0) 
@@ -247,10 +248,33 @@ namespace boost {
                     new_base.erase(new_base.begin(), new_base.begin() + idx);
                     powers.push_back(new_base);
                 }
-
+                size_t precision = powers.back().size() + 1;
+                std::string zeroes = "";
+                for (size_t i = 0; i<precision; ++i)
+                    zeroes = zeroes + "0";
+                std::vector<int> fraction = {0};
+                auto pwr = powers.cbegin();
+                while(!decimal.empty()) {
+                    std::string tempstr = decimal.back();
+                    decimal.pop_back();
+                    tempstr = tempstr + zeroes;
+                    std::vector<int> temp;
+                    for (int j = 0; j<tempstr.length(); ++j) {
+                        temp.push_back(tempstr[j] - '0'); 
+                    }
+                    std::vector<int> k = *pwr++;
+                    std::vector<int> q;
+                    boost::real::helper::divide_vectors(temp, k, q);
+                    boost::real::helper::add_vectors(fraction, fraction.size(), q, q.size(), fraction, 10);
+                }
                 //@TODO The decimal part. And dont forget negative. Also, add exponent notation later.
-
-                return result;
+                std::stringstream sslast;
+                std::copy( fraction.begin(), fraction.end(), std::ostream_iterator<int>(sslast, ""));
+                std::string fractionstr = sslast.str();
+                while (fractionstr.length() < precision)
+                    fractionstr = "0" + fractionstr;
+                
+                return (positive ? "" : "-") + res_decimal + "." + fractionstr;
             }
 
             /**

@@ -249,9 +249,16 @@ namespace boost {
                     const std::vector<T>& divisor,
                     std::vector<T>& cotient
             ) {
-
                 std::vector<int> aligned_dividend = dividend;
                 std::vector<int> aligned_divisor = divisor;
+                int idx = 0;
+                while(aligned_dividend[idx] == 0 && idx < aligned_dividend.size())
+                    idx++;
+                aligned_dividend.erase(aligned_dividend.begin(), aligned_dividend.begin() + idx);
+                if(aligned_dividend.empty()) {
+                    cotient.clear();
+                    return 0;
+                }
 
                 std::vector<int> current_dividend(
                         aligned_dividend.begin(),
@@ -263,21 +270,10 @@ namespace boost {
                 // TODO: This loop end criteria generate a whole division, a precision stop criteria
                 // TODO: must be implemented for numbers like 1/3 that are periodic numbers to allow
                 // TODO: calculate floating point result with some desired precision
-                int i = 0;
-                while ((residual.size() > 1 || residual.front() != 0) && next_digit != aligned_dividend.end() && i<10) {
-                    ++i;
+                while (next_digit != aligned_dividend.end()) {
                     // Obtain the smaller part of the dividend that is greater than the divisor
-                    while (aligned_divisor.size() > current_dividend.size()) {
-                        current_dividend.push_back(*next_digit);
-                        ++next_digit;
-                    }
-
-                    if (aligned_divisor.size() == current_dividend.size() &&
-                            boost::real::helper::aligned_vectors_is_lower(current_dividend,
-                                                                          aligned_divisor)) {
-                        current_dividend.push_back(*next_digit);
-                        ++next_digit;
-                    }
+                    current_dividend.push_back(*next_digit);
+                    ++next_digit;
 
                     // Obtaining the greater digit by which the divisor can be multiplied and still be lower than the dividend
                     // TODO: when using a higher base, this search could be done using binary search to improve performance
@@ -288,7 +284,7 @@ namespace boost {
                         std::vector<int> multiplier = {digit};
                         multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, 10);
                         int idx = 0;
-                        while(closest[idx]==0) 
+                        while(closest[idx]==0 && idx < closest.size()) 
                             ++idx;
                         closest.erase(closest.begin(), closest.begin() + idx);
 
@@ -311,16 +307,11 @@ namespace boost {
                     residual.clear();
                     subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, 10);
                     int idx = 0;
-                    while(residual[idx]==0) 
+                    while(residual[idx]==0 && idx < residual.size()) 
                         ++idx;
                     residual.erase(residual.begin(), residual.begin() + idx);
                     current_dividend = residual;
                 }
-                std::cout<<"\nHeres the remainder : ";
-                for(auto i:residual) {
-                    std::cout<<i;
-                }
-                std::cout<<"\n";
                 // TODO: once the stop criteria is improved, the integer part is not the whole number
                 return (int)cotient.size();
             }
