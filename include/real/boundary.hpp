@@ -225,10 +225,28 @@ namespace boost {
                         integer[i] = str;
                     }
                 }
+                std::vector<int> numerator = {5, 6, 1, 3, 4, 8, 3, 2, 5, 1};
+                std::vector<int> denominator = {7, 4, 6};
+                std::vector<int> q;
+                int exp = boost::real::helper::divide_vectors(numerator, denominator, q);
+                std::cout<<"\nHeres the quotient: ";
+                for (auto i:q)
+                    std::cout<<i;
+                std::cout<<"\n";
                 std::stringstream ss;
                 std::copy( new_result.begin(), new_result.end(), std::ostream_iterator<int>(ss, ""));
                 std::string res_decimal = ss.str();
-                std::cout<<res_decimal<<"\n";
+                int precision = decimal.size();
+                std::vector<int> new_base = base;
+                std::vector<std::vector<int>> powers = {base};
+                for (int i = 0; i<precision; ++i) {
+                    boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, 10);
+                    int idx = 0;
+                    while(new_base[idx]==0) 
+                        ++idx;
+                    new_base.erase(new_base.begin(), new_base.begin() + idx);
+                    powers.push_back(new_base);
+                }
 
                 //@TODO The decimal part. And dont forget negative. Also, add exponent notation later.
 
