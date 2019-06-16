@@ -214,9 +214,9 @@ namespace boost {
                         for (int j = 0; j<tempstr.length(); ++j) {
                             temp.push_back(tempstr[j] - '0'); 
                         }
-                        boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, 10);//there's an extra zero coming at the left.
+                        boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, 10);
                         int idx = 0;
-                        while(temp[idx]==0) 
+                        while(temp[idx]==0 && idx < temp.size()) 
                             ++idx;
                         temp.erase(temp.begin(), temp.begin() + idx);
                         std::stringstream ss;
@@ -225,16 +225,7 @@ namespace boost {
                         integer[i] = str;
                     }
                 }
-                /*
-                std::vector<int> numerator = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                std::vector<int> denominator = {3, 0};
-                std::vector<int> q;
-                int exp = boost::real::helper::divide_vectors(numerator, denominator, q);
-                std::cout<<"\nHeres the quotient: ";
-                for (auto i:q)
-                    std::cout<<i;
-                std::cout<<"\n";
-                */
+
                 std::stringstream ss;
                 std::copy( new_result.begin(), new_result.end(), std::ostream_iterator<int>(ss, ""));
                 std::string res_decimal = ss.str();
@@ -243,7 +234,7 @@ namespace boost {
                 for (size_t i = 0; i<decimal.size(); ++i) {
                     boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, 10);
                     int idx = 0;
-                    while(new_base[idx]==0) 
+                    while(new_base[idx]==0 && idx < new_base.size()) 
                         ++idx;
                     new_base.erase(new_base.begin(), new_base.begin() + idx);
                     powers.push_back(new_base);
