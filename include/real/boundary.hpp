@@ -207,7 +207,7 @@ namespace boost {
                     for (auto j : num) {
                         temp.push_back(j - '0');
                     }
-                    boost::real::helper::add_vectors(new_result, new_result.size(), temp, temp.size(), new_result, 10);
+                    boost::real::helper::add_vectors(new_result, new_result.size(), temp, temp.size(), new_result, 9);
                     for (int i = 0; i<integer.size(); ++i) {
                         std::vector<int> temp;
                         std::string tempstr = integer[i];
@@ -256,7 +256,7 @@ namespace boost {
                     std::vector<int> k = *pwr++;
                     std::vector<int> q;
                     boost::real::helper::divide_vectors(temp, k, q);
-                    boost::real::helper::add_vectors(fraction, fraction.size(), q, q.size(), fraction, 10);
+                    boost::real::helper::add_vectors(fraction, fraction.size(), q, q.size(), fraction, 9);
                 }
                 //@TODO The decimal part. And dont forget negative. Also, add exponent notation later.
                 std::stringstream sslast;
@@ -264,6 +264,7 @@ namespace boost {
                 std::string fractionstr = sslast.str();
                 while (fractionstr.length() < precision)
                     fractionstr = "0" + fractionstr;
+                
                 
                 return (positive ? "" : "-") + res_decimal + "." + fractionstr;
             }

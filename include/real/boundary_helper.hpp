@@ -4,6 +4,8 @@
 #include <algorithm>
 #include "interval.hpp"
 
+#include <iostream>
+
 namespace boost {
     namespace real {
         namespace helper {
@@ -65,7 +67,8 @@ namespace boost {
                             const std::vector<T> &rhs,
                             int rhs_exponent,
                             std::vector<T> &result,
-                            unsigned long long int base = 30) {
+                            const T base = 29) {
+
                 int carry = 0;
                 std::vector<int> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
@@ -83,18 +86,106 @@ namespace boost {
                     if (0 <= rhs_exponent + i && rhs_exponent + i < (int)rhs.size()) {
                         rhs_digit = rhs[rhs_exponent + i];
                     }
+                    
+                    T digit;
+                    /*
+                    int count = 0;
+                    if (lhs_digit > base/2) {
+                        lhs_digit -= base/2;
+                        lhs_digit -= 1;
+                        ++count;
+                    }
+                    if (rhs_digit > base/2) {
+                        rhs_digit -= base/2;
+                        rhs_digit -= 1;
+                        ++count;
+                    }
 
+                    int ori_carry = carry;
+
+                    T partial_sum = lhs_digit + rhs_digit;
+                    if (count == 2) {
+                        carry = 1;
+                    }
+                    else if (count == 1) {
+                        if (partial_sum > base/2) {
+                            carry = 1;
+                            partial_sum -= base/2;
+                            --partial_sum;
+                        }
+
+                    T partial_sum = lhs_digit + rhs_digit;
+                    if (count == 2) {
+                        carry = 1;
+                    }
+                        else {
+
+                    T partial_sum = lhs_digit + rhs_digit;
+                    if (count == 2) {
+                        carry = 1;
+                    }
+                            carry = 0;
+
+                    T partial_sum = lhs_digit + rhs_digit;
+                    if (count == 2) {
+                        carry = 1;
+                    }
+                            partial_sum += 
+
+                    T partial_sum = lhs_digit + rhs_digit;
+                    if (count == 2) {
+                        carry = 1;
+                    }base/2;
+                            ++partial_sum;
+                        }
+                    }
+                    else
+                        carry = 0;
+                    T digit;
+                    if (partial_sum < base || ori_carry == 0)
+                        digit = partial_sum + ori_carry;
+                    else {
+                        carry = 1;
+                        digit = 0;
+                    }
+                    */
+                    /*
                     unsigned long long int digit = carry + lhs_digit + rhs_digit;
 
-                    if (digit > base-1) {
+                    if (digit > base) {
                         carry = 1;
                         digit -= base;
+                        digit -= 1;
                     } else {
                         carry = 0;
                     }
-
-                    temp.insert(temp.begin(), digit);
+                    */
+                    int orig_carry = carry;
+                    carry = 0;
+                    if ((base - lhs_digit) < rhs_digit) {
+                        T min = std::min(lhs_digit, rhs_digit);
+                        T max = std::max(lhs_digit, rhs_digit);
+                        if (min <= base/2) {
+                            T remaining = base/2 - min;
+                            digit = (max - base/2) - remaining - 2;
+                        } else {
+                            digit = (min - base/2) + (max - base/2) - 2;
+                        }
+                        carry = 1;
                     }
+                    else {
+                        carry = 0;
+                        digit = rhs_digit + lhs_digit;
+                    }
+                    if (digit < base || orig_carry == 0) {
+                        digit += orig_carry;
+                    }
+                    else {
+                        carry = 1;
+                        digit = 0;
+                    }
+                    temp.insert(temp.begin(), digit);
+                }
                 if (carry == 1) {
                     temp.insert(temp.begin(), 1);
                     integral_length++;
@@ -249,6 +340,7 @@ namespace boost {
                     const std::vector<T>& divisor,
                     std::vector<T>& cotient
             ) {
+
                 std::vector<int> aligned_dividend = dividend;
                 std::vector<int> aligned_divisor = divisor;
                 int idx = 0;
@@ -270,13 +362,15 @@ namespace boost {
                 // TODO: This loop end criteria generate a whole division, a precision stop criteria
                 // TODO: must be implemented for numbers like 1/3 that are periodic numbers to allow
                 // TODO: calculate floating point result with some desired precision
-                while (next_digit != aligned_dividend.end()) {
+                while (true) {
                     // Obtain the smaller part of the dividend that is greater than the divisor
-                    current_dividend.push_back(*next_digit);
-                    ++next_digit;
 
                     // Obtaining the greater digit by which the divisor can be multiplied and still be lower than the dividend
                     // TODO: when using a higher base, this search could be done using binary search to improve performance
+                    bool flg = false;
+                    if (next_digit == aligned_dividend.end())
+                        flg = true;
+                    ++next_digit;
                     std::vector<int> closest;
                     int digit = 0;
                     do {
@@ -311,8 +405,16 @@ namespace boost {
                         ++idx;
                     residual.erase(residual.begin(), residual.begin() + idx);
                     current_dividend = residual;
+
+                    current_dividend.push_back(*next_digit);
+                    if (flg)
+                        break;
                 }
                 // TODO: once the stop criteria is improved, the integer part is not the whole number
+                idx = 0;
+                while(cotient[idx] == 0 && idx < cotient.size())
+                    idx++;
+                cotient.erase(cotient.begin(), cotient.begin() + idx);
                 return (int)cotient.size();
             }
             
