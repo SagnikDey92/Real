@@ -164,20 +164,22 @@ namespace boost {
                     if (0 <= rhs_exponent + i && rhs_exponent + i < (int)rhs.size()) {
                         rhs_digit = rhs[rhs_exponent + i];
                     }
-                    //here...
-                    if (lhs_digit < borrow) {
-                        lhs_digit += (base + 1 - borrow);//not okay
-                    } else {
-                        lhs_digit -= borrow;//okay
-                        borrow = 0;
-                    }
 
-                    if (lhs_digit < rhs_digit) {
-                        lhs_digit += base + 1;//not okay
-                        borrow++;
-                    }
-                    //...to here
-                    temp.insert(temp.begin(), lhs_digit - rhs_digit);
+                    if (lhs_digit < borrow) {
+                        digit = (base - rhs_digit) + 1 - borrow;
+                    } else {
+                        lhs_digit -= borrow;
+                        borrow = 0;
+                        
+                        if (lhs_digit < rhs_digit) {
+                        ++borrow;
+                        digit = (base - (rhs_digit -1)) + lhs_digit;
+                        } else {
+                            digit = lhs_digit - rhs_digit;
+                        }
+                        
+                    }                    
+                    temp.insert(temp.begin(), digit);
                 }
                 result = temp;
 
