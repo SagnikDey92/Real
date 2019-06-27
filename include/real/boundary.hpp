@@ -176,6 +176,7 @@ namespace boost {
                         result.pop_back();
                     }
                 }
+
                 //Form new string below in base 10.
                 std::vector<int> new_result = {0};
                 std::size_t dot_pos = result.find('.');
@@ -216,7 +217,7 @@ namespace boost {
                         }
                         boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, 10);
                         int idx = 0;
-                        while(temp[idx]==0 && idx < temp.size()) 
+                        while(idx < temp.size() && temp[idx]==0) 
                             ++idx;
                         temp.erase(temp.begin(), temp.begin() + idx);
                         std::stringstream ss;
@@ -234,7 +235,7 @@ namespace boost {
                 for (size_t i = 0; i<decimal.size(); ++i) {
                     boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, 10);
                     int idx = 0;
-                    while(new_base[idx]==0 && idx < new_base.size()) 
+                    while(idx < new_base.size() && new_base[idx]==0) 
                         ++idx;
                     new_base.erase(new_base.begin(), new_base.begin() + idx);
                     powers.push_back(new_base);

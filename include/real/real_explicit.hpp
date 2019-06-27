@@ -254,35 +254,54 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                unsigned long long int base = 30;
+                //int b = std::numeric_limits<int>::max();
+                int b = 29;
+                std::vector<int> base;
+                std::vector<int> one = {1};
+                while (b!=0) {
+                    base.push_back(b%10);
+                    b /=10;
+                }
+                std::reverse(base.begin(), base.end());
+                boost::real::helper::add_vectors(base, base.size(), one, 1, base, 9);
                 int curr_size = this->_digits.size();
-
+                
                 for (int i = 0; i<this->_exponent-curr_size; ++i) {
                     this->_digits.push_back(0);
                 }
-
+                
                 while (this->_digits.size()>1) {
-                    auto result = boost::real::helper::long_division(this->_digits, base);
-                    if (result.second==0) {
-                        this->_digits = result.first;
+                    std::vector<T> quotient;
+                    std::vector<T> rem = boost::real::helper::divide_vectors(this->_digits, base, quotient);
+                    if (rem.empty()) {
+                        this->_digits = quotient;
                         ++exponent; 
                     }
                     else
                         break;
                 }
-
+                
                 std::vector<T> new_digits;
                 while (!this->_digits.empty()) {
-                    auto result = boost::real::helper::long_division(this->_digits, base);
-                    new_digits.push_back(result.second);
-                    this->_digits = result.first;
+                    std::vector<T> quotient;
+                    //std::vector<T> rem;
+                    std::vector<T> rem = boost::real::helper::divide_vectors(this->_digits, base, quotient);
+                    T result = 0;
+                    for (auto d : rem)  
+                    {
+                        result = result * 10 + d;
+                    }
+                    new_digits.push_back(result);
+                    this->_digits = quotient;
                 }
+                
                 std::reverse (new_digits.begin(), new_digits.end());
                 exponent += new_digits.size();
 
                 this->_digits = new_digits;
                 this->_exponent = exponent;
                 this->_maximum_precision = (int)this->_digits.size();
+
             };
 
             explicit real_explicit(const std::string& number) {
@@ -339,7 +358,16 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                unsigned long long int base = 30;
+                //int b = std::numeric_limits<int>::max();
+                int b = 29;
+                std::vector<int> base;
+                std::vector<int> one = {1};
+                while (b!=0) {
+                    base.push_back(b%10);
+                    b /=10;
+                }
+                std::reverse(base.begin(), base.end());
+                boost::real::helper::add_vectors(base, base.size(), one, 1, base);
                 int curr_size = this->_digits.size();
 
                 for (int i = 0; i<this->_exponent-curr_size; ++i) {
@@ -347,9 +375,10 @@ namespace boost {
                 }
 
                 while (this->_digits.size()>1) {
-                    auto result = boost::real::helper::long_division(this->_digits, base);
-                    if (result.second==0) {
-                        this->_digits = result.first;
+                    std::vector<T> quotient;
+                    std::vector<T> rem = boost::real::helper::divide_vectors(this->_digits, base, quotient);
+                    if (rem.empty()) {
+                        this->_digits = quotient;
                         ++exponent; 
                     }
                     else
@@ -358,9 +387,15 @@ namespace boost {
 
                 std::vector<T> new_digits;
                 while (!this->_digits.empty()) {
-                    auto result = boost::real::helper::long_division(this->_digits, base);
-                    new_digits.push_back(result.second);
-                    this->_digits = result.first;
+                    std::vector<T> quotient;
+                    std::vector<T> rem = boost::real::helper::divide_vectors(this->_digits, base, quotient);
+                    T result = 0;
+                    for (auto d : rem)  
+                    {
+                        result = result * 10 + d;
+                    }
+                    new_digits.push_back(result);
+                    this->_digits = quotient;
                 }
                 std::reverse (new_digits.begin(), new_digits.end());
                 exponent += new_digits.size();

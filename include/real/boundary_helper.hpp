@@ -70,7 +70,7 @@ namespace boost {
                             const T base = 29) {
 
                 int carry = 0;
-                std::vector<int> temp;
+                std::vector<T> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
 
@@ -88,78 +88,6 @@ namespace boost {
                     }
                     
                     T digit;
-                    /*
-                    int count = 0;
-                    if (lhs_digit > base/2) {
-                        lhs_digit -= base/2;
-                        lhs_digit -= 1;
-                        ++count;
-                    }
-                    if (rhs_digit > base/2) {
-                        rhs_digit -= base/2;
-                        rhs_digit -= 1;
-                        ++count;
-                    }
-
-                    int ori_carry = carry;
-
-                    T partial_sum = lhs_digit + rhs_digit;
-                    if (count == 2) {
-                        carry = 1;
-                    }
-                    else if (count == 1) {
-                        if (partial_sum > base/2) {
-                            carry = 1;
-                            partial_sum -= base/2;
-                            --partial_sum;
-                        }
-
-                    T partial_sum = lhs_digit + rhs_digit;
-                    if (count == 2) {
-                        carry = 1;
-                    }
-                        else {
-
-                    T partial_sum = lhs_digit + rhs_digit;
-                    if (count == 2) {
-                        carry = 1;
-                    }
-                            carry = 0;
-
-                    T partial_sum = lhs_digit + rhs_digit;
-                    if (count == 2) {
-                        carry = 1;
-                    }
-                            partial_sum += 
-
-                    T partial_sum = lhs_digit + rhs_digit;
-                    if (count == 2) {
-                        carry = 1;
-                    }base/2;
-                            ++partial_sum;
-                        }
-                    }
-                    else
-                        carry = 0;
-                    T digit;
-                    if (partial_sum < base || ori_carry == 0)
-                        digit = partial_sum + ori_carry;
-                    else {
-                        carry = 1;
-                        digit = 0;
-                    }
-                    */
-                    /*
-                    unsigned long long int digit = carry + lhs_digit + rhs_digit;
-
-                    if (digit > base) {
-                        carry = 1;
-                        digit -= base;
-                        digit -= 1;
-                    } else {
-                        carry = 0;
-                    }
-                    */
                     int orig_carry = carry;
                     carry = 0;
                     if ((base - lhs_digit) < rhs_digit) {
@@ -216,14 +144,16 @@ namespace boost {
                                  const std::vector<T> &rhs,
                                  int rhs_exponent,
                                  std::vector<T> &result,
-                                 unsigned long long int base = 30) {
+                                 unsigned long long int base = 29) {
 
-                std::vector<int> temp;
+                std::vector<T> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
                 int integral_length = std::max(lhs_exponent, rhs_exponent);
                 int borrow = 0;
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
+
+                    T digit = 0;
 
                     T lhs_digit = 0;
                     if (0 <= lhs_exponent + i && lhs_exponent + i < (int)lhs.size()) {
@@ -234,19 +164,19 @@ namespace boost {
                     if (0 <= rhs_exponent + i && rhs_exponent + i < (int)rhs.size()) {
                         rhs_digit = rhs[rhs_exponent + i];
                     }
-
+                    //here...
                     if (lhs_digit < borrow) {
-                        lhs_digit += (base - borrow);
+                        lhs_digit += (base + 1 - borrow);//not okay
                     } else {
-                        lhs_digit -= borrow;
+                        lhs_digit -= borrow;//okay
                         borrow = 0;
                     }
 
                     if (lhs_digit < rhs_digit) {
-                        lhs_digit += base;
+                        lhs_digit += base + 1;//not okay
                         borrow++;
                     }
-
+                    //...to here
                     temp.insert(temp.begin(), lhs_digit - rhs_digit);
                 }
                 result = temp;
@@ -335,29 +265,36 @@ namespace boost {
             }
 
             template <typename T>
-            int divide_vectors(
+            std::vector<T> divide_vectors(
                     const std::vector<T>& dividend,
                     const std::vector<T>& divisor,
                     std::vector<T>& cotient
             ) {
-
-                std::vector<int> aligned_dividend = dividend;
-                std::vector<int> aligned_divisor = divisor;
+                
+                std::vector<T> aligned_dividend = dividend;
+                std::vector<T> aligned_divisor = divisor;
                 int idx = 0;
-                while(aligned_dividend[idx] == 0 && idx < aligned_dividend.size())
+                while(idx < aligned_dividend.size() && aligned_dividend[idx] == 0)
                     idx++;
                 aligned_dividend.erase(aligned_dividend.begin(), aligned_dividend.begin() + idx);
+
                 if(aligned_dividend.empty()) {
                     cotient.clear();
-                    return 0;
+                    return std::vector<T>();
+                }
+                if ((aligned_dividend.size() == aligned_divisor.size() && 
+                        aligned_vectors_is_lower(aligned_dividend, aligned_divisor)) || 
+                            aligned_dividend.size() < aligned_divisor.size()) {
+                    cotient.clear();
+                    return aligned_dividend;
                 }
 
-                std::vector<int> current_dividend(
+                std::vector<T> current_dividend(
                         aligned_dividend.begin(),
                         aligned_dividend.begin() + aligned_divisor.size()
                 );
                 auto next_digit = aligned_dividend.begin() + aligned_divisor.size();
-                std::vector<int> residual = aligned_dividend;
+                std::vector<T> residual = aligned_dividend;
 
                 // TODO: This loop end criteria generate a whole division, a precision stop criteria
                 // TODO: must be implemented for numbers like 1/3 that are periodic numbers to allow
@@ -370,15 +307,14 @@ namespace boost {
                     bool flg = false;
                     if (next_digit == aligned_dividend.end())
                         flg = true;
-                    ++next_digit;
-                    std::vector<int> closest;
+                    std::vector<T> closest;
                     int digit = 0;
                     do {
                         digit++;
-                        std::vector<int> multiplier = {digit};
+                        std::vector<T> multiplier = {digit};
                         multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, 10);
                         int idx = 0;
-                        while(closest[idx]==0 && idx < closest.size()) 
+                        while(idx < closest.size() && closest[idx]==0) 
                             ++idx;
                         closest.erase(closest.begin(), closest.begin() + idx);
 
@@ -396,53 +332,28 @@ namespace boost {
                     cotient.push_back(digit-1);
 
                     // Update the residual for the next iteration where more digits of the dividend will be considered
-                    std::vector<int> multiplier = {digit-1};
+                    std::vector<T> multiplier = {digit-1};
                     multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, 10);
                     residual.clear();
-                    subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, 10);
+                    subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, 9);
                     int idx = 0;
-                    while(residual[idx]==0 && idx < residual.size()) 
+                    while(idx < residual.size() && residual[idx]==0) 
                         ++idx;
                     residual.erase(residual.begin(), residual.begin() + idx);
                     current_dividend = residual;
-
                     current_dividend.push_back(*next_digit);
                     if (flg)
                         break;
+                    ++next_digit;
                 }
                 // TODO: once the stop criteria is improved, the integer part is not the whole number
                 idx = 0;
-                while(cotient[idx] == 0 && idx < cotient.size())
+                while(idx < cotient.size() && cotient[idx] == 0)
                     idx++;
                 cotient.erase(cotient.begin(), cotient.begin() + idx);
-                return (int)cotient.size();
+                return residual;
             }
             
-            template <typename T = int>
-            std::pair <std::vector<T>, T> long_division(std::vector<T> number, unsigned long long int divisor) { 
-                std::vector<T> quotient; 
-                int rem;
-                int idx = 0; 
-                unsigned long long int temp = number[idx]; 
-                while (temp < divisor) 
-                {
-                    idx++;
-                    if(idx>=number.size())
-                        break;
-                    temp = temp*10 + (number[idx]); 
-                }
-
-                if (number.size() <= idx)
-                    rem = temp;
-
-                while (number.size() > idx) 
-                {  
-                    quotient.push_back(temp / divisor); 
-                    rem = temp%divisor;
-                    temp = (temp % divisor)*10 + number[++idx]; 
-                } 
-                return make_pair(quotient, rem); 
-            }
         }
     }
 }
