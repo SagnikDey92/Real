@@ -146,7 +146,7 @@ namespace boost {
                     // etc.,
                     // after this, no division by D < 1
 
-                    unsigned long long int base = 30;
+                    unsigned long long int base = 29;
                     
                     boost::real::boundary<T> left;
                     boost::real::boundary<T> right;
@@ -169,7 +169,7 @@ namespace boost {
                     min_boundary_p.digits = {1};
                     min_boundary_p.exponent = -1 * precision;
 
-                    int H = base/2;
+                    int H = base/2 + 1;
                     half.digits = {H};
                     half.exponent = 0;
 

@@ -51,7 +51,7 @@ namespace boost {
                 int _n;
 
                 // Base
-                unsigned long long int base = 30;
+                unsigned long long int base = 29;
 
                 // Internal number to iterate
                 real_explicit const* _real_ptr = nullptr;
@@ -99,7 +99,7 @@ namespace boost {
                     int first_digit = this->_real_ptr->_digits[0];
                     this->approximation_interval.lower_bound.digits.push_back(first_digit);
 
-                    if (first_digit == base-1) {
+                    if (first_digit == base) {
                         this->approximation_interval.upper_bound.digits.push_back(1);
                         this->approximation_interval.upper_bound.exponent++;
                     } else if (this->_n < (int)this->_real_ptr->_digits.size()) {
@@ -163,7 +163,7 @@ namespace boost {
 
                         int carry = 1;
                         for (int i = (int)this->approximation_interval.lower_bound.size() - 1; i >= 0; --i) {
-                            if (this->approximation_interval.lower_bound[i] + carry == base) {
+                            if (this->approximation_interval.lower_bound[i] > base - carry) {
                                 this->approximation_interval.upper_bound[i] = 0;
                             } else {
                                 this->approximation_interval.upper_bound[i] = this->approximation_interval.lower_bound[i] + carry;
