@@ -131,7 +131,8 @@ namespace boost {
             void set_division_result (boundary<T>& numerator,
                                       boundary<T>& denominator,
                                       boundary<T>& ret,
-                                      int precision) {
+                                      int precision,
+                                      bool is_upper) {
 
                     /// @TODO replace this with something more efficient. binary search is probably
                     // not very efficient
@@ -169,27 +170,47 @@ namespace boost {
                     min_boundary_p.digits = {1};
                     min_boundary_p.exponent = -1 * precision;
 
-                    int H = base/2 + 1;
+                    T H = base/2 + 1;
                     half.digits = {H};
                     half.exponent = 0;
 
                     tmp.digits = {1};
                     tmp.exponent = 1;
+
+                    if (denominator == tmp) {
+                        ret = numerator;
+                        ret.positive = positive;
+                        return;
+                    }
+
+                    if (denominator == numerator) { 
+                        ret = tmp;
+                        ret.positive = positive;
+                        return;
+                    }
+
                     ///@TODO: remember signs at the end of this function
+
+                    boost::real::boundary<T> zero; 
+
+                    if (denominator == zero)
+                        throw(boost::real::divide_by_zero());
+                    else if ((denominator > zero) && (denominator < tmp)) // 0 < d < 1
+                        throw(boost::real::invalid_denominator());
 
                 // N < D --> 0 < abs(Q) < 1
                 if (numerator < denominator) {
-                        left = boundary<T>(); // 0
+                        left = boost::real::boundary<T>(); // 0
                         right = tmp; // 1
                     } else { // assuming D > 1. N > D ---> 1 < N / D < N
                         left = tmp; // 1
                         right = numerator;
                     }
+
                 // Example: say we have 144 / 12. At min precision, this is
                 // [100, 200] / [10, 20]
                 // so, our quotient upper bound would be 200/10, and 
                 // the lower bound would be 100/20.
-                // std::cout << "N/D: " << numerator << '/' << denominator << '\n';
 
                 /// @TODO: the following
                 // if numerator == 0, return 0 
@@ -197,84 +218,145 @@ namespace boost {
                 // if denominator == 0, throw error
 
                 // distance = (right - left) / 2
-                subtract_boundaries(
+                boost::real::helper::subtract_boundaries(
                         right,
                         left,
                         tmp 
                         );
-                multiply_boundaries(
+                boost::real::helper::multiply_boundaries(
                         tmp,                                    
                         half,
                         distance
                     );
-                // ret = denominator + distance
-                add_boundaries(
-                        denominator,
+                // ret = left + distance
+                boost::real::helper::add_boundaries(
+                        left,
                         distance,
                         ret
                 );
                 // residual = ret * denom - num, equals zero if numerator/denominator = ret
-                multiply_boundaries(
+                boost::real::helper::multiply_boundaries(
                         ret,
                         denominator,
-                        residual
+                        tmp 
                 );
-                subtract_boundaries(
-                        residual,
+                boost::real::helper::subtract_boundaries(
+                        tmp,
                         numerator,
                         residual
                 );
                 // calculate the result
-                while (((helper::abs(residual) > min_boundary_p)) &&
-                        (distance.exponent > (-1 * (precision ))) ){
+                // continue the loop while we are still inaccurate (up to max precision), or while
+                // we are on the wrong side of the answer
+                while ((boost::real::helper::abs(residual) > min_boundary_p) || 
+                        (is_upper && (residual < min_boundary_n)) || (!is_upper && (residual > min_boundary_p))) /* &&
+                        distance.exponent > min_boundary_p.exponent) */{
+                    // std::cout << "[res, ret] [" << residual << ", " << ret << "]\n";
+
                     // result too small, try halfway between ret and numerator 
                     if (residual < min_boundary_n) {
                         left = ret;
                     }
                     // distance is halved
                     tmp = distance;
-                    multiply_boundaries(
+                    boost::real::helper::multiply_boundaries(
                             tmp,
                             half,
                             distance
                         ); 
                     // truncate insignificant digits of distance
-                    // using +5 because +1 truncates too much, for some reason
-                    /// @TODO figure out truncation and precision
+                    // NOTE: The loop will not terminate if you truncate too much, for certain
+                    // divisions. 5 seems to work well, so I'm leaving it as that.
+                    // we may want to look at this in closer detail
                     while (distance.size() > precision + 5)
                         distance.digits.pop_back();
 
                     // iterate ret
-                    add_boundaries(
+                    boost::real::helper::add_boundaries(
                             left,
                             distance,
                             ret
                     );
                     // truncate insignificant digits of ret
-                    while (ret.size() > precision + 5 )
+                    while (ret.size() > precision + 5)
                         ret.digits.pop_back();
 
-                    // recalculate residual  N/D = Q ---> QD - N = 0
-                    multiply_boundaries(
+                    // recalculate residual  N/D = Q ---> QD - N = residual
+                    boost::real::helper::multiply_boundaries(
                             ret,
                             denominator,
                             tmp 
                     );
-                    subtract_boundaries(
+                    boost::real::helper::subtract_boundaries(
                             tmp,
                             numerator,
                             residual
                     );
-                } // now ret is correct, or at least within +-epsilon of correct value 
+                    residual.normalize();
+                } // end while
+                // now ret is correct, or at least within +-epsilon of correct value 
                 // truncate ret
-                /// @TODO verify this is within max precision, should be easy proof
                 while (ret.size() > precision)
                     ret.digits.pop_back();
+
                 if (positive)
                     ret.positive = true;
                 else
                     ret.positive = false;
-            }
+
+                // recalculate residual for the final ret value
+                boost::real::helper::multiply_boundaries(
+                        ret,
+                        denominator,
+                        tmp 
+                );
+                boost::real::helper::subtract_boundaries(
+                        tmp,
+                        numerator,
+                        residual
+                );
+                // note we have to normalize before comparison, because -0.0 != zero 
+                residual.normalize();
+                // perhaps, try rounding up/down here to see if that makes the residual = 0.
+
+                if (residual != zero) { // then, we are not fully accurate, and we must round up/truncate
+                                        // note truncation was already done before this
+                    if(is_upper) { // round up
+                        if (ret.digits.back() != 9)
+                            ++(ret.digits.back());
+                        else { // back == 9
+                            int index = precision;
+                            bool keep_carrying = true;
+
+                            while((index > 0) && keep_carrying) { // bring the carry back
+                                if(ret.digits[index] != 9) {
+                                    ++ret.digits[index];
+                                    keep_carrying = false;
+                                } else // digits[index] == 9, we keep carrying
+                                    ret.digits[index] = 0;
+                                --index;
+                            }
+
+                            if ((index == 0) && keep_carrying) { // i.e., .999 should become 1.000
+                                if(ret.digits[index] == 9) {
+                                    ret.digits[index] = 0;
+                                    ret.push_front(1);
+                                    ++ret.exponent;
+                                }
+                                else
+                                    ++ret.digits[index];
+                            }
+                        }
+                    } else { // !is_upper, we have a truncated result.
+                        ;
+                    }
+                } else {
+                    ; // residual is zero, and we have a fully accurate result.
+                }
+                ret.normalize();
+                // std::cout << "[res, ret] [" << residual << ", " << ret << "]\n";
+                // std::cout << "isupper: " << (is_upper ? "true" : "false") << '\n';
+            } // end division lambda definition
         }
     }
 }

@@ -40,10 +40,22 @@ namespace boost {
             }
         };
 
-        struct divide_by_zero_exception : public std::exception {
+        struct divide_by_zero : public std::exception {
 
             const char * what () const throw () override {
-                return "Division by zero is not possible";
+                return "Divison by zero is undefined";
+            }
+        };
+
+        struct invalid_denominator : public std::exception {
+            const char * what () const throw () override {
+                return "Divison with denominators 0 < d < 1 is undefined.";
+            }
+        };
+
+        struct divergent_division_result_exception : public std::exception {
+            const char * what () const throw () override {
+                return "The divisor approximation interval contains 0, so the quotient is unbounded";
             }
         };
     }

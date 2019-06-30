@@ -112,6 +112,10 @@ namespace boost {
                 return !(*this < other || other < *this);
             }
 
+            bool operator!=(const boundary& other) const {
+                return !(*this == other);
+            }
+
             /**
              * @brief Generates a string representation of the boost::real::boundary.
              *
