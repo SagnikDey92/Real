@@ -132,7 +132,9 @@ namespace boost {
                                       boundary<T>& denominator,
                                       boundary<T>& ret,
                                       int precision,
-                                      bool is_upper) {
+                                      bool is_upper,
+                                      boundary<T>& tmp,
+                                      boundary<T>& residual) {
 
                     /// @TODO replace this with something more efficient. binary search is probably
                     // not very efficient
@@ -146,13 +148,13 @@ namespace boost {
                     // 1 / .23 = 1 * 100 * (1/23)
                     // etc.,
                     // after this, no division by D < 1
+                    tmp.clear();
+                    residual.clear();
 
                     unsigned long long int base = 29;
                     
                     boost::real::boundary<T> left;
                     boost::real::boundary<T> right;
-                    boost::real::boundary<T> residual;
-                    boost::real::boundary<T> tmp;
                     boost::real::boundary<T> half;
                     boost::real::boundary<T> distance;
                     boost::real::boundary<T> min_boundary_n;
@@ -248,9 +250,11 @@ namespace boost {
                 // calculate the result
                 // continue the loop while we are still inaccurate (up to max precision), or while
                 // we are on the wrong side of the answer
+                boost::real::boundary<T> old_residual = residual;
                 while ((boost::real::helper::abs(residual) > min_boundary_p) || 
                         (is_upper && (residual < min_boundary_n)) || (!is_upper && (residual > min_boundary_p))) /* &&
                         distance.exponent > min_boundary_p.exponent) */{
+                    old_residual = residual;
                     // std::cout << "[res, ret] [" << residual << ", " << ret << "]\n";
 
                     // result too small, try halfway between ret and numerator 
@@ -293,6 +297,8 @@ namespace boost {
                             residual
                     );
                     residual.normalize();
+                    if (old_residual == residual)
+                        break;
                 } // end while
                 // now ret is correct, or at least within +-epsilon of correct value 
                 // truncate ret
@@ -322,14 +328,14 @@ namespace boost {
                 if (residual != zero) { // then, we are not fully accurate, and we must round up/truncate
                                         // note truncation was already done before this
                     if(is_upper) { // round up
-                        if (ret.digits.back() != 9)
+                        if (ret.digits.back() != base)
                             ++(ret.digits.back());
                         else { // back == 9
                             int index = precision;
                             bool keep_carrying = true;
 
                             while((index > 0) && keep_carrying) { // bring the carry back
-                                if(ret.digits[index] != 9) {
+                                if(ret.digits[index] != base) {
                                     ++ret.digits[index];
                                     keep_carrying = false;
                                 } else // digits[index] == 9, we keep carrying
@@ -338,7 +344,7 @@ namespace boost {
                             }
 
                             if ((index == 0) && keep_carrying) { // i.e., .999 should become 1.000
-                                if(ret.digits[index] == 9) {
+                                if(ret.digits[index] == base) {
                                     ret.digits[index] = 0;
                                     ret.push_front(1);
                                     ++ret.exponent;

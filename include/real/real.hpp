@@ -153,66 +153,71 @@ namespace boost {
                             // in the case where our denominator interval contains 0, 
                             // iterate precision until it no longer does, or, if it still does
                             // throw 
-                            while (_rhs_it_ptr->approximation_interval.lower_bound < boost::real::boundary<T>() && 
-                                   _rhs_it_ptr->approximation_interval.upper_bound > boost::real::boundary<T>())
-                                ++(*this);
-                            
-                            if (_rhs_it_ptr->approximation_interval.lower_bound < boost::real::boundary<T>() && 
-                                _rhs_it_ptr->approximation_interval.upper_bound > boost::real::boundary<T>())
-                                throw boost::real:: divergent_division_result_exception();
+                            {
+                                boost::real::boundary<T> zero;
+                                while (_rhs_it_ptr->approximation_interval.lower_bound < zero && 
+                                    _rhs_it_ptr->approximation_interval.upper_bound > zero)
+                                    ++(*this);
+                                
+                                if (_rhs_it_ptr->approximation_interval.lower_bound < zero && 
+                                    _rhs_it_ptr->approximation_interval.upper_bound > zero)
+                                    throw boost::real:: divergent_division_result_exception();
 
-                            boost::real::helper::set_division_result<T>(_lhs_it_ptr->approximation_interval.upper_bound,
-                                                _rhs_it_ptr->approximation_interval.lower_bound,
-                                                this->approximation_interval.upper_bound,
-                                                (int)this->_real_ptr->max_precision(), 
-                                                true);
-                            // Q = N/D
-                            // check to see if we might have an exact number answer, and if the upper bound is equal to it
-                            /*
-                            if(_rhs_it_ptr->approximation_interval.is_a_number() &&
-                               _lhs_it_ptr->approximation_interval.is_a_number()) {
-                                // residual = QD - N. If residual = 0, we have the exact answer
-                                boost::real::helper::multiply_boundaries(this->approximation_interval.upper_bound,
-                                                                        _rhs_it_ptr->approximation_interval.lower_bound,
-                                                                        tmp);
-                                boost::real::helper::subtract_boundaries(tmp,
-                                                                        _lhs_it_ptr->approximation_interval.upper_bound,
-                                                                        residual);
-                                residual.normalize();
-                                if (residual == boost::real::boundary<T>()) {// upper boundary is fully accurate. make equal to lower bound
-                                    this->approximation_interval.lower_bound = this->approximation_interval.upper_bound;
-                                    return;
-                                }
-                            }
-                            */
-
-                            // lower boundary
-                            boost::real::helper::set_division_result<T>(_lhs_it_ptr->approximation_interval.lower_bound, 
-                                                _rhs_it_ptr->approximation_interval.upper_bound,
-                                                this->approximation_interval.lower_bound,
-                                                (int)this->_real_ptr->max_precision(),
-                                                false);
-
-                            // check to see if we might have an exact number answer, and if the lower bound is equal to it
-                            /*
-                            if(_rhs_it_ptr->approximation_interval.is_a_number() &&
-                            _lhs_it_ptr->approximation_interval.is_a_number()) {
-                                    boost::real::helper::multiply_boundaries(this->approximation_interval.lower_bound,
-                                                                            _rhs_it_ptr->approximation_interval.upper_bound,
+                                boost::real::boundary<T> tmp;
+                                boost::real::boundary<T> residual;
+                                boost::real::helper::set_division_result<T>(_lhs_it_ptr->approximation_interval.upper_bound,
+                                                    _rhs_it_ptr->approximation_interval.lower_bound,
+                                                    this->approximation_interval.upper_bound,
+                                                    (int)this->_real_ptr->max_precision(), 
+                                                    true,
+                                                    tmp,
+                                                    residual);
+                                // Q = N/D
+                                // check to see if we might have an exact number answer, and if the upper bound is equal to it
+                                if(_rhs_it_ptr->approximation_interval.is_a_number() &&
+                                _lhs_it_ptr->approximation_interval.is_a_number()) {
+                                    // residual = QD - N. If residual = 0, we have the exact answer
+                                    boost::real::helper::multiply_boundaries(this->approximation_interval.upper_bound,
+                                                                            _rhs_it_ptr->approximation_interval.lower_bound,
                                                                             tmp);
                                     boost::real::helper::subtract_boundaries(tmp,
-                                                                            _lhs_it_ptr->approximation_interval.lower_bound,
+                                                                            _lhs_it_ptr->approximation_interval.upper_bound,
                                                                             residual);
                                     residual.normalize();
-                                    if (residual == boost::real::boundary<T>()) // lower boundary is fully accurate. make equal to upper bound
-                                        this->approximation_interval.upper_bound = this->approximation_interval.lower_bound;
+                                    if (residual == zero) {// upper boundary is fully accurate. make equal to lower bound
+                                        this->approximation_interval.lower_bound = this->approximation_interval.upper_bound;
+                                        return;
+                                    }
                                 }
-                            */
-                            // for negative result, swap bounds
-                            if (!(_lhs_it_ptr->approximation_interval.positive() == 
-                                _rhs_it_ptr->approximation_interval.positive()))
-                                this->approximation_interval.swap_bounds();
-                            break;
+
+                                // lower boundary
+                                boost::real::helper::set_division_result<T>(_lhs_it_ptr->approximation_interval.lower_bound, 
+                                                    _rhs_it_ptr->approximation_interval.upper_bound,
+                                                    this->approximation_interval.lower_bound,
+                                                    (int)this->_real_ptr->max_precision(),
+                                                    false,
+                                                    tmp,
+                                                    residual);
+
+                                // check to see if we might have an exact number answer, and if the lower bound is equal to it
+                                if(_rhs_it_ptr->approximation_interval.is_a_number() &&
+                                _lhs_it_ptr->approximation_interval.is_a_number()) {
+                                        boost::real::helper::multiply_boundaries(this->approximation_interval.lower_bound,
+                                                                                _rhs_it_ptr->approximation_interval.upper_bound,
+                                                                                tmp);
+                                        boost::real::helper::subtract_boundaries(tmp,
+                                                                                _lhs_it_ptr->approximation_interval.lower_bound,
+                                                                                residual);
+                                        residual.normalize();
+                                        if (residual == zero) // lower boundary is fully accurate. make equal to upper bound
+                                            this->approximation_interval.upper_bound = this->approximation_interval.lower_bound;
+                                    }
+                                // for negative result, swap bounds
+                                if (!(_lhs_it_ptr->approximation_interval.positive() == 
+                                    _rhs_it_ptr->approximation_interval.positive()))
+                                    this->approximation_interval.swap_bounds();
+                                break;
+                            }
 
                         case OPERATION::MULTIPLICATION: {
                             bool lhs_positive = this->_lhs_it_ptr->approximation_interval.positive();

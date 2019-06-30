@@ -181,6 +181,8 @@ namespace boost {
                     }
                 }
 
+                return result;
+                
                 //Form new string below in base 10.
                 std::vector<int> new_result = {0};
                 std::size_t dot_pos = result.find('.');
