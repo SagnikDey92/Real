@@ -2,6 +2,7 @@
 #define BOOST_REAL_BOUNDARY_HELPER_HPP
 
 #include <algorithm>
+#include <limits>
 #include "interval.hpp"
 
 #include <iostream>
@@ -67,8 +68,8 @@ namespace boost {
                             const std::vector<T> &rhs,
                             int rhs_exponent,
                             std::vector<T> &result,
-                            const T base = 29) {
-
+                            T base = 1233) {
+                
                 int carry = 0;
                 std::vector<T> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
@@ -144,7 +145,7 @@ namespace boost {
                                  const std::vector<T> &rhs,
                                  int rhs_exponent,
                                  std::vector<T> &result,
-                                 unsigned long long int base = 29) {
+                                 T base = 1233) {
 
                 std::vector<T> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
@@ -200,6 +201,53 @@ namespace boost {
              * @param result - a std::vector<unsigned int> that is used to store the result.
              * @return a integer representing the exponent of the result.
              */
+            template <typename T>
+            T mulmod(T a, T b, T mod) 
+            { 
+                T res = 0; // Initialize result 
+                a = a % mod; 
+                while (b > 0) 
+                { 
+                    // If b is odd, add 'a' to result 
+                    if (b % 2 == 1) 
+                        res = (res + a) % mod; 
+            
+                    // Multiply 'a' with 2 
+                    a = (a * 2) % mod; 
+            
+                    // Divide b by 2 
+                    b /= 2; 
+                } 
+            
+                // Return result 
+                return res % mod; 
+            }
+
+            template <typename T>
+            T mult_div(T a, T b, T c) {
+                T rem = 0;
+                T res = (a / c) * b;
+                a = a % c;
+                // invariant: a_orig * b_orig = (res * c + rem) + a * b
+                // a < c, rem < c.
+                while (b != 0) {
+                    if (b & 1) {
+                        rem += a;
+                        if (rem >= c) {
+                            rem -= c;
+                            res++;
+                        }
+                    }
+                    b /= 2;
+                    a *= 2;
+                    if (a >= c) {
+                        a -= c;
+                        res += b;
+                    }
+                }
+                return res;
+            } 
+
             template <typename T = int>
             int multiply_vectors(
                     const std::vector<T>& lhs,
@@ -207,7 +255,7 @@ namespace boost {
                     const std::vector<T>& rhs,
                     int rhs_exponent,
                     std::vector<T>& result,
-                    unsigned long long int base = 30
+                    T base = 1234
             ) {
 
                 // will keep the result number in vector in reverse order
@@ -227,7 +275,7 @@ namespace boost {
                 auto i_n1 = (int) temp.size() - 1;
                 // Go from right to left in lhs
                 for (int i = (int)lhs.size()-1; i>=0; i--) {
-                    int carry = 0;
+                    T carry = 0;
 
                     // To shift position to left after every
                     // multiplication of a digit in rhs
@@ -239,12 +287,27 @@ namespace boost {
                         // Multiply current digit of second number with current digit of first number
                         // and add result to previously stored result at current position.
                         unsigned long long int sum = lhs[i]*rhs[j] + temp[i_n1 - i_n2] + carry;
+                        T rem = mulmod(lhs[i], rhs[j], base);
+                        T rem_s;
+                        T q = mult_div(lhs[i], rhs[j], base);
+                        if ( temp[i_n1 - i_n2] >= base - carry ) {
+                            rem_s = carry - (base - temp[i_n1 - i_n2]);
+                            ++q;
+                        }
+                        else
+                            rem_s = temp[i_n1 - i_n2] + carry;
+                        if ( rem >= base - rem_s ) {
+                            rem -= (base - rem_s);
+                            ++q;
+                        }
+                        else
+                            rem += rem_s;
 
                         // Carry for next iteration
-                        carry = sum / base;
+                        carry = q;
 
                         // Store result
-                        temp[i_n1 - i_n2] = sum % base;
+                        temp[i_n1 - i_n2] = rem;
 
                         i_n2++;
                     }

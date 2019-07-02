@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <limits>
 #include <string>
 #include <iterator>
 
@@ -180,8 +181,6 @@ namespace boost {
                         result.pop_back();
                     }
                 }
-
-                return result;
                 
                 //Form new string below in base 10.
                 std::vector<int> new_result = {0};
@@ -206,7 +205,15 @@ namespace boost {
                 std::reverse (decimal.begin(), decimal.end()); 
 
                 //integer and decimal are string vectors with the "digits" in diff base
-                std::vector<int> base = {3, 0};
+                T b = 1233;
+                std::vector<int> base;
+                std::vector<int> one = {1};
+                while (b!=0) {
+                    base.push_back(b%10);
+                    b /=10;
+                }
+                std::reverse(base.begin(), base.end());
+                boost::real::helper::add_vectors(base, base.size(), one, 1, base, 9);
                 while(!integer.empty()) {
                     std::vector<int> temp;
                     std::string num = integer.back();

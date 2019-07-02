@@ -3,6 +3,7 @@
 
 #include <list>
 #include <utility>
+#include <limits>
 
 #include <real/interval.hpp>
 #include <real/boundary.hpp>
@@ -151,7 +152,7 @@ namespace boost {
                     tmp.clear();
                     residual.clear();
 
-                    unsigned long long int base = 29;
+                    T base = 1233;
                     
                     boost::real::boundary<T> left;
                     boost::real::boundary<T> right;

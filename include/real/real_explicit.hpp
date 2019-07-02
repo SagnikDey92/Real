@@ -51,7 +51,7 @@ namespace boost {
                 int _n;
 
                 // Base
-                unsigned long long int base = 29;
+                T base = 1233;
 
                 // Internal number to iterate
                 real_explicit const* _real_ptr = nullptr;
@@ -254,8 +254,8 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                //int b = std::numeric_limits<int>::max();
-                int b = 29;
+                //int b = 30;
+                T b = 1233;
                 std::vector<int> base;
                 std::vector<int> one = {1};
                 while (b!=0) {
@@ -358,8 +358,8 @@ namespace boost {
                 }
                 //changing base below
                 exponent = 0;
-                //int b = std::numeric_limits<int>::max();
-                int b = 29;
+                //int b = 30;
+                T b = 1233;
                 std::vector<int> base;
                 std::vector<int> one = {1};
                 while (b!=0) {

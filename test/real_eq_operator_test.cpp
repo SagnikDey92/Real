@@ -22,7 +22,7 @@ TEST_CASE("Operator ==") {
 
                 CHECK(a == d);
             }
-SECTION("Addition == Explicit") {
+            SECTION("Addition == Explicit") {
                 boost::real::real a("1.5");
                 boost::real::real b("1.5");
                 boost::real::real c = a + b;
