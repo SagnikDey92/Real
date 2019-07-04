@@ -88,7 +88,7 @@ namespace boost {
                  */
                 explicit const_precision_iterator(real_algorithm const* real_number) : _n(1), _real_ptr(real_number) {
 
-                    T base = 1233;
+                    T base = (std::numeric_limits<T>::max() /4)*2 - 1;
                     this->approximation_interval.lower_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.upper_bound.exponent = this->_real_ptr->_exponent;
                     this->approximation_interval.lower_bound.positive = this->_real_ptr->_positive;
@@ -129,7 +129,7 @@ namespace boost {
                     for (int i = 0; i < n; i++) {
                         this->approximation_interval.lower_bound.push_back((*this->_real_ptr)[this->_n + i]);
                     }
-                    T base = 1233;
+                    T base = (std::numeric_limits<T>::max() /4)*2 - 1;
                     this->approximation_interval.upper_bound.clear();
                     this->approximation_interval.upper_bound.digits.resize(this->approximation_interval.lower_bound.size());
                     int carry = 1;

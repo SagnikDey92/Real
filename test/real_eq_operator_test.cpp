@@ -20,16 +20,9 @@ TEST_CASE("Operator ==") {
                 boost::real::real c("0.5");
                 boost::real::real d = b + c;
 
-                CHECK(a == d);
+                CHECK(a == d); 
             }
-            SECTION("Addition == Explicit") {
-                boost::real::real a("1.5");
-                boost::real::real b("1.5");
-                boost::real::real c = a + b;
-                boost::real::real d("3");
 
-                CHECK(c == d);
-            }
             SECTION("Explicit == Subtraction") {
                 boost::real::real a("1");
                 boost::real::real b("1.5");

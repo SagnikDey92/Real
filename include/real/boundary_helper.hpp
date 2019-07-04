@@ -5,8 +5,6 @@
 #include <limits>
 #include "interval.hpp"
 
-#include <iostream>
-
 namespace boost {
     namespace real {
         namespace helper {
@@ -68,7 +66,7 @@ namespace boost {
                             const std::vector<T> &rhs,
                             int rhs_exponent,
                             std::vector<T> &result,
-                            T base = 1233) {
+                            T base = (std::numeric_limits<T>::max() /4)*2 - 1) {
                 
                 int carry = 0;
                 std::vector<T> temp;
@@ -145,7 +143,7 @@ namespace boost {
                                  const std::vector<T> &rhs,
                                  int rhs_exponent,
                                  std::vector<T> &result,
-                                 T base = 1233) {
+                                 T base = (std::numeric_limits<T>::max() /4)*2 - 1) {
 
                 std::vector<T> temp;
                 int fractional_length = std::max((int)lhs.size() - lhs_exponent, (int)rhs.size() - rhs_exponent);
@@ -255,7 +253,7 @@ namespace boost {
                     const std::vector<T>& rhs,
                     int rhs_exponent,
                     std::vector<T>& result,
-                    T base = 1234
+                    T base = (std::numeric_limits<T>::max() /4)*2
             ) {
 
                 // will keep the result number in vector in reverse order
@@ -377,7 +375,7 @@ namespace boost {
                     do {
                         digit++;
                         std::vector<T> multiplier = {digit};
-                        multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, 10);
+                        multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
                         int idx = 0;
                         while(idx < closest.size() && closest[idx]==0) 
                             ++idx;
@@ -398,9 +396,9 @@ namespace boost {
 
                     // Update the residual for the next iteration where more digits of the dividend will be considered
                     std::vector<T> multiplier = {digit-1};
-                    multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, 10);
+                    multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
                     residual.clear();
-                    subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, 9);
+                    subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, (T)9);
                     int idx = 0;
                     while(idx < residual.size() && residual[idx]==0) 
                         ++idx;

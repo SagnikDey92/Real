@@ -152,7 +152,7 @@ namespace boost {
                     tmp.clear();
                     residual.clear();
 
-                    T base = 1233;
+                    T base = (std::numeric_limits<T>::max() /4)*2 - 1;
                     
                     boost::real::boundary<T> left;
                     boost::real::boundary<T> right;

@@ -51,7 +51,7 @@ namespace boost {
                 int _n;
 
                 // Base
-                T base = 1233;
+                T base = (std::numeric_limits<T>::max() /4)*2 - 1;
 
                 // Internal number to iterate
                 real_explicit const* _real_ptr = nullptr;
@@ -96,7 +96,7 @@ namespace boost {
                     this->approximation_interval.lower_bound.positive = this->_real_ptr->_positive;
                     this->approximation_interval.upper_bound.positive = this->_real_ptr->_positive;
 
-                    int first_digit = this->_real_ptr->_digits[0];
+                    T first_digit = this->_real_ptr->_digits[0];
                     this->approximation_interval.lower_bound.digits.push_back(first_digit);
 
                     if (first_digit == base) {
@@ -255,15 +255,15 @@ namespace boost {
                 //changing base below
                 exponent = 0;
                 //int b = 30;
-                T b = 1233;
-                std::vector<int> base;
-                std::vector<int> one = {1};
+                T b = (std::numeric_limits<T>::max() /4)*2 - 1;
+                std::vector<T> base;
+                std::vector<T> one = {1};
                 while (b!=0) {
                     base.push_back(b%10);
-                    b /=10;
+                    b /= 10;
                 }
                 std::reverse(base.begin(), base.end());
-                boost::real::helper::add_vectors(base, base.size(), one, 1, base, 9);
+                boost::real::helper::add_vectors(base, base.size(), one, 1, base, (T)9);
                 int curr_size = this->_digits.size();
                 
                 for (int i = 0; i<this->_exponent-curr_size; ++i) {
@@ -291,13 +291,13 @@ namespace boost {
                     {
                         result = result * 10 + d;
                     }
+                    
                     new_digits.push_back(result);
                     this->_digits = quotient;
                 }
                 
                 std::reverse (new_digits.begin(), new_digits.end());
                 exponent += new_digits.size();
-
                 this->_digits = new_digits;
                 this->_exponent = exponent;
                 this->_maximum_precision = (int)this->_digits.size();
@@ -359,9 +359,9 @@ namespace boost {
                 //changing base below
                 exponent = 0;
                 //int b = 30;
-                T b = 1233;
-                std::vector<int> base;
-                std::vector<int> one = {1};
+                T b = (std::numeric_limits<T>::max() /4)*2 - 1;
+                std::vector<T> base;
+                std::vector<T> one = {1};
                 while (b!=0) {
                     base.push_back(b%10);
                     b /=10;

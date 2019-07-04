@@ -375,7 +375,7 @@ namespace boost {
                     switch (this->_real_ptr->_kind) {
 
                         case KIND::EXPLICIT:
-                                this->_explicit_it = this->_real_ptr->_explicit_number.cbegin();
+                            this->_explicit_it = this->_real_ptr->_explicit_number.cbegin();
                             this->approximation_interval = this->_explicit_it.approximation_interval;
                             break;
 
@@ -567,7 +567,7 @@ namespace boost {
                 }
                 if (integer_part.empty() && decimal_part.empty())
                     exponent = 0;
-                if (static_cast<int>(decimal_part.length() + integer_part.length()) <= exponent) {
+                if ((int)(decimal_part.length() + integer_part.length()) <= exponent) {
                     this->_kind = KIND::EXPLICIT;
                     this->_explicit_number = real_explicit<T>(integer_part, decimal_part, exponent, positive);
                 }

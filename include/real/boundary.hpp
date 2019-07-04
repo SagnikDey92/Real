@@ -181,9 +181,9 @@ namespace boost {
                         result.pop_back();
                     }
                 }
-                
+
                 //Form new string below in base 10.
-                std::vector<int> new_result = {0};
+                std::vector<T> new_result = {0};
                 std::size_t dot_pos = result.find('.');
                 std::string integer_part;
                 std::string decimal_part;
@@ -205,48 +205,48 @@ namespace boost {
                 std::reverse (decimal.begin(), decimal.end()); 
 
                 //integer and decimal are string vectors with the "digits" in diff base
-                T b = 1233;
-                std::vector<int> base;
-                std::vector<int> one = {1};
+                T b = (std::numeric_limits<T>::max() /4)*2 - 1;
+                std::vector<T> base;
+                std::vector<T> one = {1};
                 while (b!=0) {
                     base.push_back(b%10);
                     b /=10;
                 }
                 std::reverse(base.begin(), base.end());
-                boost::real::helper::add_vectors(base, base.size(), one, 1, base, 9);
+                boost::real::helper::add_vectors(base, base.size(), one, 1, base, (T)9);
                 while(!integer.empty()) {
-                    std::vector<int> temp;
+                    std::vector<T> temp;
                     std::string num = integer.back();
                     integer.pop_back();
                     for (auto j : num) {
                         temp.push_back(j - '0');
                     }
-                    boost::real::helper::add_vectors(new_result, new_result.size(), temp, temp.size(), new_result, 9);
+                    boost::real::helper::add_vectors(new_result, new_result.size(), temp, temp.size(), new_result, (T)9);
                     for (int i = 0; i<integer.size(); ++i) {
-                        std::vector<int> temp;
+                        std::vector<T> temp;
                         std::string tempstr = integer[i];
                         for (int j = 0; j<tempstr.length(); ++j) {
                             temp.push_back(tempstr[j] - '0'); 
                         }
-                        boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, 10);
+                        boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, (T)10);
                         int idx = 0;
                         while(idx < temp.size() && temp[idx]==0) 
                             ++idx;
                         temp.erase(temp.begin(), temp.begin() + idx);
                         std::stringstream ss;
-                        std::copy( temp.begin(), temp.end(), std::ostream_iterator<int>(ss, ""));
+                        std::copy( temp.begin(), temp.end(), std::ostream_iterator<T>(ss, ""));
                         std::string str = ss.str();
                         integer[i] = str;
                     }
                 }
 
                 std::stringstream ss;
-                std::copy( new_result.begin(), new_result.end(), std::ostream_iterator<int>(ss, ""));
+                std::copy( new_result.begin(), new_result.end(), std::ostream_iterator<T>(ss, ""));
                 std::string res_decimal = ss.str();
-                std::vector<int> new_base = base;
-                std::vector<std::vector<int>> powers = {base};
+                std::vector<T> new_base = base;
+                std::vector<std::vector<T>> powers = {base};
                 for (size_t i = 0; i<decimal.size(); ++i) {
-                    boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, 10);
+                    boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, (T)10);
                     int idx = 0;
                     while(idx < new_base.size() && new_base[idx]==0) 
                         ++idx;
@@ -257,24 +257,24 @@ namespace boost {
                 std::string zeroes = "";
                 for (size_t i = 0; i<precision; ++i)
                     zeroes = zeroes + "0";
-                std::vector<int> fraction = {0};
+                std::vector<T> fraction = {0};
                 auto pwr = powers.cbegin();
                 while(!decimal.empty()) {
                     std::string tempstr = decimal.back();
                     decimal.pop_back();
                     tempstr = tempstr + zeroes;
-                    std::vector<int> temp;
+                    std::vector<T> temp;
                     for (int j = 0; j<tempstr.length(); ++j) {
                         temp.push_back(tempstr[j] - '0'); 
                     }
-                    std::vector<int> k = *pwr++;
-                    std::vector<int> q;
+                    std::vector<T> k = *pwr++;
+                    std::vector<T> q;
                     boost::real::helper::divide_vectors(temp, k, q);
-                    boost::real::helper::add_vectors(fraction, fraction.size(), q, q.size(), fraction, 9);
+                    boost::real::helper::add_vectors(fraction, fraction.size(), q, q.size(), fraction, (T)9);
                 }
                 //@TODO The decimal part. And dont forget negative. Also, add exponent notation later.
                 std::stringstream sslast;
-                std::copy( fraction.begin(), fraction.end(), std::ostream_iterator<int>(sslast, ""));
+                std::copy( fraction.begin(), fraction.end(), std::ostream_iterator<T>(sslast, ""));
                 std::string fractionstr = sslast.str();
                 while (fractionstr.length() < precision)
                     fractionstr = "0" + fractionstr;
