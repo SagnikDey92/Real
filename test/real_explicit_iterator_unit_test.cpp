@@ -160,13 +160,6 @@ TEST_CASE("Iterator cend") {
 
     SECTION("Iterate until the full explicit number digit amount returns the end of the iterator") {
 
-        for(int i = 0; i < 7; i++) {
-            CHECK_FALSE( approximation_it == end_it );
-            ++approximation_it;
-        }
-
-        ++approximation_it;
-
         CHECK( approximation_it == end_it );
     }
 
