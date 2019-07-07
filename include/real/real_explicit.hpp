@@ -20,12 +20,12 @@ namespace boost {
          * @brief boost::real::real_explicit is a C++ class that fully represents real numbers as
          * a vector of digits, a sign and an exponent.
          */
-
+        template <typename T = int>
         class real_explicit {
 
             // Number representation as a vector of digits with an integer part and a sign (+/-)
             // TODO: Add normalizations to the constructors
-            exact_number explicit_number;
+            exact_number<T> explicit_number;
 
             // The number max precision is the same as the explicit number digits size.
             unsigned int _maximum_precision = 1;

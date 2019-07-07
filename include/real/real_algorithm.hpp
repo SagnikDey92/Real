@@ -15,7 +15,8 @@ namespace boost {
          * digits on demand, numbers with infinite representations as the irrational numbers can be
          * represented using this class.
          */
-
+        
+        template <typename T = int>
         class real_algorithm {
 
             // Number representation as a function that returns the number digits

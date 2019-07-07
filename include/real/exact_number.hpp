@@ -7,8 +7,9 @@
 
 namespace boost {
     namespace real {
+        template <typename T = int>
         struct exact_number {
-            std::vector<int> digits = {};
+            std::vector<T> digits = {};
             int exponent = 0;
             bool positive = true;
 
