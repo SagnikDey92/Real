@@ -34,11 +34,11 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
                             expected_interval.upper_bound.push_back(d);
                         }
 
-                        if (i < std::get<boost::real::real_explicit>(a.get_real_number()).digits().size() - 1) {
+                        if (i < std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size() - 1) {
                             expected_interval.lower_bound.push_back(a[i]);
                             expected_interval.upper_bound.push_back(a[i] + 1);
                         } else if (i ==
-                                    std::get<boost::real::real_explicit>(a.get_real_number()).digits().size() - 1) {
+                                    std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size() - 1) {
                             expected_interval.lower_bound.push_back(a[i]);
                             expected_interval.upper_bound.push_back(a[i]);
                         }
@@ -62,11 +62,11 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
             expected_interval.upper_bound.push_back(2);
             for (int i = 0; i < 11; i++) {
 
-                if (i < std::get<boost::real::real_explicit>(a.get_real_number()).digits().size()) {
+                if (i < std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size()) {
                     expected_interval.lower_bound.push_back(a[i]);
                 }
 
-                if (i == std::get<boost::real::real_explicit>(a.get_real_number()).digits().size() - 1) {
+                if (i == std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size() - 1) {
                     expected_interval.upper_bound.clear();
                     for (auto d : expected_interval.lower_bound.digits) {
                         expected_interval.upper_bound.push_back(d);
@@ -110,10 +110,10 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
                             expected_interval.lower_bound.push_back(d);
                         }
 
-                        if (i < std::get<boost::real::real_explicit>(a.get_real_number()).digits().size() - 1) {
+                        if (i < std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size() - 1) {
                             expected_interval.upper_bound.push_back(a[i]);
                             expected_interval.lower_bound.push_back(a[i] + 1);
-                        } else if (i == std::get<boost::real::real_explicit>(a.get_real_number()).digits().size() - 1) {
+                        } else if (i == std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size() - 1) {
                             expected_interval.upper_bound.push_back(a[i]);
                             expected_interval.lower_bound.push_back(a[i]);
                         }
@@ -138,11 +138,11 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
             expected_interval.lower_bound.push_back(2);
             for (int i = 0; i < 11; i++) {
 
-                if (i < std::get<boost::real::real_explicit>(a.get_real_number()).digits().size()) {
+                if (i < std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size()) {
                     expected_interval.upper_bound.push_back(a[i]);
                 }
 
-                if (i == std::get<boost::real::real_explicit>(a.get_real_number()).digits().size() - 1) {
+                if (i == std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size() - 1) {
                     expected_interval.lower_bound.clear();
                     for (auto d : expected_interval.upper_bound.digits) {
                         expected_interval.lower_bound.push_back(d);
@@ -178,10 +178,10 @@ TEST_CASE("Iterator cend") {
 
         CHECK( end_it.get_interval().lower_bound == end_it.get_interval().upper_bound);
         CHECK( end_it.get_interval().lower_bound.digits == 
-                        std::get<boost::real::real_explicit>(a.get_real_number()).digits());
+                        std::get<boost::real::real_explicit<>>(a.get_real_number()).digits());
         CHECK( end_it.get_interval().lower_bound.positive == 
-                        std::get<boost::real::real_explicit>(a.get_real_number()).positive());
+                        std::get<boost::real::real_explicit<>>(a.get_real_number()).positive());
         CHECK( end_it.get_interval().lower_bound.exponent ==
-                        std::get<boost::real::real_explicit>(a.get_real_number()).exponent());
+                        std::get<boost::real::real_explicit<>>(a.get_real_number()).exponent());
     }
 }

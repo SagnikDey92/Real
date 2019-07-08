@@ -56,7 +56,7 @@ namespace boost {
          * result before reaching the maximum precision, a precision_exception is thrown.
          */
         
-        template <typename T>
+        template <typename T = int>
         class real {
         private:
 

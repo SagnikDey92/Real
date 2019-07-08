@@ -15,7 +15,7 @@
 namespace boost { 
     namespace real{
 
-        template <typename T>
+        template <typename T = int>
         class real_data {
             real_number<T> _real;
             const_precision_iterator<T> _precision_itr;
@@ -111,7 +111,7 @@ namespace boost {
 
                     } else { // One is around zero all possible combinations are be tested
 
-                        exact_number current_boundary;
+                        exact_number<T> current_boundary;
 
                         // Lower * Lower
                                 current_boundary = 

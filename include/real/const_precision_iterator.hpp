@@ -26,11 +26,11 @@ namespace boost {
         template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
         template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
         // fwd decl
-        template <typename T = int>
+        template <typename T>
         class real;
 
         // same typedef is also found in real_data.hpp
-        template <typename T = int>
+        template <typename T>
         using real_number = std::variant<std::monostate, real_explicit<T>, real_algorithm<T>, real_operation<T>>;
 
         typedef std::variant<std::monostate, real_explicit, real_algorithm, real_operation> real_number;

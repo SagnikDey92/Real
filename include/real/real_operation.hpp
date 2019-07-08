@@ -10,9 +10,9 @@ namespace boost{
     namespace real{
 
         // fwd decl needed
-        template <typename T = int>
+        template <typename T>
         class real_data;
-        template <typename T = int>
+        template <typename T>
         class const_precision_iterator;
 
         /*
