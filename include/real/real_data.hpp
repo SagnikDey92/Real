@@ -163,11 +163,11 @@ namespace boost {
                     break;
                 }
                 case OPERATION::DIVISION: {
-                            exact_number zero = exact_number();
-                            exact_number residual;
-                            exact_number quotient;
-                            exact_number numerator;
-                            exact_number denominator;
+                            exact_number<T> zero = exact_number<T>();
+                            exact_number<T> residual;
+                            exact_number<T> quotient;
+                            exact_number<T> numerator;
+                            exact_number<T> denominator;
 
                             // if the interval contains zero, iterate until it doesn't, or until max_precision.
                             while (ro.get_rhs_itr().get_interval().lower_bound < zero && 

@@ -33,7 +33,8 @@ namespace boost {
         template <typename T>
         using real_number = std::variant<std::monostate, real_explicit<T>, real_algorithm<T>, real_operation<T>>;
 
-        typedef std::variant<std::monostate, real_explicit, real_algorithm, real_operation> real_number;
+        template <typename T>
+        using real_number = std::variant<std::monostate, real_explicit<T>, real_algorithm<T>, real_operation<T>>;
         /// the default max precision to use if the user hasn't provided one.
         const unsigned int DEFAULT_MAX_PRECISION = 10;
 
@@ -268,7 +269,7 @@ namespace boost {
 
                 void iterate_n_times(int n) {
                     std::visit( overloaded { // perform operation on whatever is held in variant
-                        [this, &n] (real_explicit& real) { 
+                        [this, &n] (real_explicit<T>& real) { 
                             if (this->_precision >= (unsigned int)real.digits().size()) {
                                 return;
                             }
