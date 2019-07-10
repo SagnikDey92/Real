@@ -13,7 +13,7 @@ namespace boost {
             int exponent = 0;
             bool positive = true;
 
-            static bool aligned_vectors_is_lower(const std::vector<int> &lhs, const std::vector<int> &rhs) {
+            static bool aligned_vectors_is_lower(const std::vector<int> &lhs, const std::vector<int> &rhs, bool equal = false) {
 
                 // Check if lhs is lower than rhs
                 auto lhs_it = lhs.cbegin();
@@ -26,6 +26,9 @@ namespace boost {
                 if (rhs_it != rhs.cend() && lhs_it != lhs.cend()) {
                     return *lhs_it < *rhs_it;
                 }
+
+                if (equal && rhs_it == rhs.cend() && lhs_it == lhs.cend())
+                    return false;
 
                 bool lhs_all_zero = std::all_of(lhs_it, lhs.cend(), [](int i){ return i == 0; });
                 bool rhs_all_zero = std::all_of(rhs_it, rhs.cend(), [](int i){ return i == 0; });
@@ -410,6 +413,8 @@ namespace boost {
             /// ctor from vector of digits, integer exponent, and optional bool positive
             exact_number(std::vector<int> vec, int exp, bool pos = true) : digits(vec), exponent(exp), positive(pos) {};
 
+            exact_number(std::vector<int> vec, bool pos = true) : digits(vec), exponent(vec.size()), positive(pos) {};
+
             /**
              * @brief *Copy constructor:* It constructs a new boost::real::exact_number that is a copy of the
              * other boost::real::exact_number.
@@ -597,6 +602,7 @@ namespace boost {
                 }
 
                 // If the number is too large, scientific notation is used to print it.
+                /*
                 if ((this->exponent < -10) || (this->exponent > (int)this->digits.size() + 10)) {
                     result += "0.";
 
@@ -607,15 +613,17 @@ namespace boost {
                     result += "e" + std::to_string(this->exponent);
                     return result;
                 }
+                */
 
                 if (this->exponent <= 0) {
-                    result += "0.";
+                    result += "0 .";
 
                     for (int i = this->exponent; i < (int) this->digits.size(); ++i) {
                         if (i < 0) {
-                            result += "0";
+                            result += "0 ";
                         } else {
                             result += std::to_string(this->digits[i]);
+                            result += " ";
                         }
                     }
                 } else {
@@ -624,13 +632,14 @@ namespace boost {
                     for (int i = 0; i < digit_amount; ++i) {
 
                         if (i == this->exponent) {
-                            result += ".";
+                            result += " .";
                         }
 
                         if (i < (int) this->digits.size()) {
                             result += std::to_string(this->digits[i]);
+                            result += " ";
                         } else {
-                            result += "0";
+                            result += "0 ";
                         }
                     }
 
