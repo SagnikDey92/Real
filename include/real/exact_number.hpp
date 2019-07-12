@@ -37,37 +37,54 @@ namespace boost {
             }
 
             /// adds other to *this. disregards sign -- that's taken care of in the operators.
-            void add_vector(exact_number &other){
+            void add_vector(exact_number &other, T base = 29){
                 int carry = 0;
-                std::vector<int> temp;
-                int fractional_length = std::max((int)digits.size() - exponent, (int)other.size() - other.exponent);
+                std::vector<T> temp;
+                int fractional_length = std::max((int)this->digits.size() - this->exponent, (int)other.digits.size() - other.exponent);
                 int integral_length = std::max(this->exponent, other.exponent);
 
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
 
-                    int lhs_digit = 0;
+                    T lhs_digit = 0;
                     if (0 <= this->exponent + i && this->exponent + i < (int)this->digits.size()) {
                         lhs_digit = this->digits[this->exponent + i];
                     }
 
-                    int rhs_digit = 0;
+                    T rhs_digit = 0;
                     if (0 <= other.exponent + i && other.exponent + i < (int)other.digits.size()) {
                         rhs_digit = other.digits[other.exponent + i];
                     }
-                    int digit = carry + lhs_digit + rhs_digit;
-
-                    if (digit > 9) {
+                    
+                    T digit;
+                    int orig_carry = carry;
+                    carry = 0;
+                    if ((base - lhs_digit) < rhs_digit) {
+                        T min = std::min(lhs_digit, rhs_digit);
+                        T max = std::max(lhs_digit, rhs_digit);
+                        if (min <= base/2) {
+                            T remaining = base/2 - min;
+                            digit = (max - base/2) - remaining - 2;
+                        } else {
+                            digit = (min - base/2) + (max - base/2) - 2;
+                        }
                         carry = 1;
-                        digit -= 10;
-                    } else {
+                    }
+                    else {
                         carry = 0;
+                        digit = rhs_digit + lhs_digit;
                     }
-
-                    temp.insert(temp.cbegin(), digit);
+                    if (digit < base || orig_carry == 0) {
+                        digit += orig_carry;
                     }
+                    else {
+                        carry = 1;
+                        digit = 0;
+                    }
+                    temp.insert(temp.begin(), digit);
+                }
                 if (carry == 1) {
-                    temp.insert(temp.cbegin(), 1);
+                    temp.insert(temp.begin(), 1);
                     integral_length++;
                 }
                 this->digits = temp;
@@ -76,7 +93,13 @@ namespace boost {
             }
 
             /// subtracts other from *this, disregards sign -- that's taken care of in the operators
-            void subtract_vector(exact_number &other) {
+            void subtract_vector(exact_number &other, T base = 10) {
+                for(auto i:this->digits)
+                    std::cout<<i<<" ";
+                std::cout<<"\t-\t";
+                for(auto i:other.digits)
+                    std::cout<<i<<" ";
+                std::cout<<"\t=\t";
                 std::vector<int> result;
                 int fractional_length = std::max((int)digits.size() - exponent, (int)other.size() - other.exponent);
                 int integral_length = std::max(this->exponent, other.exponent);
@@ -97,14 +120,14 @@ namespace boost {
                     }
 
                     if (lhs_digit < borrow) {
-                        lhs_digit += (10 - borrow);
+                        lhs_digit += (base - borrow);
                     } else {
                         lhs_digit -= borrow;
                         borrow = 0;
                     }
 
                     if (lhs_digit < rhs_digit) {
-                        lhs_digit += 10;
+                        lhs_digit += base;
                         borrow++;
                     }
 
@@ -113,10 +136,13 @@ namespace boost {
                 this->digits = result;
                 this->exponent = integral_length;
                 this->normalize();
+                for(auto i:this->digits)
+                    std::cout<<i<<" ";
+                std::cout<<"\n";
             }
 
             /// multiplies *this by other
-            void multiply_vector(exact_number &other) {
+            void multiply_vector(exact_number &other, T base = 30) {
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3

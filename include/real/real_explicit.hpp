@@ -26,9 +26,6 @@ namespace boost {
             // Number representation as a vector of digits with an integer part and a sign (+/-)
             // TODO: Add normalizations to the constructors
             exact_number<T> explicit_number;
-
-            // The number max precision is the same as the explicit number digits size.
-            unsigned int _maximum_precision = 1;
             
         public:
 
@@ -61,12 +58,6 @@ namespace boost {
                     std::vector<T>& quotient
             ) {
                 
-                for(auto i:dividend)
-                    std::cout<<i;
-                std::cout<<"\t/\t";
-                for(auto i:divisor)
-                    std::cout<<i;
-                std::cout<<"\t=\t";
                 exact_number<T> tmp;
                 std::vector<T> aligned_dividend = dividend;
                 std::vector<T> aligned_divisor = divisor;
@@ -166,12 +157,6 @@ namespace boost {
                 while(idx < quotient.size() && quotient[idx] == 0)
                     idx++;
                 quotient.erase(quotient.begin(), quotient.begin() + idx);
-                for(auto i:quotient)
-                    std::cout<<i;
-                std::cout<<"\t(";
-                for(auto i:residual)
-                    std::cout<<i;
-                std::cout<<")\n\n";
                 return residual;
             }
 
@@ -226,7 +211,6 @@ namespace boost {
                 for (const auto& c : decimal_part ) {
                     explicit_number.digits.push_back(c - '0');
                 }
-                this->_maximum_precision = explicit_number.digits.size();
                 //changing base below.
                 exponent = 0;
                 //int b = 30;
@@ -267,7 +251,6 @@ namespace boost {
                 exponent += (int)new_digits.size();
                 explicit_number.digits = new_digits;
                 explicit_number.exponent = exponent;
-                this->_maximum_precision = (int)explicit_number.digits.size();
             }           
 
             /**
@@ -279,8 +262,7 @@ namespace boost {
              * @param digits - an initializer_list<int> that represents the number digits.
              * @param exponent - an integer representing the number exponent.
              */
-            real_explicit(std::initializer_list<int> digits, int exponent) : explicit_number(digits, exponent),
-                                                                            _maximum_precision((int)explicit_number.digits.size())
+            real_explicit(std::initializer_list<int> digits, int exponent) : explicit_number(digits, exponent)
             {};
 
             /**
@@ -296,8 +278,7 @@ namespace boost {
              * the number is positive, otherwise is negative.
              */
             real_explicit(std::initializer_list<int> digits, int exponent, bool positive) : 
-                                                                                explicit_number(digits,exponent,positive) ,
-                                                                                _maximum_precision((int)explicit_number.digits.size())
+                                                                                explicit_number(digits,exponent,positive)
             {};
 
             /**
