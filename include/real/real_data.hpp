@@ -4,6 +4,7 @@
 #include <variant>
 #include <assert.h>
 #include <iostream>
+#include <limits>
 
 #include <real/const_precision_iterator.hpp>
 #include <real/interval.hpp>
@@ -169,6 +170,8 @@ namespace boost {
                             exact_number<T> numerator;
                             exact_number<T> denominator;
 
+                            T base = (std::numeric_limits<T>::max() /4)*2 - 1;;
+
                             // if the interval contains zero, iterate until it doesn't, or until max_precision.
                             while (ro.get_rhs_itr().get_interval().lower_bound < zero && 
                                    ro.get_rhs_itr().get_interval().upper_bound > zero &&
@@ -199,7 +202,7 @@ namespace boost {
                             // if both operands are numbers (not intervals), then we can skip doing the lower bound separately
                             if (ro.get_rhs_itr().get_interval().is_a_number() && ro.get_lhs_itr().get_interval().is_a_number()) {
                                 for(int i = 0; (i < 2) && (residual > zero); i++) { 
-                                    quotient.round_down();
+                                    quotient.round_down(base);
                                     residual = quotient * denominator - numerator;
                                     residual.normalize();
                                 }

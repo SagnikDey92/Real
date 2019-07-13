@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <limits>
 
 namespace boost {
     namespace real {
@@ -37,7 +38,7 @@ namespace boost {
             }
 
             /// adds other to *this. disregards sign -- that's taken care of in the operators.
-            void add_vector(exact_number &other, T base = 29){
+            void add_vector(exact_number &other, T base = (std::numeric_limits<T>::max() /4)*2 - 1){
                 int carry = 0;
                 std::vector<T> temp;
                 int fractional_length = std::max((int)this->digits.size() - this->exponent, (int)other.digits.size() - other.exponent);
@@ -93,7 +94,7 @@ namespace boost {
             }
 
             /// subtracts other from *this, disregards sign -- that's taken care of in the operators
-            void subtract_vector(exact_number &other, T base = 29) {
+            void subtract_vector(exact_number &other, T base = (std::numeric_limits<T>::max() /4)*2 - 1) {
                 std::vector<T> result;
                 int fractional_length = std::max((int)this->digits.size() - this->exponent, (int)other.digits.size() - other.exponent);
                 int integral_length = std::max(this->exponent, other.exponent);
@@ -180,7 +181,7 @@ namespace boost {
             } 
 
             /// multiplies *this by other
-            void multiply_vector(exact_number &other, T base = 30) {
+            void multiply_vector(exact_number &other, T base = (std::numeric_limits<T>::max() /4)*2) {
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
@@ -282,8 +283,8 @@ namespace boost {
                 boost::real::exact_number min_boundary_p;
 
                 bool positive = ((*this).positive == divisor.positive);
-                numerator = (*this).abs();
-                divisor = divisor.abs();
+                numerator = abs(*this);
+                divisor = abs(divisor);
 
                 min_boundary_n.digits = {1};
                 ///@TODO ensure exponent doesn't overflow
@@ -293,7 +294,9 @@ namespace boost {
                 min_boundary_p.digits = {1};
                 min_boundary_p.exponent = -1 * (max_precision);
 
-                half.digits = {5};
+                T base = (std::numeric_limits<T>::max() /4)*2 - 1;
+                T H = base/2 + 1;
+                half.digits = {H};
                 half.exponent = 0;
 
                 tmp.digits = {1};
@@ -348,13 +351,15 @@ namespace boost {
                 // calculate the result
                 // continue the loop while we are still inaccurate (up to max precision), or while
                 // we are on the wrong side of the answer
-                while ((residual.abs() > min_boundary_p) || 
+                boost::real::exact_number old_residual = residual;
+                 while ((abs(residual) > min_boundary_p) || 
                         // (is_upper && (residual < min_boundary_n)) || (!is_upper && (residual > min_boundary_p))) &&
                         (distance.exponent > min_boundary_p.exponent)) {
                     /// TODO: we might exit the loop early due to the last statement. 
                     /// Verify our answers are within +- epsilon of the solution.
 
                     // result too small, try halfway between (*this) and (*this) 
+                    old_residual = residual;
                     if (residual < min_boundary_n) {
                         left = (*this);
                     }
@@ -379,6 +384,8 @@ namespace boost {
                     // recalculate residual  N/D = Q ---> QD - N = residual
                     residual = ((*this) * divisor) - numerator;
                     residual.normalize();
+                    if (old_residual == residual)
+                        break;
                 } // end while
                 // now (*this) is correct, or at least within +-epsilon of correct value 
                 // truncate (*this)
@@ -397,9 +404,9 @@ namespace boost {
                 if (residual_o != zero) { // then, we are not fully accurate
                     // we try seeing if we can make the residual equal zero by adding/subtracting epsilon
                     exact_number tmp_lower = (*this);
-                    tmp_lower.round_down();
+                    tmp_lower.round_down(base);
                     exact_number tmp_upper = (*this);
-                    tmp_upper.round_up();
+                    tmp_upper.round_up(base);
 
                     residual = tmp_lower * divisor - numerator;
                     residual.normalize();
@@ -443,13 +450,12 @@ namespace boost {
                 }
             }
 
-            void round_up() {
-                T base = 30;
+            void round_up(T base) {
                 int index = digits.size() - 1;
                 bool keep_carrying = true;
 
                 while((index > 0) && keep_carrying) { // bring the carry back
-                    if(this->digits[index] != base - 1) {
+                    if(this->digits[index] != base) {
                         ++this->digits[index];
                         keep_carrying = false;
                     } else // digits[index] == 9, we keep carrying
@@ -458,7 +464,7 @@ namespace boost {
                 }
 
                 if ((index == 0) && keep_carrying) { // i.e., .999 should become 1.000
-                    if(this->digits[index] == base - 1) {
+                    if(this->digits[index] == base) {
                         this->digits[index] = 0;
                         this->push_front(1);
                         ++this->exponent;
@@ -468,8 +474,7 @@ namespace boost {
                 }
             }
 
-            void round_down() {
-                T base = 30;
+            void round_down(T base) {
                 int index = digits.size() - 1;
                 bool keep_carrying = true;
 
@@ -478,7 +483,7 @@ namespace boost {
                         --this->digits[index];
                         keep_carrying = false;
                     } else // digits[index] == 0, we keep carrying
-                        this->digits[index] = base - 1;
+                        this->digits[index] = base;
                     --index;
                 }
                 // we should be ok at this point because the first number in digits should != 0
@@ -608,25 +613,27 @@ namespace boost {
 
 
 
-            exact_number abs() {
-                exact_number result = (*this);
+            static exact_number abs(const exact_number& b) {
+                exact_number result = b;
                 result.positive = true;
                 return result;
             }
 
             exact_number operator+(exact_number other) {
-                exact_number result = *this;
-                result.add_vector(other);
+                exact_number result;
 
-                if (positive == other.positive) {
+                if (this->positive == other.positive) {
                         result = *this;
                         result.add_vector(other);
-                } else if (other.abs() < this->abs()) {
+                        result.positive = this->positive;
+                } else if (abs(other) < abs(*this)) {
                         result = *this;
                         result.subtract_vector(other);
+                        result.positive = this->positive;
                 } else {
                     result = other;
                     result.subtract_vector(*this);
+                    result.positive = !this->positive;
                 }
                 return result;
             }
@@ -636,18 +643,20 @@ namespace boost {
             }
 
             exact_number base10_add (exact_number other) {
-                exact_number result = *this;
-                result.add_vector(other, 9);
+                exact_number result;
 
                 if (positive == other.positive) {
                         result = *this;
-                        result.add_vector(other);
-                } else if (other.abs() < this->abs()) {
+                        result.add_vector(other, 9);
+                        result.positive = this->positive;
+                } else if (abs(other) < abs(*this)) {
                         result = *this;
-                        result.subtract_vector(other);
+                        result.subtract_vector(other, 9);
+                        result.positive = this->positive;
                 } else {
                     result = other;
-                    result.subtract_vector(*this);
+                    result.subtract_vector(*this), 9;
+                    result.positive = !this->positive;
                 }
                 return result;
             }
@@ -658,10 +667,12 @@ namespace boost {
                 if (this->positive != other.positive) {
                     result = *this;
                     result.add_vector(other);
+                    result.positive = this->positive;
                 } else {
-                    if (other.abs() < this->abs()) {
+                    if (abs(other) < abs(*this)) {
                         result = *this;
                         result.subtract_vector(other);
+                        result.positive = this->positive;
                     } else {
                         result = other;
                         result.subtract_vector(*this);
@@ -682,10 +693,12 @@ namespace boost {
                 if (this->positive != other.positive) {
                     result = *this;
                     result.add_vector(other, 9);
+                    result.positive = this->positive;
                 } else {
-                    if (other.abs() < this->abs()) {
+                    if (abs(other) < abs(*this)) {
                         result = *this;
                         result.subtract_vector(other, 9);
+                        result.positive = this->positive;
                     } else {
                         result = other;
                         result.subtract_vector(*this, 9);
@@ -699,6 +712,7 @@ namespace boost {
             exact_number operator*(exact_number other) {
                 exact_number result = *this;
                 result.multiply_vector(other);
+                result.positive = (this->positive == other.positive);
                 return result;
             }
 
@@ -709,6 +723,7 @@ namespace boost {
             exact_number base10_mult(exact_number other) {
                 exact_number result = *this;
                 result.multiply_vector(other, 10);
+                result.positive = (this->positive == other.positive);
                 return result;
             }
 

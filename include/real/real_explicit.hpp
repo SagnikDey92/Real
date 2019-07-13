@@ -6,6 +6,7 @@
 #include <initializer_list>
 #include <string>
 #include <regex>
+#include <limits>
 
 #include <real/real_exception.hpp>
 #include <real/interval.hpp>
@@ -160,6 +161,68 @@ namespace boost {
                 return residual;
             }
 
+            explicit real_explicit(const std::string& integer_part, const std::string& decimal_part, int exponent, bool positive) {
+                explicit_number.positive = positive;
+                if (integer_part.empty() && decimal_part.empty()) {
+                    explicit_number.digits = {0};
+                    explicit_number.exponent = 0;
+                    return;
+                }
+                explicit_number.exponent = exponent;
+                for (const auto& c : integer_part ) {
+                    explicit_number.digits.push_back(c - '0');
+                }
+                for (const auto& c : decimal_part ) {
+                    explicit_number.digits.push_back(c - '0');
+                }
+                //changing base below
+                exponent = 0;
+                //int b = 30;
+                T b = (std::numeric_limits<T>::max() /4)*2;
+                std::vector<T> base;
+                while (b!=0) {
+                    base.push_back(b%10);
+                    b /= 10;
+                }
+                std::reverse(base.begin(), base.end());
+                int curr_size = explicit_number.digits.size();
+                
+                for (int i = 0; i<explicit_number.exponent-curr_size; ++i) {
+                    explicit_number.digits.push_back(0);
+                }
+                
+                while (explicit_number.digits.size() > 1) {
+                    std::vector<T> quotient;
+                    std::vector<T> rem = divide_vectors(explicit_number.digits, base, quotient);
+                    if (rem.empty()) {
+                        explicit_number.digits = quotient;
+                        ++exponent; 
+                    }
+                    else
+                        break;
+                }
+                
+                std::vector<T> new_digits;
+                while (!explicit_number.digits.empty()) {
+                    std::vector<T> quotient;
+                    //std::vector<T> rem;
+                    std::vector<T> rem = divide_vectors(explicit_number.digits, base, quotient);
+                    T result = 0;
+                    for (auto d : rem)  
+                    {
+                        result = result * 10 + d;
+                    }
+                    
+                    new_digits.push_back(result);
+                    explicit_number.digits = quotient;
+                }
+                
+                std::reverse (new_digits.begin(), new_digits.end());
+                exponent += (int)new_digits.size();
+                explicit_number.digits = new_digits;
+                explicit_number.exponent = exponent;
+            }
+            
             explicit real_explicit(const std::string& number) {
                 std::regex decimal("((\\+|-)?[[:digit:]]*)(\\.(([[:digit:]]+)?))?((e|E)(((\\+|-)?)[[:digit:]]+))?");
                 if (!std::regex_match (number, decimal))
@@ -214,7 +277,13 @@ namespace boost {
                 //changing base below.
                 exponent = 0;
                 //int b = 30;
-                std::vector<T> base = {3, 0};
+                T b = (std::numeric_limits<T>::max() /4)*2;
+                std::vector<T> base;
+                while (b!=0) {
+                    base.push_back(b%10);
+                    b /= 10;
+                }
+                std::reverse(base.begin(), base.end());
                 int curr_size = explicit_number.digits.size();
                 
                 for (int i = 0; i<explicit_number.exponent-curr_size; ++i) {

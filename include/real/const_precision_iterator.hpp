@@ -7,6 +7,7 @@
 #include <real/real_operation.hpp>
 #include <real/exact_number.hpp>
 #include <real/real_exception.hpp>
+#include <limits>
 #include <memory>
 #include <variant>
 #include <assert.h>
@@ -140,7 +141,7 @@ namespace boost {
                 explicit const_precision_iterator(real_number<T> * a) : _real_ptr(a), _precision(1) {
                     std::visit( overloaded { // perform operation on whatever is held in variant
                         [this] (real_explicit<T>& real) {
-                            T base = 29;
+                            T base = (std::numeric_limits<T>::max() /4)*2 - 1;
                             this->_approximation_interval.lower_bound.exponent = real.exponent();
                             this->_approximation_interval.upper_bound.exponent = real.exponent();
                             this->_approximation_interval.lower_bound.positive = real.positive();
@@ -161,7 +162,7 @@ namespace boost {
                         },
 
                         [this] (real_algorithm<T>& real) {
-                            T base = 29;
+                            T base = (std::numeric_limits<T>::max() /4)*2 - 1;
                             this->_approximation_interval.lower_bound.exponent = real.exponent();
                             this->_approximation_interval.upper_bound.exponent = real.exponent();
                             this->_approximation_interval.lower_bound.positive = real.positive();
@@ -271,7 +272,7 @@ namespace boost {
                 void iterate_n_times(int n) {
                     std::visit( overloaded { // perform operation on whatever is held in variant
                         [this, &n] (real_explicit<T>& real) {
-                            T base = 29; 
+                            T base = (std::numeric_limits<T>::max() /4)*2 - 1;
                             if (this->_precision >= (unsigned int)real.digits().size()) {
                                 return;
                             }
@@ -332,7 +333,7 @@ namespace boost {
                            // If the number is negative, bounds are interpreted as mirrored:
                            // First, the operation is made as positive, and after bound calculation
                            // bounds are swapped to come back to the negative representation.
-                           T base = 29;
+                           T base = (std::numeric_limits<T>::max() /4)*2 - 1;
                            this->check_and_swap_boundaries();
 
                            for (int i = 0; i < n; i++) {
