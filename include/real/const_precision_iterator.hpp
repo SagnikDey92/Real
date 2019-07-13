@@ -140,6 +140,7 @@ namespace boost {
                 explicit const_precision_iterator(real_number<T> * a) : _real_ptr(a), _precision(1) {
                     std::visit( overloaded { // perform operation on whatever is held in variant
                         [this] (real_explicit<T>& real) {
+                            T base = 29;
                             this->_approximation_interval.lower_bound.exponent = real.exponent();
                             this->_approximation_interval.upper_bound.exponent = real.exponent();
                             this->_approximation_interval.lower_bound.positive = real.positive();
@@ -148,7 +149,7 @@ namespace boost {
                             int first_digit = real.digits()[0];
                             this->_approximation_interval.lower_bound.digits.push_back(first_digit);
 
-                            if (first_digit == 9) {
+                            if (first_digit == base) {
                                 this->_approximation_interval.upper_bound.digits.push_back(1);
                                 this->_approximation_interval.upper_bound.exponent++;
                             } else if (this->_precision < (unsigned int)real.digits().size()) {
@@ -160,6 +161,7 @@ namespace boost {
                         },
 
                         [this] (real_algorithm<T>& real) {
+                            T base = 29;
                             this->_approximation_interval.lower_bound.exponent = real.exponent();
                             this->_approximation_interval.upper_bound.exponent = real.exponent();
                             this->_approximation_interval.lower_bound.positive = real.positive();
@@ -168,7 +170,7 @@ namespace boost {
                             int first_digit = real[0];
                             this->_approximation_interval.lower_bound.digits.push_back(first_digit);
 
-                            if (first_digit == 9) {
+                            if (first_digit == base) {
                                 this->_approximation_interval.upper_bound.digits.push_back(1);
                                 this->_approximation_interval.upper_bound.exponent++;
                             } else {
@@ -268,7 +270,8 @@ namespace boost {
 
                 void iterate_n_times(int n) {
                     std::visit( overloaded { // perform operation on whatever is held in variant
-                        [this, &n] (real_explicit<T>& real) { 
+                        [this, &n] (real_explicit<T>& real) {
+                            T base = 29; 
                             if (this->_precision >= (unsigned int)real.digits().size()) {
                                 return;
                             }
@@ -302,7 +305,7 @@ namespace boost {
 
                                int carry = 1;
                                for (int i = (int)this->_approximation_interval.lower_bound.size() - 1; i >= 0; --i) {
-                                   if (this->_approximation_interval.lower_bound[i] + carry == 10) {
+                                   if (this->_approximation_interval.lower_bound[i] + carry == base + 1) {
                                        this->_approximation_interval.upper_bound[i] = 0;
                                    } else {
                                        this->_approximation_interval.upper_bound[i] = this->_approximation_interval.lower_bound[i] + carry;
@@ -329,6 +332,7 @@ namespace boost {
                            // If the number is negative, bounds are interpreted as mirrored:
                            // First, the operation is made as positive, and after bound calculation
                            // bounds are swapped to come back to the negative representation.
+                           T base = 29;
                            this->check_and_swap_boundaries();
 
                            for (int i = 0; i < n; i++) {
@@ -339,7 +343,7 @@ namespace boost {
                            this->_approximation_interval.upper_bound.digits.resize(this->_approximation_interval.lower_bound.size());
                            int carry = 1;
                            for (int i = (int)this->_approximation_interval.lower_bound.size() - 1; i >= 0; --i) {
-                               if (this->_approximation_interval.lower_bound[i] + carry == 10) {
+                               if (this->_approximation_interval.lower_bound[i] + carry == base + 1) {
                                    this->_approximation_interval.upper_bound[i] = 0;
                                } else {
                                    this->_approximation_interval.upper_bound[i] = this->_approximation_interval.lower_bound[i] + carry;

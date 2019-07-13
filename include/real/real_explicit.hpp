@@ -101,7 +101,7 @@ namespace boost {
                         digit++;
                         std::vector<T> multiplier = {digit};
                         //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
-                        tmp = (exact_number(aligned_divisor)*exact_number(multiplier));
+                        tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
                         closest = tmp.digits;
                         while (tmp.exponent - (int)tmp.digits.size() > 0) {
                             closest.push_back(0);
@@ -128,7 +128,7 @@ namespace boost {
                     // Update the residual for the next iteration where more digits of the dividend will be considered
                     std::vector<T> multiplier = {digit-1};
                     //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
-                    tmp = (exact_number(aligned_divisor)*exact_number(multiplier));
+                    tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
                     closest = tmp.digits;
                     while (tmp.exponent - (int)tmp.digits.size() > 0) {
                         closest.push_back(0);
@@ -136,7 +136,7 @@ namespace boost {
                     }
                     residual.clear();
                     //subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, (T)9);
-                    tmp = (exact_number(current_dividend) - exact_number(closest));
+                    tmp = (exact_number(current_dividend).base10_subtract(exact_number(closest)));
                     residual = tmp.digits;
                     while (tmp.exponent - (int)tmp.digits.size() > 0) {
                         residual.push_back(0);

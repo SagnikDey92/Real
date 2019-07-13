@@ -93,61 +93,99 @@ namespace boost {
             }
 
             /// subtracts other from *this, disregards sign -- that's taken care of in the operators
-            void subtract_vector(exact_number &other, T base = 10) {
-                for(auto i:this->digits)
-                    std::cout<<i<<" ";
-                std::cout<<"\t-\t";
-                for(auto i:other.digits)
-                    std::cout<<i<<" ";
-                std::cout<<"\t=\t";
-                std::vector<int> result;
-                int fractional_length = std::max((int)digits.size() - exponent, (int)other.size() - other.exponent);
+            void subtract_vector(exact_number &other, T base = 29) {
+                std::vector<T> result;
+                int fractional_length = std::max((int)this->digits.size() - this->exponent, (int)other.digits.size() - other.exponent);
                 int integral_length = std::max(this->exponent, other.exponent);
                 int borrow = 0;
-
-
                 // we walk the numbers from the lowest to the highest digit
                 for (int i = fractional_length - 1; i >= -integral_length; i--) {
 
-                    int lhs_digit = 0;
+                    T digit = 0;
+
+                    T lhs_digit = 0;
                     if (0 <= this->exponent + i && this->exponent + i < (int)this->digits.size()) {
                         lhs_digit = this->digits[this->exponent + i];
                     }
 
-                    int rhs_digit = 0;
-                    if (0 <= other.exponent + i && other.exponent + i < (int)other.digits.size()) {
+                    T rhs_digit = 0;
+                    if (0 <= other.exponent + i && other.exponent + i < (int) other.digits.size()) {
                         rhs_digit = other.digits[other.exponent + i];
                     }
 
                     if (lhs_digit < borrow) {
-                        lhs_digit += (base - borrow);
+                        digit = (base - rhs_digit) + 1 - borrow;
                     } else {
                         lhs_digit -= borrow;
                         borrow = 0;
-                    }
-
-                    if (lhs_digit < rhs_digit) {
-                        lhs_digit += base;
-                        borrow++;
-                    }
-
-                    result.insert(result.cbegin(), lhs_digit - rhs_digit);
+                        
+                        if (lhs_digit < rhs_digit) {
+                        ++borrow;
+                        digit = (base - (rhs_digit -1)) + lhs_digit;
+                        } else {
+                            digit = lhs_digit - rhs_digit;
+                        }
+                        
+                    }                    
+                    result.insert(result.begin(), digit);
                 }
                 this->digits = result;
                 this->exponent = integral_length;
                 this->normalize();
-                for(auto i:this->digits)
-                    std::cout<<i<<" ";
-                std::cout<<"\n";
             }
+
+            T mulmod(T a, T b, T mod) 
+            { 
+                T res = 0; // Initialize result 
+                a = a % mod; 
+                while (b > 0) 
+                { 
+                    // If b is odd, add 'a' to result 
+                    if (b % 2 == 1) 
+                        res = (res + a) % mod; 
+            
+                    // Multiply 'a' with 2 
+                    a = (a * 2) % mod; 
+            
+                    // Divide b by 2 
+                    b /= 2; 
+                } 
+            
+                // Return result 
+                return res % mod; 
+            }
+
+            T mult_div(T a, T b, T c) {
+                T rem = 0;
+                T res = (a / c) * b;
+                a = a % c;
+                // invariant: a_orig * b_orig = (res * c + rem) + a * b
+                // a < c, rem < c.
+                while (b != 0) {
+                    if (b & 1) {
+                        rem += a;
+                        if (rem >= c) {
+                            rem -= c;
+                            res++;
+                        }
+                    }
+                    b /= 2;
+                    a *= 2;
+                    if (a >= c) {
+                        a -= c;
+                        res += b;
+                    }
+                }
+                return res;
+            } 
 
             /// multiplies *this by other
             void multiply_vector(exact_number &other, T base = 30) {
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
-                std::vector<int> temp;
-                size_t new_size = digits.size() + other.digits.size();
+                std::vector<T> temp;
+                size_t new_size = this->digits.size() + other.digits.size();
                 if (this->exponent < 0) new_size -= this->exponent; // <--- Less the exponent
                 if (other.exponent < 0) new_size -= other.exponent; // <--- Less the exponent
 
@@ -158,9 +196,9 @@ namespace boost {
                 // Below two indexes are used to find positions
                 // in result.
                 auto i_n1 = (int) temp.size() - 1;
-                // Go from right to left in digits
-                for (int i = (int)digits.size()-1; i>=0; i--) {
-                    int carry = 0;
+                // Go from right to left in lhs
+                for (int i = (int)this->digits.size()-1; i>=0; i--) {
+                    T carry = 0;
 
                     // To shift position to left after every
                     // multiplication of a digit in rhs
@@ -171,13 +209,28 @@ namespace boost {
 
                         // Multiply current digit of second number with current digit of first number
                         // and add result to previously stored result at current position.
-                        int sum = digits[i]*other.digits[j] + temp[i_n1 - i_n2] + carry;
+                        unsigned long long int sum = this->digits[i]*other.digits[j] + temp[i_n1 - i_n2] + carry;
+                        T rem = mulmod(this->digits[i], other.digits[j], base);
+                        T rem_s;
+                        T q = mult_div(this->digits[i], other.digits[j], base);
+                        if ( temp[i_n1 - i_n2] >= base - carry ) {
+                            rem_s = carry - (base - temp[i_n1 - i_n2]);
+                            ++q;
+                        }
+                        else
+                            rem_s = temp[i_n1 - i_n2] + carry;
+                        if ( rem >= base - rem_s ) {
+                            rem -= (base - rem_s);
+                            ++q;
+                        }
+                        else
+                            rem += rem_s;
 
                         // Carry for next iteration
-                        carry = sum / 10;
+                        carry = q;
 
                         // Store result
-                        temp[i_n1 - i_n2] = sum % 10;
+                        temp[i_n1 - i_n2] = rem;
 
                         i_n2++;
                     }
@@ -188,11 +241,11 @@ namespace boost {
                     }
 
                     // To shift position to left after every
-                    // multiplication of a digit in digits.
+                    // multiplication of a digit in lhs.
                     i_n1--;
                 }
 
-                int fractional_part = ((int)digits.size() - this->exponent) + ((int)other.digits.size() - other.exponent);
+                int fractional_part = ((int)this->digits.size() - this->exponent) + ((int)other.digits.size() - other.exponent);
                 int result_exponent = (int)temp.size() - fractional_part;
                 
                 digits = temp;
@@ -391,11 +444,12 @@ namespace boost {
             }
 
             void round_up() {
+                T base = 30;
                 int index = digits.size() - 1;
                 bool keep_carrying = true;
 
                 while((index > 0) && keep_carrying) { // bring the carry back
-                    if(this->digits[index] != 9) {
+                    if(this->digits[index] != base - 1) {
                         ++this->digits[index];
                         keep_carrying = false;
                     } else // digits[index] == 9, we keep carrying
@@ -404,7 +458,7 @@ namespace boost {
                 }
 
                 if ((index == 0) && keep_carrying) { // i.e., .999 should become 1.000
-                    if(this->digits[index] == 9) {
+                    if(this->digits[index] == base - 1) {
                         this->digits[index] = 0;
                         this->push_front(1);
                         ++this->exponent;
@@ -415,6 +469,7 @@ namespace boost {
             }
 
             void round_down() {
+                T base = 30;
                 int index = digits.size() - 1;
                 bool keep_carrying = true;
 
@@ -423,7 +478,7 @@ namespace boost {
                         --this->digits[index];
                         keep_carrying = false;
                     } else // digits[index] == 0, we keep carrying
-                        this->digits[index] = 9;
+                        this->digits[index] = base - 1;
                     --index;
                 }
                 // we should be ok at this point because the first number in digits should != 0
@@ -580,6 +635,23 @@ namespace boost {
                 *this = *this + other;
             }
 
+            exact_number base10_add (exact_number other) {
+                exact_number result = *this;
+                result.add_vector(other, 9);
+
+                if (positive == other.positive) {
+                        result = *this;
+                        result.add_vector(other);
+                } else if (other.abs() < this->abs()) {
+                        result = *this;
+                        result.subtract_vector(other);
+                } else {
+                    result = other;
+                    result.subtract_vector(*this);
+                }
+                return result;
+            }
+
             exact_number operator-(exact_number other) {
                 exact_number result;
 
@@ -604,6 +676,26 @@ namespace boost {
                 *this = *this - other;
             }
 
+            exact_number base10_subtract(exact_number other) {
+                exact_number result;
+
+                if (this->positive != other.positive) {
+                    result = *this;
+                    result.add_vector(other, 9);
+                } else {
+                    if (other.abs() < this->abs()) {
+                        result = *this;
+                        result.subtract_vector(other, 9);
+                    } else {
+                        result = other;
+                        result.subtract_vector(*this, 9);
+                        result.positive = !this->positive;
+                    }
+                }
+
+                return result;
+            }
+
             exact_number operator*(exact_number other) {
                 exact_number result = *this;
                 result.multiply_vector(other);
@@ -614,6 +706,11 @@ namespace boost {
                 *this = *this * other;
             }
 
+            exact_number base10_mult(exact_number other) {
+                exact_number result = *this;
+                result.multiply_vector(other, 10);
+                return result;
+            }
 
             /**
              * @brief Generates a string representation of the boost::real::exact_number.
