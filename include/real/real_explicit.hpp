@@ -52,116 +52,9 @@ namespace boost {
              *
              * @throws boost::real::invalid_string_number exception
              */
-            
-            std::vector<T> divide_vectors(
-                    const std::vector<T>& dividend,
-                    const std::vector<T>& divisor,
-                    std::vector<T>& quotient
-            ) {
-                
-                exact_number<T> tmp;
-                std::vector<T> aligned_dividend = dividend;
-                std::vector<T> aligned_divisor = divisor;
-                int idx = 0;
-                while(idx < aligned_dividend.size() && aligned_dividend[idx] == 0)
-                    idx++;
-                aligned_dividend.erase(aligned_dividend.begin(), aligned_dividend.begin() + idx);
-
-                if(aligned_dividend.empty()) {
-                    quotient.clear();
-                    return std::vector<T>();
-                }
-                if ((aligned_dividend.size() == aligned_divisor.size() && 
-                        tmp.aligned_vectors_is_lower(aligned_dividend, aligned_divisor)) || 
-                            aligned_dividend.size() < aligned_divisor.size()) {
-                    quotient.clear();
-                    return aligned_dividend;
-                }
-
-                std::vector<T> current_dividend(
-                        aligned_dividend.begin(),
-                        aligned_dividend.begin() + aligned_divisor.size()
-                );
-                auto next_digit = aligned_dividend.begin() + aligned_divisor.size();
-                std::vector<T> residual = aligned_dividend;
-
-                // TODO: This loop end criteria generate a whole division, a precision stop criteria
-                // TODO: must be implemented for numbers like 1/3 that are periodic numbers to allow
-                // TODO: calculate floating point result with some desired precision
-                while (true) {
-                    // Obtain the smaller part of the dividend that is greater than the divisor
-
-                    // Obtaining the greater digit by which the divisor can be multiplied and still be lower than the dividend
-                    // TODO: when using a higher base, this search could be done using binary search to improve performance
-                    bool flg = false;
-                    if (next_digit == aligned_dividend.end())
-                        flg = true;
-                    std::vector<T> closest;
-                    int digit = 0;
-                    do {
-                        digit++;
-                        std::vector<T> multiplier = {digit};
-                        //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
-                        tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
-                        closest = tmp.digits;
-                        while (tmp.exponent - (int)tmp.digits.size() > 0) {
-                            closest.push_back(0);
-                            tmp.exponent--;
-                        }
-                        int idx = 0;
-                        while(idx < closest.size() && closest[idx]==0) 
-                            ++idx;
-                        closest.erase(closest.begin(), closest.begin() + idx);
-
-                    } while(
-                            closest.size() < current_dividend.size() ||
-                            (
-                                    closest.size() == current_dividend.size() &&
-                                    !tmp.aligned_vectors_is_lower(
-                                    current_dividend, closest, true)
-                            ) // closes <= current_dividend
-                    );
-
-                    // i should be in [1, 10] and i - 1 in [0, 9]
-                    // The found digit is the next digit in the quotient result
-                    quotient.push_back(digit-1);
-
-                    // Update the residual for the next iteration where more digits of the dividend will be considered
-                    std::vector<T> multiplier = {digit-1};
-                    //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
-                    tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
-                    closest = tmp.digits;
-                    while (tmp.exponent - (int)tmp.digits.size() > 0) {
-                        closest.push_back(0);
-                        tmp.exponent--;
-                    }
-                    residual.clear();
-                    //subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, (T)9);
-                    tmp = (exact_number(current_dividend).base10_subtract(exact_number(closest)));
-                    residual = tmp.digits;
-                    while (tmp.exponent - (int)tmp.digits.size() > 0) {
-                        residual.push_back(0);
-                        tmp.exponent--;
-                    }
-                    int idx = 0;
-                    while(idx < residual.size() && residual[idx]==0) 
-                        ++idx;
-                    residual.erase(residual.begin(), residual.begin() + idx);
-                    current_dividend = residual;
-                    current_dividend.push_back(*next_digit);
-                    if (flg)
-                        break;
-                    ++next_digit;
-                }
-                // TODO: once the stop criteria is improved, the integer part is not the whole number
-                idx = 0;
-                while(idx < quotient.size() && quotient[idx] == 0)
-                    idx++;
-                quotient.erase(quotient.begin(), quotient.begin() + idx);
-                return residual;
-            }
 
             explicit real_explicit(const std::string& integer_part, const std::string& decimal_part, int exponent, bool positive) {
+                exact_number op;
                 explicit_number.positive = positive;
                 if (integer_part.empty() && decimal_part.empty()) {
                     explicit_number.digits = {0};
@@ -193,7 +86,7 @@ namespace boost {
                 
                 while (explicit_number.digits.size() > 1) {
                     std::vector<T> quotient;
-                    std::vector<T> rem = divide_vectors(explicit_number.digits, base, quotient);
+                    std::vector<T> rem = op.long_divide_vectors(explicit_number.digits, base, quotient);
                     if (rem.empty()) {
                         explicit_number.digits = quotient;
                         ++exponent; 
@@ -206,7 +99,7 @@ namespace boost {
                 while (!explicit_number.digits.empty()) {
                     std::vector<T> quotient;
                     //std::vector<T> rem;
-                    std::vector<T> rem = divide_vectors(explicit_number.digits, base, quotient);
+                    std::vector<T> rem = op.long_divide_vectors(explicit_number.digits, base, quotient);
                     T result = 0;
                     for (auto d : rem)  
                     {
@@ -267,6 +160,7 @@ namespace boost {
                     explicit_number.exponent = 0;
                     return;
                 }
+                exact_number op;
                 explicit_number.exponent = exponent;
                 for (const auto& c : integer_part ) {
                     explicit_number.digits.push_back(c - '0');
@@ -292,7 +186,7 @@ namespace boost {
                 
                 while (explicit_number.digits.size() > 1) {
                     std::vector<T> quotient;
-                    std::vector<T> rem = divide_vectors(explicit_number.digits, base, quotient);
+                    std::vector<T> rem = op.long_divide_vectors(explicit_number.digits, base, quotient);
                     if (rem.empty()) {
                         explicit_number.digits = quotient;
                         ++exponent; 
@@ -305,7 +199,7 @@ namespace boost {
                 while (!explicit_number.digits.empty()) {
                     std::vector<T> quotient;
                     //std::vector<T> rem;
-                    std::vector<T> rem = divide_vectors(explicit_number.digits, base, quotient);
+                    std::vector<T> rem = op.long_divide_vectors(explicit_number.digits, base, quotient);
                     T result = 0;
                     for (auto d : rem)  
                     {

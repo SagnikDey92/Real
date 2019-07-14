@@ -147,7 +147,6 @@ namespace boost {
                         numerator = "-" + numerator;
                     std::shared_ptr<real_data<T>> lhs = std::make_shared<real_data<T>>(real_explicit<T>(numerator));
                     std::shared_ptr<real_data<T>> rhs = std::make_shared<real_data<T>>(real_explicit<T>(denominator));
-                    std::cout<<"\nnum: "<<numerator<<"\ndenom: "<<denominator<<"\n"; 
                     
                     /*
                     if(this->_real_p.use_count() > 1) {

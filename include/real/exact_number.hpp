@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <limits>
+#include <iterator>
 
 namespace boost {
     namespace real {
@@ -255,12 +256,120 @@ namespace boost {
                 this->normalize();
             }
 
+            std::vector<T> long_divide_vectors(
+                    const std::vector<T>& dividend,
+                    const std::vector<T>& divisor,
+                    std::vector<T>& quotient
+            ) {
+                
+                exact_number<T> tmp;
+                std::vector<T> aligned_dividend = dividend;
+                std::vector<T> aligned_divisor = divisor;
+                int idx = 0;
+                while(idx < aligned_dividend.size() && aligned_dividend[idx] == 0)
+                    idx++;
+                aligned_dividend.erase(aligned_dividend.begin(), aligned_dividend.begin() + idx);
+
+                if(aligned_dividend.empty()) {
+                    quotient.clear();
+                    return std::vector<T>();
+                }
+                if ((aligned_dividend.size() == aligned_divisor.size() && 
+                        tmp.aligned_vectors_is_lower(aligned_dividend, aligned_divisor)) || 
+                            aligned_dividend.size() < aligned_divisor.size()) {
+                    quotient.clear();
+                    return aligned_dividend;
+                }
+
+                std::vector<T> current_dividend(
+                        aligned_dividend.begin(),
+                        aligned_dividend.begin() + aligned_divisor.size()
+                );
+                auto next_digit = aligned_dividend.begin() + aligned_divisor.size();
+                std::vector<T> residual = aligned_dividend;
+
+                // TODO: This loop end criteria generate a whole division, a precision stop criteria
+                // TODO: must be implemented for numbers like 1/3 that are periodic numbers to allow
+                // TODO: calculate floating point result with some desired precision
+                while (true) {
+                    // Obtain the smaller part of the dividend that is greater than the divisor
+
+                    // Obtaining the greater digit by which the divisor can be multiplied and still be lower than the dividend
+                    // TODO: when using a higher base, this search could be done using binary search to improve performance
+                    bool flg = false;
+                    if (next_digit == aligned_dividend.end())
+                        flg = true;
+                    std::vector<T> closest;
+                    int digit = 0;
+                    do {
+                        digit++;
+                        std::vector<T> multiplier = {digit};
+                        //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
+                        tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
+                        closest = tmp.digits;
+                        while (tmp.exponent - (int)tmp.digits.size() > 0) {
+                            closest.push_back(0);
+                            tmp.exponent--;
+                        }
+                        int idx = 0;
+                        while(idx < closest.size() && closest[idx]==0) 
+                            ++idx;
+                        closest.erase(closest.begin(), closest.begin() + idx);
+
+                    } while(
+                            closest.size() < current_dividend.size() ||
+                            (
+                                    closest.size() == current_dividend.size() &&
+                                    !tmp.aligned_vectors_is_lower(
+                                    current_dividend, closest, true)
+                            ) // closes <= current_dividend
+                    );
+
+                    // i should be in [1, 10] and i - 1 in [0, 9]
+                    // The found digit is the next digit in the quotient result
+                    quotient.push_back(digit-1);
+
+                    // Update the residual for the next iteration where more digits of the dividend will be considered
+                    std::vector<T> multiplier = {digit-1};
+                    //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
+                    tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
+                    closest = tmp.digits;
+                    while (tmp.exponent - (int)tmp.digits.size() > 0) {
+                        closest.push_back(0);
+                        tmp.exponent--;
+                    }
+                    residual.clear();
+                    //subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, (T)9);
+                    tmp = (exact_number(current_dividend).base10_subtract(exact_number(closest)));
+                    residual = tmp.digits;
+                    while (tmp.exponent - (int)tmp.digits.size() > 0) {
+                        residual.push_back(0);
+                        tmp.exponent--;
+                    }
+                    int idx = 0;
+                    while(idx < residual.size() && residual[idx]==0) 
+                        ++idx;
+                    residual.erase(residual.begin(), residual.begin() + idx);
+                    current_dividend = residual;
+                    current_dividend.push_back(*next_digit);
+                    if (flg)
+                        break;
+                    ++next_digit;
+                }
+                // TODO: once the stop criteria is improved, the integer part is not the whole number
+                idx = 0;
+                while(idx < quotient.size() && quotient[idx] == 0)
+                    idx++;
+                quotient.erase(quotient.begin(), quotient.begin() + idx);
+                return residual;
+            }
+
             /// calculates *this / divisor 
             /// 
             ///  @brief a binary-search type method for dividing exact_numbers.
             ///  @param is_upper true: returns result with an error of +epsilon, while
             ///                  false: returns result with an error of -epsilon
-            void divide_vector(exact_number divisor, bool is_upper, unsigned int max_precision) {
+            void divide_vector(exact_number divisor, unsigned int max_precision) {
                 /// @TODO: replace this with something more efficient, like newton-raphson method
                 // it also completely recalculates on each precision increase
                 // instead, could use previous information to make better "guesses"
@@ -283,8 +392,8 @@ namespace boost {
                 boost::real::exact_number min_boundary_p;
 
                 bool positive = ((*this).positive == divisor.positive);
-                numerator = abs(*this);
-                divisor = abs(divisor);
+                numerator = (*this).abs();
+                divisor = divisor.abs();
 
                 min_boundary_n.digits = {1};
                 ///@TODO ensure exponent doesn't overflow
@@ -307,7 +416,7 @@ namespace boost {
                     return;
                 }
 
-                if (divisor == (*this)) { 
+                if (divisor == numerator) { 
                     (*this) = tmp;
                     (*this).positive = positive;
                     return;
@@ -352,8 +461,7 @@ namespace boost {
                 // continue the loop while we are still inaccurate (up to max precision), or while
                 // we are on the wrong side of the answer
                 boost::real::exact_number old_residual = residual;
-                 while ((abs(residual) > min_boundary_p) || 
-                        // (is_upper && (residual < min_boundary_n)) || (!is_upper && (residual > min_boundary_p))) &&
+                 while ((residual.abs() > min_boundary_p) || 
                         (distance.exponent > min_boundary_p.exponent)) {
                     /// TODO: we might exit the loop early due to the last statement. 
                     /// Verify our answers are within +- epsilon of the solution.
@@ -439,8 +547,10 @@ namespace boost {
                         return;
                     }
                     // at this point, it is impossible to make the residual 0
-                    if (is_upper)
-                        (*this) = tmp_upper;
+                    if (positive)
+                        (*this).positive = true;
+                    else
+                        (*this).positive = false;
                 } else { // residual_o == 0
                     if (positive)
                         (*this).positive = true;
@@ -450,7 +560,7 @@ namespace boost {
                 }
             }
 
-            void round_up(T base) {
+            void round_up_abs(T base) {
                 int index = digits.size() - 1;
                 bool keep_carrying = true;
 
@@ -474,7 +584,21 @@ namespace boost {
                 }
             }
 
+            void round_up(T base) {
+                if (positive)
+                    this->round_up_abs(base);
+                else
+                    this->round_down_abs(base);
+            }
+
             void round_down(T base) {
+                if (positive)
+                    this->round_down_abs(base);
+                else
+                    this->round_up_abs(base);
+            }
+
+            void round_down_abs(T base) {
                 int index = digits.size() - 1;
                 bool keep_carrying = true;
 
@@ -611,10 +735,8 @@ namespace boost {
                 return !(*this == other);
             }
 
-
-
-            static exact_number abs(const exact_number& b) {
-                exact_number result = b;
+            exact_number abs() {
+                exact_number result = (*this);
                 result.positive = true;
                 return result;
             }
@@ -626,7 +748,7 @@ namespace boost {
                         result = *this;
                         result.add_vector(other);
                         result.positive = this->positive;
-                } else if (abs(other) < abs(*this)) {
+                } else if (other.abs() < (*this).abs()) {
                         result = *this;
                         result.subtract_vector(other);
                         result.positive = this->positive;
@@ -649,7 +771,7 @@ namespace boost {
                         result = *this;
                         result.add_vector(other, 9);
                         result.positive = this->positive;
-                } else if (abs(other) < abs(*this)) {
+                } else if (other.abs() < (*this).abs()) {
                         result = *this;
                         result.subtract_vector(other, 9);
                         result.positive = this->positive;
@@ -669,7 +791,7 @@ namespace boost {
                     result.add_vector(other);
                     result.positive = this->positive;
                 } else {
-                    if (abs(other) < abs(*this)) {
+                    if (other.abs() < (*this).abs()) {
                         result = *this;
                         result.subtract_vector(other);
                         result.positive = this->positive;
@@ -695,7 +817,7 @@ namespace boost {
                     result.add_vector(other, 9);
                     result.positive = this->positive;
                 } else {
-                    if (abs(other) < abs(*this)) {
+                    if (other.abs() < (*this).abs()) {
                         result = *this;
                         result.subtract_vector(other, 9);
                         result.positive = this->positive;
@@ -732,52 +854,51 @@ namespace boost {
              *
              * @return a string that represents the state of the boost::real::exact_number
              */
-            std::basic_string<char> as_string() const {
-                std::basic_string<char> result = "";
-
-                if (!this->positive) {
-                    result = "-";
-                }
+            std::string as_string() const {
+                std::string result = "";   
+                exact_number tmp;         
 
                 // If the number is too large, scientific notation is used to print it.
-                /*
+                /* @TODO add back later
                 if ((this->exponent < -10) || (this->exponent > (int)this->digits.size() + 10)) {
-                    result += "0.";
-
+                    result += "0|.";
                     for (const auto& d: this->digits) {
                         result += std::to_string(d);
+                        result += "|";
                     }
-
                     result += "e" + std::to_string(this->exponent);
                     return result;
                 }
                 */
 
+                //@TODO remember the negative
                 if (this->exponent <= 0) {
-                    result += "0 .";
+                    result += ".";
 
                     for (int i = this->exponent; i < (int) this->digits.size(); ++i) {
                         if (i < 0) {
-                            result += "0 ";
+                            result += "0";
+                            result += " ";
                         } else {
                             result += std::to_string(this->digits[i]);
                             result += " ";
                         }
                     }
                 } else {
-                    int digit_amount = std::max(this->exponent, (int) this->digits.size());
 
+                    int digit_amount = std::max(this->exponent, (int) this->digits.size());
                     for (int i = 0; i < digit_amount; ++i) {
 
                         if (i == this->exponent) {
-                            result += " .";
+                            result += ".";
                         }
 
                         if (i < (int) this->digits.size()) {
                             result += std::to_string(this->digits[i]);
                             result += " ";
                         } else {
-                            result += "0 ";
+                            result += "0";
+                            result += " ";
                         }
                     }
 
@@ -785,7 +906,129 @@ namespace boost {
                         result.pop_back();
                     }
                 }
-                return result;
+
+                //Form new string below in base 10.
+                std::vector<T> new_result = {0};
+                std::size_t dot_pos = result.find('.');
+                std::string integer_part;
+                std::string decimal_part;
+                if (dot_pos == std::string::npos) {
+                    integer_part = result;
+                    decimal_part = "";
+                } else {
+                    integer_part = result.substr(0, dot_pos);
+                    decimal_part = result.substr(dot_pos + 1);
+                }
+                std::stringstream ss1(integer_part);
+                std::istream_iterator<std::string> begin1(ss1);
+                std::istream_iterator<std::string> end1;
+                std::vector<std::string> integer(begin1, end1);
+                std::stringstream ss2(decimal_part);
+                std::istream_iterator<std::string> begin2(ss2);
+                std::istream_iterator<std::string> end2;
+                std::vector<std::string> decimal(begin2, end2);
+                std::reverse (decimal.begin(), decimal.end()); 
+
+                //integer and decimal are string vectors with the "digits" in diff base
+                T b = (std::numeric_limits<T>::max() /4)*2;
+                std::vector<T> base;
+                while (b!=0) {
+                    base.push_back(b%10);
+                    b /=10;
+                }
+                std::reverse(base.begin(), base.end());
+                while(!integer.empty()) {
+                    std::vector<T> temp;
+                    std::string num = integer.back();
+                    integer.pop_back();
+                    for (auto j : num) {
+                        temp.push_back(j - '0');
+                    }
+                    //boost::real::helper::add_vectors(new_result, new_result.size(), temp, temp.size(), new_result, (T)9);
+                    tmp = (exact_number(new_result).base10_add(exact_number(temp)));
+                    new_result = tmp.digits;
+                    while (tmp.exponent - (int)tmp.digits.size() > 0) {
+                        new_result.push_back(0);
+                        tmp.exponent--;
+                    }
+                    for (int i = 0; i<integer.size(); ++i) {
+                        std::vector<T> temp;
+                        std::string tempstr = integer[i];
+                        for (int j = 0; j<tempstr.length(); ++j) {
+                            temp.push_back(tempstr[j] - '0'); 
+                        }
+                        //boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, (T)10);
+                        tmp = (exact_number(temp).base10_mult(exact_number(base)));
+                        temp = tmp.digits;
+                        while (tmp.exponent - (int)tmp.digits.size() > 0) {
+                            temp.push_back(0);
+                            tmp.exponent--;
+                        }
+                        int idx = 0;
+                        while(idx < temp.size() && temp[idx]==0) 
+                            ++idx;
+                        temp.erase(temp.begin(), temp.begin() + idx);
+                        std::stringstream ss;
+                        std::copy( temp.begin(), temp.end(), std::ostream_iterator<T>(ss, ""));
+                        std::string str = ss.str();
+                        integer[i] = str;
+                    }
+                }
+
+                std::stringstream ss;
+                std::copy( new_result.begin(), new_result.end(), std::ostream_iterator<T>(ss, ""));
+                std::string res_decimal = ss.str();
+                std::vector<T> new_base = base;
+                std::vector<std::vector<T>> powers = {base};
+                for (size_t i = 0; i<decimal.size(); ++i) {
+                    //boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, (T)10);
+                    tmp = (exact_number(new_base).base10_mult(exact_number(base)));
+                    new_base = tmp.digits;
+                    while (tmp.exponent - (int)tmp.digits.size() > 0) {
+                        new_base.push_back(0);
+                        tmp.exponent--;
+                    }
+                    int idx = 0;
+                    while(idx < new_base.size() && new_base[idx]==0) 
+                        ++idx;
+                    new_base.erase(new_base.begin(), new_base.begin() + idx);
+                    powers.push_back(new_base);
+                }
+                size_t precision = powers.back().size() + 1;
+                std::string zeroes = "";
+                for (size_t i = 0; i<precision; ++i)
+                    zeroes = zeroes + "0";
+                std::vector<T> fraction = {0};
+                auto pwr = powers.cbegin();
+                while(!decimal.empty()) {
+                    std::string tempstr = decimal.back();
+                    decimal.pop_back();
+                    tempstr = tempstr + zeroes;
+                    std::vector<T> temp;
+                    for (int j = 0; j<tempstr.length(); ++j) {
+                        temp.push_back(tempstr[j] - '0'); 
+                    }
+                    std::vector<T> k = *pwr++;
+                    std::vector<T> q;
+                    //boost::real::helper::divide_vectors(temp, k, q);
+                    tmp.long_divide_vectors(temp, k, q);
+                    //boost::real::helper::add_vectors(fraction, fraction.size(), q, q.size(), fraction, (T)9);
+                    tmp = (exact_number(fraction).base10_add(exact_number(q)));
+                    fraction = tmp.digits;
+                    while (tmp.exponent - (int)tmp.digits.size() > 0) {
+                        fraction.push_back(0);
+                        tmp.exponent--;
+                    }
+                }
+                //@TODO The decimal part. And dont forget negative. Also, add exponent notation later.
+                std::stringstream sslast;
+                std::copy( fraction.begin(), fraction.end(), std::ostream_iterator<T>(sslast, ""));
+                std::string fractionstr = sslast.str();
+                while (fractionstr.length() < precision)
+                    fractionstr = "0" + fractionstr;
+                
+                
+                return (positive ? "" : "-") + res_decimal + "." + fractionstr;
             }
 
             /**
