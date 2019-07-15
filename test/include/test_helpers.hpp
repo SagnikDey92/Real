@@ -5,12 +5,11 @@
 #include <sstream>
 
 template<> std::optional<unsigned int> boost::real::const_precision_iterator<int>::maximum_precision = 10;
-template<> std::optional<unsigned int> boost::real::const_precision_iterator<long>::maximum_precision = 10;
 
 namespace Catch {
     template<>
-    struct StringMaker<boost::real::interval<long>> {
-        static std::string convert( boost::real::interval<long> value ) {
+    struct StringMaker<boost::real::interval<int>> {
+        static std::string convert( boost::real::interval<int> value ) {
             return value.as_string();
         }
     };
@@ -18,8 +17,8 @@ namespace Catch {
 
 namespace Catch {
     template<>
-    struct StringMaker<boost::real::real<long>> {
-        static std::string convert( boost::real::real<long> value ) {
+    struct StringMaker<boost::real::real<int>> {
+        static std::string convert( boost::real::real<int> value ) {
             return value.get_real_itr().cend().get_interval().as_string();
         }
     };
