@@ -147,7 +147,7 @@ namespace boost {
                             this->_approximation_interval.lower_bound.positive = real.positive();
                             this->_approximation_interval.upper_bound.positive = real.positive();
 
-                            int first_digit = real.digits()[0];
+                            T first_digit = real.digits()[0];
                             this->_approximation_interval.lower_bound.digits.push_back(first_digit);
 
                             if (first_digit == base) {
@@ -168,7 +168,7 @@ namespace boost {
                             this->_approximation_interval.lower_bound.positive = real.positive();
                             this->_approximation_interval.upper_bound.positive = real.positive();
 
-                            int first_digit = real[0];
+                            T first_digit = real[0];
                             this->_approximation_interval.lower_bound.digits.push_back(first_digit);
 
                             if (first_digit == base) {

@@ -54,7 +54,7 @@ namespace boost {
              */
 
             explicit real_explicit(const std::string& integer_part, const std::string& decimal_part, int exponent, bool positive) {
-                exact_number op;
+                exact_number<T> op;
                 explicit_number.positive = positive;
                 if (integer_part.empty() && decimal_part.empty()) {
                     explicit_number.digits = {0};
@@ -160,7 +160,7 @@ namespace boost {
                     explicit_number.exponent = 0;
                     return;
                 }
-                exact_number op;
+                exact_number<T> op;
                 explicit_number.exponent = exponent;
                 for (const auto& c : integer_part ) {
                     explicit_number.digits.push_back(c - '0');
@@ -225,7 +225,7 @@ namespace boost {
              * @param digits - an initializer_list<int> that represents the number digits.
              * @param exponent - an integer representing the number exponent.
              */
-            real_explicit(std::initializer_list<int> digits, int exponent) : explicit_number(digits, exponent)
+            real_explicit(std::initializer_list<T> digits, int exponent) : explicit_number(digits, exponent)
             {};
 
             /**
@@ -240,7 +240,7 @@ namespace boost {
              * @param positive - a bool that represents the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real_explicit(std::initializer_list<int> digits, int exponent, bool positive) : 
+            real_explicit(std::initializer_list<T> digits, int exponent, bool positive) : 
                                                                                 explicit_number(digits,exponent,positive)
             {};
 
@@ -261,7 +261,7 @@ namespace boost {
             /**
              * @return a const reference to the vector holding the number digits
              */
-            const std::vector<int>& digits() const {
+            const std::vector<T>& digits() const {
                 return explicit_number.digits;
             }
 
@@ -280,7 +280,7 @@ namespace boost {
              * @param n - an unsigned int number indicating the index of the requested digit.
              * @return an integer with the value of the number n-th digit.
              */
-            int operator[](unsigned int n) const {
+            T operator[](unsigned int n) const {
                 if (n < explicit_number.digits.size()) {
                     return explicit_number.digits.at(n);
                 }

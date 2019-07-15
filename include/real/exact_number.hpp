@@ -15,7 +15,7 @@ namespace boost {
             int exponent = 0;
             bool positive = true;
 
-            static bool aligned_vectors_is_lower(const std::vector<int> &lhs, const std::vector<int> &rhs, bool equal = false) {
+            static bool aligned_vectors_is_lower(const std::vector<T> &lhs, const std::vector<T> &rhs, bool equal = false) {
 
                 // Check if lhs is lower than rhs
                 auto lhs_it = lhs.cbegin();
@@ -300,12 +300,12 @@ namespace boost {
                     if (next_digit == aligned_dividend.end())
                         flg = true;
                     std::vector<T> closest;
-                    int digit = 0;
+                    T digit = 0;
                     do {
                         digit++;
                         std::vector<T> multiplier = {digit};
                         //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
-                        tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
+                        tmp = (exact_number<T>(aligned_divisor).base10_mult(exact_number<T>(multiplier)));
                         closest = tmp.digits;
                         while (tmp.exponent - (int)tmp.digits.size() > 0) {
                             closest.push_back(0);
@@ -332,7 +332,7 @@ namespace boost {
                     // Update the residual for the next iteration where more digits of the dividend will be considered
                     std::vector<T> multiplier = {digit-1};
                     //multiply_vectors(aligned_divisor, (int)aligned_divisor.size(), multiplier, 1, closest, (T)10);
-                    tmp = (exact_number(aligned_divisor).base10_mult(exact_number(multiplier)));
+                    tmp = (exact_number<T>(aligned_divisor).base10_mult(exact_number<T>(multiplier)));
                     closest = tmp.digits;
                     while (tmp.exponent - (int)tmp.digits.size() > 0) {
                         closest.push_back(0);
@@ -340,7 +340,7 @@ namespace boost {
                     }
                     residual.clear();
                     //subtract_vectors(current_dividend, (int)current_dividend.size(), closest, (int)closest.size(), residual, (T)9);
-                    tmp = (exact_number(current_dividend).base10_subtract(exact_number(closest)));
+                    tmp = (exact_number<T>(current_dividend).base10_subtract(exact_number<T>(closest)));
                     residual = tmp.digits;
                     while (tmp.exponent - (int)tmp.digits.size() > 0) {
                         residual.push_back(0);
@@ -369,27 +369,21 @@ namespace boost {
             ///  @brief a binary-search type method for dividing exact_numbers.
             ///  @param is_upper true: returns result with an error of +epsilon, while
             ///                  false: returns result with an error of -epsilon
-            void divide_vector(exact_number divisor, unsigned int max_precision) {
+            void divide_vector(exact_number<T> divisor, unsigned int max_precision) {
                 /// @TODO: replace this with something more efficient, like newton-raphson method
                 // it also completely recalculates on each precision increase
                 // instead, could use previous information to make better "guesses"
                 // for our iteration scheme.
 
-                /// @TODO: convert div by negative exponents 
-                // 1/.001 = 1/(1/1000) = 1000
-                // 1.46 / .12 = 1.46 * 100 * 1/12
-                // 1 / .23 = 1 * 100 * (1/23)
-                // etc.,
-                // after this, no division by 0 < D < 1
-                boost::real::exact_number numerator;
-                boost::real::exact_number left;
-                boost::real::exact_number right;
-                boost::real::exact_number residual;
-                boost::real::exact_number tmp;
-                boost::real::exact_number half;
-                boost::real::exact_number distance;
-                boost::real::exact_number min_boundary_n;
-                boost::real::exact_number min_boundary_p;
+                boost::real::exact_number<T> numerator;
+                boost::real::exact_number<T> left;
+                boost::real::exact_number<T> right;
+                boost::real::exact_number<T> residual;
+                boost::real::exact_number<T> tmp;
+                boost::real::exact_number<T> half;
+                boost::real::exact_number<T> distance;
+                boost::real::exact_number<T> min_boundary_n;
+                boost::real::exact_number<T> min_boundary_p;
 
                 bool positive = ((*this).positive == divisor.positive);
                 numerator = (*this).abs();
@@ -408,15 +402,23 @@ namespace boost {
                 half.digits = {H};
                 half.exponent = 0;
 
+                // we ignore exponents, then set them in the end.
+                // (a * 10^x) / (b*10^y) = (a*10 / b*10) * 10^((x-1)-(y-1))
+                // 100/20 -> 1/2 * (10)
+                int exponent_dif = (numerator.exponent - 1) - (divisor.exponent - 1);
+
+                numerator.exponent = 1;
+                divisor.exponent = 1;
                 tmp.digits = {1};
                 tmp.exponent = 1;
 
                 if (divisor == tmp) {
                     (*this).positive = positive;
+                    this->exponent = exponent_dif + 1;
                     return;
                 }
 
-                if (divisor == numerator) { 
+                if (divisor == (*this)) { 
                     (*this) = tmp;
                     (*this).positive = positive;
                     return;
@@ -424,26 +426,19 @@ namespace boost {
 
                 ///@TODO: remember signs at the end of this function
 
-                exact_number zero = exact_number(); 
+                exact_number<T> zero = exact_number<T>(); 
 
                 if (divisor == zero)
                     throw(boost::real::divide_by_zero());
-                else if ((divisor > zero) && (divisor < tmp)) // 0 < d < 1
-                    throw(boost::real::invalid_denominator());
 
                 // N < D --> 0 < abs(Q) < 1
-                if ((*this) < divisor) {
-                        left = exact_number(); // 0
+                if (numerator < divisor) {
+                        left = exact_number<T>(); // 0
                         right = tmp; // 1
                     } else { // assuming D > 1. N > D ---> 1 < N / D < N
                         left = tmp; // 1
-                        right = (*this);
+                        right = numerator;
                     }
-
-                // Example: say we have 144 / 12. At min precision, this is
-                // [100, 200] / [10, 20]
-                // so, our quotient upper bound would be 200/10, and 
-                // the lower bound would be 100/20.
 
                 /// @TODO: the following
                 // if (*this) == 0, return 0 
@@ -453,21 +448,28 @@ namespace boost {
                 // distance = (right - left) / 2
                 distance = (right - left) * half;
                 (*this) = left + distance;
+                // N/D = Q -> QD -N = 0
 
-                // residual = (*this) * denom - num, equals zero if numerator/divisor = (*this)
                 residual = (*this) * divisor - numerator;
+                if (residual == zero) {
+                    this->exponent += exponent_dif;
+                    this->positive = positive;
+                    return;
+                }
 
                 // calculate the result
-                // continue the loop while we are still inaccurate (up to max precision), or while
-                // we are on the wrong side of the answer
-                boost::real::exact_number old_residual = residual;
-                 while ((residual.abs() > min_boundary_p) || 
-                        (distance.exponent > min_boundary_p.exponent)) {
+                // continue the loop while we are still inaccurate (up to max precision)
+
+                // we would prefer to use || than &&, but we get problems because the first 
+                // statement may never evaluate to false. Again, we must look more closely at precision
+                while ((residual.abs() > min_boundary_p) || 
+                       (distance.exponent > min_boundary_p.exponent)) {
+                    // std::cout << "dthis: " << this->as_string() << ", res: " << residual.as_string() << '\n';
+                    // std::cout << "left: " << left.as_string() << '\n';
                     /// TODO: we might exit the loop early due to the last statement. 
                     /// Verify our answers are within +- epsilon of the solution.
 
-                    // result too small, try halfway between (*this) and (*this) 
-                    old_residual = residual;
+                    // result too small, try halfway between left and (*this) 
                     if (residual < min_boundary_n) {
                         left = (*this);
                     }
@@ -479,21 +481,19 @@ namespace boost {
                     // NOTE: The loop will not terminate if you truncate too much, for certain
                     // divisions. 5 seems to work well, so I'm leaving it as that.
                     // we may want to look at this in closer detail
-                    while (distance.size() > max_precision + 5)
+                    while (distance.size() > max_precision + 10)
                         distance.digits.pop_back();
 
                     // iterate (*this)
                     (*this) = left + distance;
 
                     // truncate insignificant digits of (*this)
-                    while ((*this).size() > max_precision + 5)
+                    while ((*this).size() > max_precision + 10)
                         (*this).digits.pop_back();
 
                     // recalculate residual  N/D = Q ---> QD - N = residual
                     residual = ((*this) * divisor) - numerator;
                     residual.normalize();
-                    if (old_residual == residual)
-                        break;
                 } // end while
                 // now (*this) is correct, or at least within +-epsilon of correct value 
                 // truncate (*this)
@@ -504,16 +504,16 @@ namespace boost {
 
 
                 // recalculate residual for the final (*this) value
-                exact_number residual_o = ((*this) * divisor) - numerator;
+                exact_number<T> residual_o = ((*this) * divisor) - numerator;
 
                 // note we have to normalize before comparison, because -0.0 != zero ..
                 residual_o.normalize();
 
                 if (residual_o != zero) { // then, we are not fully accurate
                     // we try seeing if we can make the residual equal zero by adding/subtracting epsilon
-                    exact_number tmp_lower = (*this);
+                    exact_number<T> tmp_lower = (*this);
                     tmp_lower.round_down(base);
-                    exact_number tmp_upper = (*this);
+                    exact_number<T> tmp_upper = (*this);
                     tmp_upper.round_up(base);
 
                     residual = tmp_lower * divisor - numerator;
@@ -528,6 +528,7 @@ namespace boost {
                             (*this).positive = false;
 
                         (*this).normalize();
+                        this->exponent += exponent_dif;
                         return;
                     } 
 
@@ -544,20 +545,19 @@ namespace boost {
                             (*this).positive = false;
 
                         (*this).normalize();
+                        this->exponent += exponent_dif;
                         return;
                     }
                     // at this point, it is impossible to make the residual 0
-                    if (positive)
-                        (*this).positive = true;
-                    else
-                        (*this).positive = false;
-                } else { // residual_o == 0
-                    if (positive)
-                        (*this).positive = true;
-                    else
-                        (*this).positive = false;
-                    (*this).normalize();
-                }
+                } // else old residual == 0
+
+                if (positive)
+                    (*this).positive = true;
+                else
+                    (*this).positive = false;
+
+                this->exponent += exponent_dif;
+                (*this).normalize();
             }
 
             void round_up_abs(T base) {
@@ -618,12 +618,12 @@ namespace boost {
             /**
              * @brief *default constructor*: It constructs a representation of the number zero.
              */
-            exact_number() = default;
+            exact_number<T>() = default;
 
             /// ctor from vector of digits, integer exponent, and optional bool positive
-            exact_number(std::vector<int> vec, int exp, bool pos = true) : digits(vec), exponent(exp), positive(pos) {};
+            exact_number<T>(std::vector<T> vec, int exp, bool pos = true) : digits(vec), exponent(exp), positive(pos) {};
 
-            exact_number(std::vector<int> vec, bool pos = true) : digits(vec), exponent(vec.size()), positive(pos) {};
+            exact_number<T>(std::vector<T> vec, bool pos = true) : digits(vec), exponent(vec.size()), positive(pos) {};
 
             /**
              * @brief *Copy constructor:* It constructs a new boost::real::exact_number that is a copy of the
@@ -631,7 +631,7 @@ namespace boost {
              *
              * @param other - The boost::real::exact_number to copy.
              */
-            exact_number(const exact_number &other) = default;
+            exact_number<T>(const exact_number<T> &other) = default;
 
             /// TODO: move ctor
 
@@ -640,7 +640,7 @@ namespace boost {
              *
              * @param other - The boost::real::exact_number to copy.
              */
-            exact_number &operator=(const exact_number& other) = default;
+            exact_number<T> &operator=(const exact_number<T>& other) = default;
 
             /**
              * @brief *Lower comparator operator:* It compares the *this boost::real::exact_number with the other
@@ -649,9 +649,9 @@ namespace boost {
              * @param other - The right side operand boost::real::exact_number to compare with *this.
              * @return a bool that is true if and only if *this is lower than other.
              */
-            bool operator<(const exact_number& other) const {
-                std::vector<int> zero = {0};
-                std::vector<int> empty = {};
+            bool operator<(const exact_number<T>& other) const {
+                std::vector<T> zero = {0};
+                std::vector<T> empty = {};
                 if (this->digits == zero || this->digits == empty) {
                     if (other.digits == zero || !other.positive || other.digits == empty)
                         return false;
@@ -688,9 +688,9 @@ namespace boost {
              * @param other - The right side operand boost::real::exact_number to compare with *this.
              * @return a bool that is true if and only if *this is greater than other.
              */
-            bool operator>(const exact_number& other) const {
-                std::vector<int> zero = {0};
-                std::vector<int> empty = {};
+            bool operator>(const exact_number<T>& other) const {
+                std::vector<T> zero = {0};
+                std::vector<T> empty = {};
                 if (this->digits == zero || this->digits == empty) {
                     if (other.digits == zero || other.positive || other.digits == empty)
                         return false;
@@ -727,22 +727,22 @@ namespace boost {
              * @param other - The right side operand boost::real::exact_number to compare with *this.
              * @return a bool that is true if and only if *this is equal to other.
              */
-            bool operator==(const exact_number& other) const {
+            bool operator==(const exact_number<T>& other) const {
                 return !(*this < other || other < *this);
             }
 
-            bool operator!=(const exact_number& other) const {
+            bool operator!=(const exact_number<T>& other) const {
                 return !(*this == other);
             }
 
-            exact_number abs() {
-                exact_number result = (*this);
+            exact_number<T> abs() {
+                exact_number<T> result = (*this);
                 result.positive = true;
                 return result;
             }
 
-            exact_number operator+(exact_number other) {
-                exact_number result;
+            exact_number<T> operator+(exact_number<T> other) {
+                exact_number<T> result;
 
                 if (this->positive == other.positive) {
                         result = *this;
@@ -760,12 +760,12 @@ namespace boost {
                 return result;
             }
 
-            void operator+=(exact_number &other) {
+            void operator+=(exact_number<T> &other) {
                 *this = *this + other;
             }
 
-            exact_number base10_add (exact_number other) {
-                exact_number result;
+            exact_number<T> base10_add (exact_number<T> other) {
+                exact_number<T> result;
 
                 if (positive == other.positive) {
                         result = *this;
@@ -783,8 +783,8 @@ namespace boost {
                 return result;
             }
 
-            exact_number operator-(exact_number other) {
-                exact_number result;
+            exact_number<T> operator-(exact_number<T> other) {
+                exact_number<T> result;
 
                 if (this->positive != other.positive) {
                     result = *this;
@@ -805,12 +805,12 @@ namespace boost {
                 return result;
             }
 
-            void operator-=(exact_number &other) {
+            void operator-=(exact_number<T> &other) {
                 *this = *this - other;
             }
 
-            exact_number base10_subtract(exact_number other) {
-                exact_number result;
+            exact_number<T> base10_subtract(exact_number<T> other) {
+                exact_number<T> result;
 
                 if (this->positive != other.positive) {
                     result = *this;
@@ -831,19 +831,19 @@ namespace boost {
                 return result;
             }
 
-            exact_number operator*(exact_number other) {
-                exact_number result = *this;
+            exact_number<T> operator*(exact_number<T> other) {
+                exact_number<T> result = *this;
                 result.multiply_vector(other);
                 result.positive = (this->positive == other.positive);
                 return result;
             }
 
-            void operator*=(exact_number &other) {
+            void operator*=(exact_number<T> &other) {
                 *this = *this * other;
             }
 
-            exact_number base10_mult(exact_number other) {
-                exact_number result = *this;
+            exact_number<T> base10_mult(exact_number<T> other) {
+                exact_number<T> result = *this;
                 result.multiply_vector(other, 10);
                 result.positive = (this->positive == other.positive);
                 return result;
@@ -856,7 +856,7 @@ namespace boost {
              */
             std::string as_string() const {
                 std::string result = "";   
-                exact_number tmp;         
+                exact_number<T> tmp;         
 
                 // If the number is too large, scientific notation is used to print it.
                 /* @TODO add back later
@@ -945,7 +945,7 @@ namespace boost {
                         temp.push_back(j - '0');
                     }
                     //boost::real::helper::add_vectors(new_result, new_result.size(), temp, temp.size(), new_result, (T)9);
-                    tmp = (exact_number(new_result).base10_add(exact_number(temp)));
+                    tmp = (exact_number<T>(new_result).base10_add(exact_number<T>(temp)));
                     new_result = tmp.digits;
                     while (tmp.exponent - (int)tmp.digits.size() > 0) {
                         new_result.push_back(0);
@@ -958,7 +958,7 @@ namespace boost {
                             temp.push_back(tempstr[j] - '0'); 
                         }
                         //boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, (T)10);
-                        tmp = (exact_number(temp).base10_mult(exact_number(base)));
+                        tmp = (exact_number<T>(temp).base10_mult(exact_number<T>(base)));
                         temp = tmp.digits;
                         while (tmp.exponent - (int)tmp.digits.size() > 0) {
                             temp.push_back(0);
@@ -982,7 +982,7 @@ namespace boost {
                 std::vector<std::vector<T>> powers = {base};
                 for (size_t i = 0; i<decimal.size(); ++i) {
                     //boost::real::helper::multiply_vectors(new_base, new_base.size(), base, base.size(), new_base, (T)10);
-                    tmp = (exact_number(new_base).base10_mult(exact_number(base)));
+                    tmp = (exact_number<T>(new_base).base10_mult(exact_number<T>(base)));
                     new_base = tmp.digits;
                     while (tmp.exponent - (int)tmp.digits.size() > 0) {
                         new_base.push_back(0);
@@ -1013,7 +1013,7 @@ namespace boost {
                     //boost::real::helper::divide_vectors(temp, k, q);
                     tmp.long_divide_vectors(temp, k, q);
                     //boost::real::helper::add_vectors(fraction, fraction.size(), q, q.size(), fraction, (T)9);
-                    tmp = (exact_number(fraction).base10_add(exact_number(q)));
+                    tmp = (exact_number<T>(fraction).base10_add(exact_number<T>(q)));
                     fraction = tmp.digits;
                     while (tmp.exponent - (int)tmp.digits.size() > 0) {
                         fraction.push_back(0);
@@ -1037,7 +1037,7 @@ namespace boost {
              *
              * @param other - The boost::real::exact_number to swap with *this.
              */
-            void swap(exact_number &other) {
+            void swap(exact_number<T> &other) {
                 this->digits.swap(other.digits);
                 std::swap(this->exponent, other.exponent);
                 std::swap(this->positive, other.positive);
@@ -1049,7 +1049,7 @@ namespace boost {
              *
              * @param digit - The new digit to add.
              */
-            void push_back(int digit) {
+            void push_back(T digit) {
                 this->digits.push_back(digit);
             }
 
@@ -1059,7 +1059,7 @@ namespace boost {
              *
              * @param digit - The new digit to add.
              */
-            void push_front(int digit) {
+            void push_front(T digit) {
                 this->digits.insert(this->digits.cbegin(), digit);
             }
 
@@ -1108,7 +1108,7 @@ namespace boost {
              * @param n - an int number indicating the index of the requested digit.
              * @return an integer with the value of the number n-th digit.
              */
-            int &operator[](int n) {
+            T &operator[](int n) {
                 return this->digits[n];
             }
 

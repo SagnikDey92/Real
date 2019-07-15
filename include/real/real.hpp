@@ -165,7 +165,7 @@ namespace boost {
              *
              * @param digits - a initializer_list<int> that represents the number digits.
              */
-            real(std::initializer_list<int> digits)
+            real(std::initializer_list<T> digits)
                     : _real_p(std::make_shared<real_data<T>>(real_explicit<T>(digits, digits.size())))
                 {};
 
@@ -180,7 +180,7 @@ namespace boost {
              * @param positive - a bool that represents the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real(std::initializer_list<int> digits, bool positive)
+            real(std::initializer_list<T> digits, bool positive)
                     : _real_p(std::make_shared<real_data<T>>(real_explicit<T>(digits, digits.size(), positive)))
                     {};
 
@@ -193,7 +193,7 @@ namespace boost {
              * @param digits - an initializer_list<int> that represent the number digits.
              * @param exponent - an integer representing the number exponent.
              */
-            real(std::initializer_list<int> digits, int exponent)
+            real(std::initializer_list<T> digits, int exponent)
                     : _real_p(std::make_shared<real_data<T>>(real_explicit<T>(digits, exponent)))
                     {};
 
@@ -208,7 +208,7 @@ namespace boost {
              * @param positive - a bool that represent the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real(::std::initializer_list<int> digits, int exponent, bool positive)
+            real(::std::initializer_list<T> digits, int exponent, bool positive)
                     : _real_p(std::make_shared<real_data<T>>(real_explicit<T>(digits, exponent, positive)))
                     {};
 
@@ -222,7 +222,7 @@ namespace boost {
              * int "n" as parameter, it returns the number n-th digit.
              * @param exponent - an integer representing the number exponent.
              */
-            real(int (*get_nth_digit)(unsigned int), int exponent)
+            real(T (*get_nth_digit)(unsigned int), int exponent)
                     : _real_p(std::make_shared<real_data<T>>(real_algorithm<T>(get_nth_digit, exponent)))
                     {};
 
@@ -239,7 +239,7 @@ namespace boost {
              * @param positive - a bool that represent the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            real(int (*get_nth_digit)(unsigned int), int exponent, bool positive) 
+            real(T (*get_nth_digit)(unsigned int), int exponent, bool positive) 
                  : _real_p(::std::make_shared<real_data<T>>(real_algorithm<T>(get_nth_digit, exponent, positive))) {};
 
             // ctors from the 3 underlying types
@@ -286,8 +286,8 @@ namespace boost {
              *
              * @throws boost::real::invalid_representation_exception
              */
-            int operator[](unsigned int n) const {
-                int ret; 
+            T operator[](unsigned int n) const {
+                T ret; 
 
                 std::visit( overloaded { // perform operation on whatever is held in variant
                     [&n, &ret] (const real_explicit<T>& real)  { 

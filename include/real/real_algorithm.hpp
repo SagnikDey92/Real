@@ -65,7 +65,7 @@ namespace boost {
              * @param positive - a bool that represent the number sign. If positive is set to true,
              * the number is positive, otherwise is negative.
              */
-            explicit real_algorithm(int (*get_nth_digit)(unsigned int),
+            explicit real_algorithm(T (*get_nth_digit)(unsigned int),
                                     int exponent,
                                     bool positive)
                     : _get_nth_digit(get_nth_digit),
@@ -93,7 +93,7 @@ namespace boost {
              * @param n - an unsigned int number indicating the index of the requested digit.
              * @return an integer with the value of the number n-th digit.
              */
-            int operator[](unsigned int n) const { return this->_get_nth_digit(n); }
+            T operator[](unsigned int n) const { return this->_get_nth_digit(n); }
 
             /**
              * @brief It assign a new copy of the other boost::real::real_algorithm number in the *this boost::real::real_algorithm number.
