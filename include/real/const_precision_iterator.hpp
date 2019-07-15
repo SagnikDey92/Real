@@ -233,7 +233,7 @@ namespace boost {
                  *
                  * @return a boost::real::const_precision_iterator of the number.
                  */
-                 const_precision_iterator cend() {
+                const_precision_iterator cend() {
                     this->iterate_n_times(this->max_precision() - _precision);
                     return *this;
                 }
