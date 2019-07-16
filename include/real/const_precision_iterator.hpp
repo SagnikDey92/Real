@@ -297,7 +297,7 @@ namespace boost {
                                // If the explicit number didn't reaches the full precision (the end)
                                // then the number interval is defined by truncation.
 
-                               for(int i = _precision; i < _precision + n; i++) {
+                               for(size_t i = _precision; i < _precision + n; i++) {
                                    this->_approximation_interval.lower_bound.push_back(real.digits()[i]);
                                }
 

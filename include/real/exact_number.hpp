@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <limits>
 #include <iterator>
@@ -199,7 +200,7 @@ namespace boost {
                 // in result.
                 auto i_n1 = (int) temp.size() - 1;
                 // Go from right to left in lhs
-                for (int i = (int)this->digits.size()-1; i>=0; i--) {
+                for (int i = (int)this->digits.size()-1; i >= 0; i--) {
                     T carry = 0;
 
                     // To shift position to left after every
@@ -211,7 +212,6 @@ namespace boost {
 
                         // Multiply current digit of second number with current digit of first number
                         // and add result to previously stored result at current position.
-                        unsigned long long int sum = this->digits[i]*other.digits[j] + temp[i_n1 - i_n2] + carry;
                         T rem = mulmod(this->digits[i], other.digits[j], base);
                         T rem_s;
                         T q = mult_div(this->digits[i], other.digits[j], base);
@@ -265,7 +265,7 @@ namespace boost {
                 exact_number<T> tmp;
                 std::vector<T> aligned_dividend = dividend;
                 std::vector<T> aligned_divisor = divisor;
-                int idx = 0;
+                size_t idx = 0;
                 while(idx < aligned_dividend.size() && aligned_dividend[idx] == 0)
                     idx++;
                 aligned_dividend.erase(aligned_dividend.begin(), aligned_dividend.begin() + idx);
@@ -311,7 +311,7 @@ namespace boost {
                             closest.push_back(0);
                             tmp.exponent--;
                         }
-                        int idx = 0;
+                        size_t idx = 0;
                         while(idx < closest.size() && closest[idx]==0) 
                             ++idx;
                         closest.erase(closest.begin(), closest.begin() + idx);
@@ -346,7 +346,7 @@ namespace boost {
                         residual.push_back(0);
                         tmp.exponent--;
                     }
-                    int idx = 0;
+                    size_t idx = 0;
                     while(idx < residual.size() && residual[idx]==0) 
                         ++idx;
                     residual.erase(residual.begin(), residual.begin() + idx);
@@ -777,7 +777,7 @@ namespace boost {
                         result.positive = this->positive;
                 } else {
                     result = other;
-                    result.subtract_vector(*this), 9;
+                    result.subtract_vector((*this), 9);
                     result.positive = !this->positive;
                 }
                 return result;
@@ -951,10 +951,10 @@ namespace boost {
                         new_result.push_back(0);
                         tmp.exponent--;
                     }
-                    for (int i = 0; i<integer.size(); ++i) {
+                    for (size_t i = 0; i < integer.size(); ++i) {
                         std::vector<T> temp;
                         std::string tempstr = integer[i];
-                        for (int j = 0; j<tempstr.length(); ++j) {
+                        for (size_t j = 0; j < tempstr.length(); ++j) {
                             temp.push_back(tempstr[j] - '0'); 
                         }
                         //boost::real::helper::multiply_vectors(temp, temp.size(), base, base.size(), temp, (T)10);
@@ -964,7 +964,7 @@ namespace boost {
                             temp.push_back(0);
                             tmp.exponent--;
                         }
-                        int idx = 0;
+                        size_t idx = 0;
                         while(idx < temp.size() && temp[idx]==0) 
                             ++idx;
                         temp.erase(temp.begin(), temp.begin() + idx);
@@ -988,7 +988,7 @@ namespace boost {
                         new_base.push_back(0);
                         tmp.exponent--;
                     }
-                    int idx = 0;
+                    size_t idx = 0;
                     while(idx < new_base.size() && new_base[idx]==0) 
                         ++idx;
                     new_base.erase(new_base.begin(), new_base.begin() + idx);
@@ -1005,7 +1005,7 @@ namespace boost {
                     decimal.pop_back();
                     tempstr = tempstr + zeroes;
                     std::vector<T> temp;
-                    for (int j = 0; j<tempstr.length(); ++j) {
+                    for (size_t j = 0; j<tempstr.length(); ++j) {
                         temp.push_back(tempstr[j] - '0'); 
                     }
                     std::vector<T> k = *pwr++;
