@@ -28,7 +28,7 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
                     expected_interval.upper_bound.exponent = approximation_it.get_interval().upper_bound.exponent;
                     expected_interval.upper_bound.positive = approximation_it.get_interval().upper_bound.positive;
 
-                    for (int i = 0; i < 11; i++) {
+                    for (size_t i = 0; i < 11; i++) {
                         expected_interval.upper_bound.clear();
                         for (auto d : expected_interval.lower_bound.digits) {
                             expected_interval.upper_bound.push_back(d);
@@ -60,7 +60,7 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
             expected_interval.upper_bound.exponent = approximation_it.get_interval().upper_bound.exponent;
             expected_interval.upper_bound.positive = approximation_it.get_interval().upper_bound.positive;
             expected_interval.upper_bound.push_back(2);
-            for (int i = 0; i < 11; i++) {
+            for (size_t i = 0; i < 11; i++) {
 
                 if (i < std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size()) {
                     expected_interval.lower_bound.push_back(a[i]);
@@ -104,7 +104,7 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
                     expected_interval.upper_bound.positive = approximation_it.get_interval().lower_bound.positive;
 
                     // Boundaries are mirrored
-                    for (int i = 0; i < 11; i++) {
+                    for (size_t i = 0; i < 11; i++) {
                         expected_interval.lower_bound.clear();
                         for (auto d : expected_interval.upper_bound.digits) {
                             expected_interval.lower_bound.push_back(d);
@@ -136,7 +136,7 @@ TEST_CASE("Iterate boost::real_explicit::const_precision_iterator until full pre
             expected_interval.upper_bound.positive = approximation_it.get_interval().upper_bound.positive;
 
             expected_interval.lower_bound.push_back(2);
-            for (int i = 0; i < 11; i++) {
+            for (size_t i = 0; i < 11; i++) {
 
                 if (i < std::get<boost::real::real_explicit<>>(a.get_real_number()).digits().size()) {
                     expected_interval.upper_bound.push_back(a[i]);
