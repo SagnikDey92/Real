@@ -1186,6 +1186,26 @@ namespace boost {
                 return this->digits.size();
             }
 
+            /// returns an exact_number that has the precision given
+            exact_number up_to(size_t precision, bool upper) {
+                if (precision >= digits.size())
+                    return *this;
+
+                exact_number ret = *this;
+                ret.digits = std::vector(digits.begin(), digits.begin() + precision);
+
+                bool round = (precision < digits.size());
+                if (round) {
+                    if(upper) {
+                        ret.round_up();
+                    } else {
+                        ret.round_down();
+                    }
+                }
+
+                return ret;
+            }
+
             bool is_integral() { 
                 if (exponent < 0)
                     return false;
