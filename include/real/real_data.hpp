@@ -44,6 +44,7 @@ namespace boost {
         };
 
         // Now that real_data and const_precision_iterator have been defined, we may now define the following.
+        // Note these are all inline to avoid linker issues.
 
         /* const_precision_iterator member functions */
         /// determines a real_operation's approximation interval from its operands'

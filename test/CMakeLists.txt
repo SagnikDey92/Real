@@ -1,4 +1,4 @@
- FILE(GLOB TestSources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *_test.cpp)
+FILE(GLOB TestSources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *_test.cpp)
 
 foreach(testSrc ${TestSources})
     get_filename_component(testName ${testSrc} NAME_WE)
