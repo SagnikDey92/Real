@@ -111,8 +111,8 @@ namespace boost {
                 this->normalize();
             }
 
-            /// multiplies *this by other
-            void multiply_vector(exact_number &other) {
+            /// multiplies *this by other. Kept Karatsuba multiplication by default for testing. Default k to false later.
+            void multiply_vector(exact_number &other, bool k = true) {
                 // will keep the result number in vector in reverse order
                 // Digits: .123 | Exponent: -3 | .000123 <--- Number size is the Digits size less the exponent
                 // Digits: .123 | Exponent: 2  | 12.3
@@ -121,45 +121,49 @@ namespace boost {
                 if (this->exponent < 0) new_size -= this->exponent; // <--- Less the exponent
                 if (other.exponent < 0) new_size -= other.exponent; // <--- Less the exponent
 
-                for (int i = 0; i < (int)new_size; i++) temp.push_back(0);
-                // TODO: Check why the assign method crashes.
-                //result.assign(new_size, 0);
+                if (k)
+                    temp = karatsuba_multiply(digits, other.digits);
+                else {                
+                    for (int i = 0; i < (int)new_size; i++) temp.push_back(0);
+                    // TODO: Check why the assign method crashes.
+                    //result.assign(new_size, 0);
 
-                // Below two indexes are used to find positions
-                // in result.
-                auto i_n1 = (int) temp.size() - 1;
-                // Go from right to left in digits
-                for (int i = (int)digits.size()-1; i>=0; i--) {
-                    int carry = 0;
+                    // Below two indexes are used to find positions
+                    // in result.
+                    auto i_n1 = (int) temp.size() - 1;
+                    // Go from right to left in digits
+                    for (int i = (int)digits.size()-1; i>=0; i--) {
+                        int carry = 0;
 
-                    // To shift position to left after every
-                    // multiplication of a digit in rhs
-                    int i_n2 = 0;
+                        // To shift position to left after every
+                        // multiplication of a digit in rhs
+                        int i_n2 = 0;
 
-                    // Go from right to left in rhs
-                    for (int j = (int)other.digits.size()-1; j>=0; j--) {
+                        // Go from right to left in rhs
+                        for (int j = (int)other.digits.size()-1; j>=0; j--) {
 
-                        // Multiply current digit of second number with current digit of first number
-                        // and add result to previously stored result at current position.
-                        int sum = digits[i]*other.digits[j] + temp[i_n1 - i_n2] + carry;
+                            // Multiply current digit of second number with current digit of first number
+                            // and add result to previously stored result at current position.
+                            int sum = digits[i]*other.digits[j] + temp[i_n1 - i_n2] + carry;
 
-                        // Carry for next iteration
-                        carry = sum / 10;
+                            // Carry for next iteration
+                            carry = sum / 10;
 
-                        // Store result
-                        temp[i_n1 - i_n2] = sum % 10;
+                            // Store result
+                            temp[i_n1 - i_n2] = sum % 10;
 
-                        i_n2++;
+                            i_n2++;
+                        }
+
+                        // store carry in next cell
+                        if (carry > 0) {
+                            temp[i_n1 - i_n2] += carry;
+                        }
+
+                        // To shift position to left after every
+                        // multiplication of a digit in digits.
+                        i_n1--;
                     }
-
-                    // store carry in next cell
-                    if (carry > 0) {
-                        temp[i_n1 - i_n2] += carry;
-                    }
-
-                    // To shift position to left after every
-                    // multiplication of a digit in digits.
-                    i_n1--;
                 }
 
                 int fractional_part = ((int)digits.size() - this->exponent) + ((int)other.digits.size() - other.exponent);
@@ -170,6 +174,152 @@ namespace boost {
                 this->positive = this->positive == other.positive;
                 this->normalize();
             }
+            
+            //Adding Karatsuba Multiplication
+            std::vector<int> karatsuba_multiply(std::vector<int> lhs, std::vector<int> rhs) {
+                int length = std::max(lhs.size(), rhs.size());
+                std::vector<int> result;
+
+                while(lhs.size() < length) {
+                    lhs.insert(lhs.begin(), 0);
+                }
+                while(rhs.size() < length) {
+                    rhs.insert(rhs.begin(), 0);
+                }
+
+                if(length == 1) {
+                    int res = lhs[0]*rhs[0];
+                    if(res >= 10) {
+                        result.push_back(res/10);
+                        result.push_back(res%10);
+                        return result;
+                    } else {
+                        result.push_back(res);
+                        return result;
+                    }
+                }
+
+                std::vector<int>::const_iterator first0 = lhs.begin();
+                std::vector<int>::const_iterator last0 = lhs.begin() + (length/2);
+                std::vector<int> lhs0(first0, last0);
+                std::vector<int>::const_iterator first1 = lhs.begin() + (length/2);
+                std::vector<int>::const_iterator last1 = lhs.begin() + ((length/2) + (length-length/2));
+                std::vector<int> lhs1(first1, last1);
+                std::vector<int>::const_iterator first2 = rhs.begin();
+                std::vector<int>::const_iterator last2 = rhs.begin() + (length/2);
+                std::vector<int> rhs0(first2, last2);
+                std::vector<int>::const_iterator first3 = rhs.begin() + (length/2);
+                std::vector<int>::const_iterator last3 = rhs.begin() + ((length/2) + (length-length/2));
+                std::vector<int> rhs1(first3, last3);
+
+                std::vector<int> p0 = karatsuba_multiply(lhs0, rhs0);
+                std::vector<int> p1 = karatsuba_multiply(lhs1,rhs1);
+                exact_number tmp = exact_number(lhs0) + exact_number(lhs1);
+                std::vector<int> vec1 = tmp.digits;
+                while (tmp.exponent>tmp.digits.size()) {
+                    vec1.push_back(0);
+                    --tmp.exponent;
+                }
+                tmp = exact_number(rhs0) + exact_number(rhs1);
+                std::vector<int> vec2 = tmp.digits;
+                while (tmp.exponent>tmp.digits.size()) {
+                    vec2.push_back(0);
+                    --tmp.exponent;
+                }
+                std::vector<int> p2 = karatsuba_multiply(vec1, vec2);
+                tmp = exact_number(p0) + exact_number(p1);
+                vec1 = tmp.digits;
+                while (tmp.exponent>tmp.digits.size()) {
+                    vec1.push_back(0);
+                    --tmp.exponent;
+                }
+                tmp = exact_number(p2) - exact_number(vec1);
+                vec2 = tmp.digits;
+                while (tmp.exponent>tmp.digits.size()) {
+                    vec2.push_back(0);
+                    --tmp.exponent;
+                }
+                std::vector<int> p3 = vec2;
+
+                for(int i = 0; i < 2*(length-length/2); i++) {
+                    p0.push_back(0);
+                }
+                for(int i = 0; i < (length-length/2); i++) {
+                    p3.push_back(0);
+                }
+                tmp = exact_number(p0) + exact_number(p1);
+                vec1 = tmp.digits;
+                while (tmp.exponent>tmp.digits.size()) {
+                    vec1.push_back(0);
+                    --tmp.exponent;
+                }
+                tmp = exact_number(p3) + exact_number(vec1);
+                vec2 = tmp.digits;
+                while (tmp.exponent>tmp.digits.size()) {
+                    vec2.push_back(0);
+                    --tmp.exponent;
+                }
+                return vec2;
+            }
+
+            /**
+             * @brief Generates a string representation of the boost::real::exact_number.
+             *
+             * @return a string that represents the state of the boost::real::exact_number
+             */
+            std::basic_string<char> as_string() const {
+                std::basic_string<char> result = "";
+
+                if (!this->positive) {
+                    result = "-";
+                }
+
+                // If the number is too large, scientific notation is used to print it.
+                if ((this->exponent < -10) || (this->exponent > (int)this->digits.size() + 10)) {
+                    result += "0.";
+
+                    for (const auto& d: this->digits) {
+                        result += std::to_string(d);
+                    }
+
+                    result += "e" + std::to_string(this->exponent);
+                    return result;
+                }
+
+                if (this->exponent <= 0) {
+                    result += "0.";
+
+                    for (int i = this->exponent; i < (int) this->digits.size(); ++i) {
+                        if (i < 0) {
+                            result += "0";
+                        } else {
+                            result += std::to_string(this->digits[i]);
+                        }
+                    }
+                } else {
+
+                    int digit_amount = std::max(this->exponent, (int) this->digits.size());
+                    for (int i = 0; i < digit_amount; ++i) {
+
+                        if (i == this->exponent) {
+                            result += ".";
+                        }
+
+                        if (i < (int) this->digits.size()) {
+                            result += std::to_string(this->digits[i]);
+                        } else {
+                            result += "0";
+                        }
+                    }
+
+                    if (result.back() == '.') {
+                        result.pop_back();
+                    }
+                }
+
+
+                return result;
+            }
 
             /**
              * @brief *default constructor*: It constructs a representation of the number zero.
@@ -178,6 +328,8 @@ namespace boost {
 
             /// ctor from vector of digits, integer exponent, and optional bool positive
             exact_number(std::vector<int> vec, int exp, bool pos = true) : digits(vec), exponent(exp), positive(pos) {};
+
+            exact_number(std::vector<int> vec, bool pos = true) : digits(vec), exponent(vec.size()), positive(pos) {};
 
             /**
              * @brief *Copy constructor:* It constructs a new boost::real::exact_number that is a copy of the
@@ -338,62 +490,9 @@ namespace boost {
                 *this = *this * other;
             }
 
-            /**
-             * @brief Generates a string representation of the boost::real::exact_number.
-             *
-             * @return a string that represents the state of the boost::real::exact_number
-             */
-            std::basic_string<char> as_string() const {
-                std::basic_string<char> result = "";
-
-                if (!this->positive) {
-                    result = "-";
-                }
-
-                // If the number is too large, scientific notation is used to print it.
-                if ((this->exponent < -10) || (this->exponent > (int)this->digits.size() + 10)) {
-                    result += "0.";
-
-                    for (const auto& d: this->digits) {
-                        result += std::to_string(d);
-                    }
-
-                    result += "e" + std::to_string(this->exponent);
-                    return result;
-                }
-
-                if (this->exponent <= 0) {
-                    result += "0.";
-
-                    for (int i = this->exponent; i < (int) this->digits.size(); ++i) {
-                        if (i < 0) {
-                            result += "0";
-                        } else {
-                            result += std::to_string(this->digits[i]);
-                        }
-                    }
-                } else {
-
-                    int digit_amount = std::max(this->exponent, (int) this->digits.size());
-                    for (int i = 0; i < digit_amount; ++i) {
-
-                        if (i == this->exponent) {
-                            result += ".";
-                        }
-
-                        if (i < (int) this->digits.size()) {
-                            result += std::to_string(this->digits[i]);
-                        } else {
-                            result += "0";
-                        }
-                    }
-
-                    if (result.back() == '.') {
-                        result.pop_back();
-                    }
-                }
-
-
+            exact_number k_multiply(exact_number other) {
+                exact_number result = *this;
+                result.multiply_vector(other, true);
                 return result;
             }
 
