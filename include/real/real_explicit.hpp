@@ -270,8 +270,8 @@ namespace boost {
             const std::string as_string() const {
                 return explicit_number.as_string();
             }
-            
-            exact_number get_exact_number() const {
+
+            exact_number<T> get_exact_number() const {
                 return explicit_number;
             }
 

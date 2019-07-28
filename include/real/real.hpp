@@ -310,6 +310,190 @@ namespace boost {
 
             /// @TODO: do we need different ctors to be more efficient? rvalue AND lvalue ref?
 
+            // a constant used in the print tree helper function
+            static const int PRINT_SPACE = 5;
+            // a helper function for observing the trees within a real
+            // note the tree is displayed with a left 90 degree rotation
+            // (i.e., root on the left, nodes on the next leftmost level)
+            void print_tree(int space = PRINT_SPACE) {
+                std::visit(overloaded {
+                    [space] (const real_explicit<T>& real)  { 
+                        for (int i = PRINT_SPACE; i < space; i++)
+                            std::cout << ' ';
+                        std::cout << real.get_exact_number().as_string() << '\n';
+                    },
+                    [space] (const real_algorithm<T>& real) {
+                        for (int i = PRINT_SPACE; i < space; i++)
+                            std::cout << ' ';
+                        std::cout << "alg\n";
+                    },
+                    [&space] (const real_operation<T>& real) {
+                        ((boost::real::real<T>) real.rhs()).print_tree(space + PRINT_SPACE);
+                        std::cout << '\n';
+
+                        for (int i = PRINT_SPACE; i < space; i++)
+                            std::cout << ' ';
+
+                        switch(real.get_operation()) {
+                            case OPERATION::ADDITION:
+                                std::cout << "+";
+                                break;
+                            case OPERATION::SUBTRACTION:
+                                std::cout << "-";
+                                break;
+                            case OPERATION::MULTIPLICATION:
+                                std::cout << "*";
+                                break;
+                            case OPERATION::DIVISION:
+                                std::cout << "/";
+                                break;
+                        }
+                        std::cout << '\n';
+
+                        ((boost::real::real<T>) real.lhs()).print_tree(space + PRINT_SPACE);
+                    },
+                    [] (auto& real) {
+                        throw boost::real::bad_variant_access_exception();
+                    }
+                }, _real_p->get_real_number());
+            }
+
+            // a helper function for distributing when performing addition/subtraction 
+            // the returned bool tells us whether we distributed or not, which is mostly useful when assign_and_return_void is true
+            // since std::optional<real> would = std::null_opt if assign_and_return_void is false.
+
+            std::pair<bool, std::optional<real>> check_and_distribute(real & other, bool assign_and_return_void, OPERATION op) {
+                // The following simplifies using the distributive property, when numbers have the same pointers.
+                // We could do comparison by value, but this may force more computation than is necessary for the user,
+                // since it's difficult to determine whether values are the same
+
+                std::shared_ptr<real_data<T>> a;
+                std::shared_ptr<real_data<T>> b;
+                std::shared_ptr<real_data<T>> x;
+
+                if(auto op_ptr = std::get_if<real_operation<T>>(this->_real_p->get_real_ptr())) {
+                    if (auto op_ptr2 = std::get_if<real_operation<T>>(other._real_p->get_real_ptr())) { // both of real_operation
+                        if ((op_ptr->get_operation() == OPERATION::MULTIPLICATION) && op_ptr2->get_operation() == OPERATION::MULTIPLICATION) {
+                            if (op_ptr->lhs() == op_ptr2->lhs()) { // x * a + x * b = (a + b) * x
+                                a = op_ptr->rhs();
+                                b = op_ptr2->rhs();
+                                x = op_ptr->lhs();
+
+                            } else if (op_ptr->lhs() == op_ptr2->rhs()) { // x * a + b * x = (a + b) * x
+                                a = op_ptr->rhs();
+                                b = op_ptr2->lhs();
+                                x = op_ptr->lhs();
+
+                            } else if (op_ptr->rhs() == op_ptr2->lhs()) { // a * x + x * b = (a + b) * x
+                                a = op_ptr->lhs();
+                                b = op_ptr2->rhs();
+                                x = op_ptr->rhs();
+
+                            } else if (op_ptr->rhs() == op_ptr2->rhs()) { // a * x + b * x = (a + b) * x
+                                a = op_ptr->lhs();
+                                b = op_ptr2->lhs();
+                                x = op_ptr->rhs();
+                            } else {
+                                return std::make_pair(false, std::nullopt);
+                            }
+
+                            real<T> a_op_b;
+                            if(op == OPERATION::ADDITION) {
+                                a_op_b = real(a) + real(b);
+                            }
+                            else if (op == OPERATION::SUBTRACTION) {
+                                a_op_b = real(a) + real(b);
+                            } else {
+                                throw invalid_distribution_operation_exception();
+                            }
+
+                            if(assign_and_return_void) {
+                                this->_real_p = std::make_shared<real_data<T>>(real_operation(a_op_b._real_p, x, OPERATION::MULTIPLICATION));
+                                return std::make_pair(true, std::nullopt);
+                            } else {
+                                return std::make_pair(true, real(real_operation(a_op_b._real_p, x, OPERATION::MULTIPLICATION)));
+                            }
+                        }
+                    } else { // rhs is not an operation
+                        if (op_ptr->get_operation() == OPERATION::MULTIPLICATION) { 
+                            if (other._real_p == op_ptr->lhs()) { // (a * x) + a -> (x + 1) * a
+                                a = op_ptr->lhs();
+                                x = op_ptr->rhs();
+
+                            } else if (other._real_p == op_ptr->rhs()) {// (x * a) + a -> (x + 1) * a
+                                a = op_ptr->rhs();
+                                x = op_ptr->lhs();
+                            } else {
+                                return std::make_pair(false, std::nullopt);
+                            }
+
+                            real<T> one ("1");
+                            real<T> x_op_1;
+                            if(op == OPERATION::ADDITION) {
+                                x_op_1 = real(x) + one; 
+                            }
+                            else if (op == OPERATION::SUBTRACTION) {
+                                x_op_1 = real(x) + one;
+                            } else {
+                                throw invalid_distribution_operation_exception();
+                            }
+                            
+                            if(assign_and_return_void) {
+                                this->_real_p = std::make_shared<real_data<T>>(real_operation(x_op_1._real_p, a, OPERATION::MULTIPLICATION));
+                                return std::make_pair(true, std::nullopt);
+                            } else {
+                                return std::make_pair(true, real(real_operation(x_op_1._real_p, a, OPERATION::MULTIPLICATION)));
+                            }
+                        } 
+                    }
+                } else if(auto op_ptr = std::get_if<real_operation<T>>(&other._real_p->get_real_number())) { // lhs is not an operation, but rhs is
+                    if (op_ptr->get_operation() == OPERATION::MULTIPLICATION) {
+                        if (this->_real_p == op_ptr->lhs()) { // a + (a * x) -> (x + 1) * a
+                            a = this->_real_p;
+                            x = op_ptr->rhs();
+
+                        } else if (this->_real_p == op_ptr->rhs()) {// a + (x * a) -> (x + 1) * a
+                            a = this->_real_p;
+                            x = op_ptr->lhs();
+                        } else {
+                            return std::make_pair(false, std::nullopt);
+                        }
+
+                        real<T> x_op_1;
+                        real<T> one ("1");
+                        if(op == OPERATION::ADDITION) {
+                            x_op_1 = real(x) + one;
+                        }
+                        else if (op == OPERATION::SUBTRACTION) {
+                            x_op_1 = real(x) + one;
+                        } else {
+                            throw invalid_distribution_operation_exception();
+                        }
+
+                        if(assign_and_return_void) {
+                            this->_real_p = std::make_shared<real_data<T>>(real_operation(x_op_1._real_p, a, OPERATION::MULTIPLICATION));
+                            return std::make_pair(true, std::nullopt);
+                        } else {
+                            return std::make_pair(true, real(real_operation(x_op_1._real_p, a, OPERATION::MULTIPLICATION)));
+                        }
+                    }
+                } else { // neither is an operation
+                    if ((this->_real_p == other._real_p) && (op == OPERATION::ADDITION)) { // a + a = 2 * a
+                        std::shared_ptr<real_data<T>> two = std::make_shared<real_data<T>>(real_explicit("2"));
+
+                        if(assign_and_return_void) {
+                            this->_real_p = std::make_shared<real_data<T>>(real_operation(two, this->_real_p, OPERATION::MULTIPLICATION));
+                            return std::make_pair(true, std::nullopt);
+                        } else {
+                            return std::make_pair(true, real(real_operation(two, this->_real_p, OPERATION::MULTIPLICATION)));
+                        }
+                    } 
+                } 
+
+                // at this point, we cannot distribute.
+                return std::make_pair(false, std::nullopt);
+            }
+
             /**
              * @brief Sets this real_data to that of the operation between this previous
              * real_data and other real_data.
@@ -318,6 +502,7 @@ namespace boost {
              *
              * @param other - the right side operand boost::real::real number.
              */
+
             void operator+=(real other) {
                 // do not want to overwrite *this->_real_p if others are pointing to it
                 // if others are pointing to it, point to a copy in newly allocated memory, then create operation 
@@ -415,33 +600,8 @@ namespace boost {
              * @param other - the right side operand boost::real::real number.
              */
             void operator/=(real other) {
-                if(this->_real_p.use_count() > 1) {
-                    this->_real_p = std::make_shared<real_data>(real_data(*this->_real_p));
-                }
                 this->_real_p = 
                     std::make_shared<real_data>(real_operation(this->_real_p, other._real_p, OPERATION::DIVISION));
-            }
-
-            /**
-             * @brief Sets this real_data to that of the operation between 
-             * this previous real_data and other real_data.
-             *
-             * @param other - the right side operand boost::real::real number.
-             */
-            void operator/=(real other) {
-                this->_real_p = 
-                    std::make_shared<real_data>(real_operation(this->_real_p, other._real_p, OPERATION::DIVISION));
-            }
-
-            /**
-             * @brief Creates a new boost::real::real representing the product
-             * of *this and other
-             *
-             * @param other - the right side operand boost::real::real number.
-             * @return A copy of the new boost::real::real number representation.
-             */
-            real operator/(real other) {
-                return real(real_operation(this->_real_p, other._real_p, OPERATION::DIVISION));
             }
 
             /**

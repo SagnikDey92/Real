@@ -51,11 +51,11 @@ namespace boost{
             const_precision_iterator<T>& get_rhs_itr();
 
 
-            std::shared_ptr<real_data> rhs() const {
+            std::shared_ptr<real_data<T>> rhs() const {
                 return _rhs;
             }
 
-            std::shared_ptr<real_data> lhs() const {
+            std::shared_ptr<real_data<T>> lhs() const {
                 return _lhs;
             }
         };
