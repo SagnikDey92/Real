@@ -38,6 +38,10 @@ namespace boost {
                 return _real;
             }
 
+            real_number<T> const * get_real_ptr() const {
+                return &_real;
+            }
+
             const_precision_iterator<T>& get_precision_itr() {
                 return _precision_itr;
             }
@@ -294,11 +298,13 @@ namespace boost {
             void const_precision_iterator<T>::operation_iterate_n_times(real_operation<T> &ro, int n) {
             /// @warning there could be issues if operands have different precisions/max precisions
 
-            if (ro.get_lhs_itr()._precision < this->_precision + n)
+            if (ro.get_lhs_itr()._precision < this->_precision + n) {
                 ro.get_lhs_itr().iterate_n_times(n);
+            }
             
-            if (ro.get_rhs_itr()._precision < this->_precision + n)
+            if (ro.get_rhs_itr()._precision < this->_precision + n) {
                 ro.get_rhs_itr().iterate_n_times(n);
+            }
 
             this->_precision += n;
 

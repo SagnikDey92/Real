@@ -34,8 +34,6 @@ namespace boost {
         template <typename T>
         using real_number = std::variant<std::monostate, real_explicit<T>, real_algorithm<T>, real_operation<T>>;
 
-        template <typename T>
-        using real_number = std::variant<std::monostate, real_explicit<T>, real_algorithm<T>, real_operation<T>>;
         /// the default max precision to use if the user hasn't provided one.
         const size_t DEFAULT_MAX_PRECISION = 10;
 
@@ -287,7 +285,6 @@ namespace boost {
                                    this->_approximation_interval.lower_bound.push_back(real.digits()[i]);
                                }
                                this->_approximation_interval.upper_bound = this->_approximation_interval.lower_bound;
-
 
                            } else {
 

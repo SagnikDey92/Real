@@ -40,7 +40,7 @@ namespace boost{
              */
             real_operation(std::shared_ptr<real_data<T>> &lhs, std::shared_ptr<real_data<T>> &rhs, OPERATION op) : _lhs(lhs), _rhs(rhs), _operation(op) {};
 
-            OPERATION get_operation() {
+            OPERATION get_operation() const {
                 return _operation;
             }
 
@@ -49,6 +49,15 @@ namespace boost{
             
             /// fwd decl'd, defined in real_data
             const_precision_iterator<T>& get_rhs_itr();
+
+
+            std::shared_ptr<real_data> rhs() const {
+                return _rhs;
+            }
+
+            std::shared_ptr<real_data> lhs() const {
+                return _lhs;
+            }
         };
     }
 }

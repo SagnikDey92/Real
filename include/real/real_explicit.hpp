@@ -270,6 +270,10 @@ namespace boost {
             const std::string as_string() const {
                 return explicit_number.as_string();
             }
+            
+            exact_number get_exact_number() const {
+                return explicit_number;
+            }
 
             /**
              * @brief Constructs a new boost::real::real_explicit::const_precision_iterator that iterates the number
@@ -300,6 +304,8 @@ namespace boost {
              * @return a reference of *this with the new represented number.
              */
             real_explicit& operator=(const real_explicit& other) = default;
+
+            
         };
     }
 }
