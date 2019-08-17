@@ -228,7 +228,7 @@ namespace boost {
 
                     this->_approximation_interval.upper_bound = quotient;
 
-                    if (residual.abs() > zero) {
+                    if (residual != zero) {
                         this->_approximation_interval.upper_bound.round_up(base);
                     }
                     // if both operands are numbers (not intervals), then we can skip doing the lower bound separately
